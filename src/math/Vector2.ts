@@ -4,8 +4,12 @@ import { clamp, lerp } from '~/utils';
 
 class Vector2 extends Vector {
 
-    constructor(public x: number, public y: number) {
-        super();
+    static cross(v0: Vector2, v1: Vector2) {
+        return v0.cross(v1);
+    }
+
+    constructor(x?: number, y?: number) {
+        super(x, y);
     }
 
     clone() {
@@ -14,18 +18,6 @@ class Vector2 extends Vector {
 
     set(x: number, y: number) {
         this.x = x;
-        this.y = y;
-
-        return this;
-    }
-
-    setX(x: number) {
-        this.x = x;
-
-        return this;
-    }
-
-    setY(y: number) {
         this.y = y;
 
         return this;
@@ -64,10 +56,10 @@ class Vector2 extends Vector {
         );
     }
 
-    lerp(v0: Vector2, value: number) {
+    lerp(v0: Vector2, ratio: number) {
         return this.set(
-            lerp(this.x, v0.x, value),
-            lerp(this.y, v0.y, value),
+            lerp(this.x, v0.x, ratio),
+            lerp(this.y, v0.y, ratio),
         );
     }
 
@@ -93,22 +85,8 @@ class Vector2 extends Vector {
         return dx * dx + dy * dy;
     }
 
-    distanceTo(v0: Vector2) {
-        return Math.sqrt(this.distanceToSquared(v0));
-    }
-
-    angleBetween(v0: Vector2) {
-        const cosAlpha = this.dot(v0) / (this.length * v0.length);
-
-        return Math.acos(clamp(cosAlpha, -1, 1));
-    }
-
     equals(v0: Vector2, tolerance = 0) {
         return Math.abs(this.x - v0.x) <= tolerance && Math.abs(this.y - v0.y) <= tolerance;
-    }
-
-    notEquals(v0: Vector2, tolerance = 0) {
-        return !this.equals(v0, tolerance);
     }
 
     toArray() {
