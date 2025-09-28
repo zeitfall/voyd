@@ -1,20 +1,17 @@
 import Vector from './Vector';
 
-import { clamp, lerp } from '~/utils';
-
 class Vector4 extends Vector {
 
-    constructor(
-        x?: number,
-        y?: number,
-        public z = 0,
-        public w = 0
-    ) {
-        super(x, y);
+    constructor(public x = 0, public y = 0, public z = 0, public w = 0) {
+        super();
     }
 
     clone() {
         return new Vector4(this.x, this.y, this.z, this.w);
+    }
+
+    copy(vector: Vector4) {
+        return this.set(vector.x, vector.y, vector.z, vector.w);
     }
 
     set(x: number, y: number, z: number, w: number) {
@@ -22,6 +19,18 @@ class Vector4 extends Vector {
         this.y = y;
         this.z = z;
         this.w = w;
+        
+        return this;
+    }
+
+    setX(x: number) {
+        this.x = x;
+        
+        return this;
+    }
+
+    setY(y: number) {
+        this.y = y;
 
         return this;
     }
@@ -34,89 +43,66 @@ class Vector4 extends Vector {
 
     setW(w: number) {
         this.w = w;
-        
-        return this;
-    }
-
-    copy(v0: Vector4) {
-        return this.set(v0.x, v0.y, v0.z, v0.w);
-    }
-
-    add(v0: Vector4) {
-        return this.set(this.x + v0.x, this.y + v0.y, this.z + v0.z, this.w + v0.w);
-    }
-
-    subtract(v0: Vector4) {
-        return this.set(this.x - v0.x, this.y - v0.y, this.z - v0.z, this.w - v0.w);
-    }
-
-    min(v0: Vector4) {
-        return this.set(
-            Math.min(this.x, v0.x),
-            Math.min(this.y, v0.y),
-            Math.min(this.z, v0.z),
-            Math.min(this.w, v0.w),
-        );
-    }
-
-    max(v0: Vector4) {
-        return this.set(
-            Math.max(this.x, v0.x),
-            Math.max(this.y, v0.y),
-            Math.max(this.z, v0.z),
-            Math.max(this.w, v0.w),
-        );
-    }
-
-    clamp(v0: Vector4, v1: Vector4) {
-        return this.set(
-            clamp(this.x, v0.x, v1.x),
-            clamp(this.y, v0.y, v1.y),
-            clamp(this.z, v0.z, v1.z),
-            clamp(this.w, v0.w, v1.w),
-        );
-    }
-
-    lerp(v0: Vector4, ratio: number) {
-        return this.set(
-            lerp(this.x, v0.x, ratio),
-            lerp(this.y, v0.y, ratio),
-            lerp(this.z, v0.z, ratio),
-            lerp(this.w, v0.w, ratio),
-        );
-    }
-
-    scale(sx: number, sy?: number, sz?: number, sw?: number) {
-        this.x *= sx;
-        this.y *= sy ?? sx;
-        this.z *= sz ?? sx;
-        this.w *= sw ?? sx;
 
         return this;
     }
 
-    dot(v0: Vector4) {
-        return this.x * v0.x + this.y * v0.y + this.z * v0.z + this.w * v0.w;
+    add(vector: Vector4) {
+        this.x += vector.x;
+        this.y += vector.y;
+        this.z += vector.z;
+        this.w += vector.w;
+
+        return this;
     }
 
-    distanceToSquared(v0: Vector4) {
-        const dx = this.x - v0.x;
-        const dy = this.y - v0.y;
-        const dz = this.z - v0.z;
-        const dw = this.w - v0.w;
+    subtract(vector: Vector4) {
+        this.x -= vector.x;
+        this.y -= vector.y;
+        this.z -= vector.z;
+        this.w -= vector.w;
+
+        return this;
+    }
+
+    scale(scaleX: number, scaleY?: number, scaleZ?: number, scaleW?: number) {
+        this.x *= scaleX;
+        this.y *= scaleY ?? scaleX;
+        this.z *= scaleZ ?? scaleY ?? scaleX;
+        this.w *= scaleW ?? scaleZ ?? scaleY ?? scaleX;
+
+        return this;
+    }
+
+    dot(vector: Vector4) {
+        return this.x * vector.x + this.y * vector.y + this.z * vector.z + this.w * vector.w;
+    }
+
+    distanceToSquared(vector: Vector4) {
+        const dx = vector.x - this.x;
+        const dy = vector.y - this.y;
+        const dz = vector.z - this.z;
+        const dw = vector.w - this.w;
 
         return dx * dx + dy * dy + dz * dz + dw * dw;
     }
 
-    equals(v0: Vector4, tolerance = 0) {
-        return Math.abs(this.x - v0.x) <= tolerance
-            && Math.abs(this.y - v0.y) <= tolerance
-            && Math.abs(this.z - v0.z) <= tolerance
-            && Math.abs(this.w - v0.w) <= tolerance;
+    equals(vector: Vector4, tolerance = 0) {
+        return Math.abs(vector.x - this.x) <= tolerance
+            && Math.abs(vector.y - this.y) <= tolerance
+            && Math.abs(vector.z - this.z) <= tolerance
+            && Math.abs(vector.w - this.w) <= tolerance;
     }
 
     toArray() {
         return [this.x, this.y, this.z, this.w];
+    }
+
+    *[Symbol.iterator]() {
+        yield this.x;
+        yield this.y;
+        yield this.z;
+        yield this.w;
     }
 }
 

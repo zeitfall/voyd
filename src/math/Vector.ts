@@ -2,53 +2,53 @@ import { clamp } from '~/utils';
 
 abstract class Vector {
 
-    static {}
-
-    static clone(v0: Vector) {
-        return v0.clone();
+    static clone(vector: Vector) {
+        return vector.clone();
     }
 
-    static negate(v0: Vector) {
-        return v0.negate();
+    static copy(vectorA: Vector, vectorB: Vector) {
+        return vectorA.copy(vectorB);
     }
 
-    static normalize(v0: Vector) {
-        return v0.normalize();
+    static add(vectorA: Vector, vectorB: Vector) {
+        return vectorA.add(vectorB);
+    }
+    
+    static subtract(vectorA: Vector, vectorB: Vector) {
+        return vectorA.subtract(vectorB);
     }
 
-    static dot(v0: Vector, v1: Vector) {
-        return v0.dot(v1);
+    static dot(vectorA: Vector, vectorB: Vector) {
+        return vectorA.dot(vectorB);
     }
 
-    static distanceBetweenSquared(v0: Vector, v1: Vector) {
-        return v0.distanceToSquared(v1);
+    static distanceBetweenSquared(vectorA: Vector, vectorB: Vector) {
+        return vectorA.distanceToSquared(vectorB);
     }
 
-    static distanceBetween(v0: Vector, v1: Vector) {
-        return v0.distanceTo(v1);
+    static distanceBetween(vectorA: Vector, vectorB: Vector) {
+        return vectorA.distanceTo(vectorB);
     }
 
-    static angleBetween(v0: Vector, v1: Vector) {
-        return v0.angleBetween(v1);
+    static angleBetween(vectorA: Vector, vectorB: Vector) {
+        return vectorA.angleBetween(vectorB);
     }
 
-    static equals(v0: Vector, v1: Vector) {
-        return v0.equals(v1);
+    static equals(vectorA: Vector, vectorB: Vector, tolerance?: number) {
+        return vectorA.equals(vectorB, tolerance);
     }
 
-    static notEquals(v0: Vector, v1: Vector) {
-        return v0.notEquals(v1);
+    static notEquals(vectorA: Vector, vectorB: Vector, tolerance?: number) {
+        return vectorA.notEquals(vectorB, tolerance);
     }
 
-    static toArray(v0: Vector) {
-        return v0.toArray();
+    static toArray(vector: Vector) {
+        return vector.toArray();
     }
 
-    static toString(v0: Vector) {
-        return v0.toString();
+    static toString(vector: Vector) {
+        return vector.toString();
     }
-
-    constructor(public x = 0, public y = 0) {}
 
     get lengthSquared() {
         return this.dot(this);
@@ -59,23 +59,11 @@ abstract class Vector {
     }
 
     set length(length: number) {
-        this.normalize().scale(length);
-    }
-
-    setX(x: number) {
-        this.x = x;
-
-        return this;
-    }
-
-    setY(y: number) {
-        this.y = y;
-
-        return this;
+        this.setLength(length);
     }
 
     setLength(length: number) {
-        this.length = length;
+        return this.normalize().scale(length);
     }
 
     multiplyByScalar(scalar: number) {
@@ -83,29 +71,26 @@ abstract class Vector {
     }
 
     divideByScalar(scalar: number) {
-        return this.multiplyByScalar(1 / (scalar || 1));
-    }
-
-    negate() {
-        return this.multiplyByScalar(-1);
+        return this.scale(1 / (scalar || 1));
     }
 
     normalize() {
         return this.divideByScalar(this.length);
     }
 
-    distanceTo(v0: Vector) {
-        return Math.sqrt(this.distanceToSquared(v0));
+    distanceTo(vector: Vector) {
+        return Math.sqrt(this.distanceToSquared(vector));
     }
 
-    angleBetween(v0: Vector) {
-        const cosAlpha = this.dot(v0) / (this.length * v0.length);
+    angleBetween(vector: Vector) {
+        const dotProduct = this.dot(vector);
+        const cosAlpha = dotProduct / (this.length * vector.length);
 
         return Math.acos(clamp(cosAlpha, -1, 1));
     }
 
-    notEquals(v0: Vector, tolerance = 0) {
-        return !this.equals(v0, tolerance);
+    notEquals(vector: Vector, tolerance?: number) {
+        return !this.equals(vector, tolerance);
     }
 
     toString() {
@@ -114,29 +99,21 @@ abstract class Vector {
 
     abstract clone(): Vector;
 
+    abstract copy(vector: Vector): this;
+
     abstract set(...components: number[]): this;
 
-    abstract copy(v0: Vector): this;
+    abstract add(vector: Vector): this;
 
-    abstract add(v0: Vector): this;
+    abstract subtract(vector: Vector): this;
 
-    abstract subtract(v0: Vector): this;
+    abstract scale(...scaleFactors: number[]): this;
 
-    abstract min(v0: Vector): this;
+    abstract dot(vector: Vector): number;
 
-    abstract max(v0: Vector): this;
+    abstract distanceToSquared(vector: Vector): number;
 
-    abstract clamp(v0: Vector, v1: Vector): this;
-
-    abstract lerp(v0: Vector, value: number): this;
-
-    abstract scale(...components: number[]): this;
-
-    abstract dot(v0: Vector): number;
-
-    abstract distanceToSquared(v0: Vector): number;
-
-    abstract equals(v0: Vector, tolerance?: number): boolean;
+    abstract equals(vector: Vector, tolerance?: number): boolean;
 
     abstract toArray(): number[];
 }

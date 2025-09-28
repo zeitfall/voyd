@@ -1,96 +1,82 @@
 import Vector from './Vector';
 
-import { clamp, lerp } from '~/utils';
-
 class Vector2 extends Vector {
 
-    static cross(v0: Vector2, v1: Vector2) {
-        return v0.cross(v1);
-    }
-
-    constructor(x?: number, y?: number) {
-        super(x, y);
+    constructor(public x = 0, public y = 0) {
+        super();
     }
 
     clone() {
         return new Vector2(this.x, this.y);
     }
 
+    copy(vector: Vector2) {
+        return this.set(vector.x, vector.y);
+    }
+
     set(x: number, y: number) {
         this.x = x;
+        this.y = y;
+        
+        return this;
+    }
+
+    setX(x: number) {
+        this.x = x;
+        
+        return this;
+    }
+
+    setY(y: number) {
         this.y = y;
 
         return this;
     }
 
-    copy(v0: Vector2) {
-        return this.set(v0.x, v0.y);
-    }
-
-    add(v0: Vector2) {
-        return this.set(this.x + v0.x, this.y + v0.y);
-    }
-
-    subtract(v0: Vector2) {
-        return this.set(this.x - v0.x, this.y - v0.y);
-    }
-
-    min(v0: Vector2) {
-        return this.set(
-            Math.min(this.x, v0.x),
-            Math.min(this.y, v0.y),
-        );
-    }
-
-    max(v0: Vector2) {
-        return this.set(
-            Math.max(this.x, v0.x),
-            Math.max(this.y, v0.y),
-        );
-    }
-
-    clamp(v0: Vector2, v1: Vector2) {
-        return this.set(
-            clamp(this.x, v0.x, v1.x),
-            clamp(this.y, v0.y, v1.y),
-        );
-    }
-
-    lerp(v0: Vector2, ratio: number) {
-        return this.set(
-            lerp(this.x, v0.x, ratio),
-            lerp(this.y, v0.y, ratio),
-        );
-    }
-
-    scale(sx: number, sy?: number) {
-        this.x *= sx;
-        this.y *= sy ?? sx;
+    add(vector: Vector2) {
+        this.x += vector.x;
+        this.y += vector.y;
 
         return this;
     }
 
-    dot(v0: Vector2) {
-        return this.x * v0.x + this.y * v0.y;
+    subtract(vector: Vector2) {
+        this.x -= vector.x;
+        this.y -= vector.y;
+
+        return this;
     }
 
-    cross(v0: Vector2) {
-        return this.x * v0.y - this.y * v0.x;
+    scale(scaleX: number, scaleY?: number) {
+        this.x *= scaleX;
+        this.y *= scaleY ?? scaleX;
+
+        return this;
     }
 
-    distanceToSquared(v0: Vector2) {
-        const dx = this.x - v0.x;
-        const dy = this.y - v0.y;
+    dot(vector: Vector2) {
+        return this.x * vector.x + this.y * vector.y;
+    }
+
+    distanceToSquared(vector: Vector2) {
+        const dx = vector.x - this.x;
+        const dy = vector.y - this.y;
 
         return dx * dx + dy * dy;
     }
 
-    equals(v0: Vector2, tolerance = 0) {
-        return Math.abs(this.x - v0.x) <= tolerance && Math.abs(this.y - v0.y) <= tolerance;
+    equals(vector: Vector2, tolerance = 0) {
+        return Math.abs(vector.x - this.x) <= tolerance
+            && Math.abs(vector.y - this.y) <= tolerance;
     }
 
     toArray() {
         return [this.x, this.y];
+    }
+
+    *[Symbol.iterator]() {
+        yield this.x;
+        yield this.y;
     }
 }
 
