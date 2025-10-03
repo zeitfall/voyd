@@ -8,12 +8,12 @@ import Matrix3 from './Matrix3';
 import Matrix4 from './Matrix4';
 
 export {
-    Vector,
-    Vector2,
-    Vector3,
-    Vector4,
-    Quaternion,
-    Matrix2,
-    Matrix3,
-    Matrix4,
+	Vector,
+	Vector2,
+	Vector3,
+	Vector4,
+	Quaternion,
+	Matrix2,
+	Matrix3,
+	Matrix4,
 };

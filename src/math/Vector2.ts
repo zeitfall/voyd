@@ -1,77 +1,81 @@
 import Vector from './Vector';
 
 class Vector2 extends Vector {
+	constructor(
+		public x = 0,
+		public y = 0,
+	) {
+		super();
+	}
 
-    constructor(public x = 0, public y = 0) {
-        super();
-    }
+	clone() {
+		return new Vector2(this.x, this.y);
+	}
 
-    clone() {
-        return new Vector2(this.x, this.y);
-    }
+	copy(vector: Vector2) {
+		return this.set(vector.x, vector.y);
+	}
 
-    copy(vector: Vector2) {
-        return this.set(vector.x, vector.y);
-    }
+	set(x: number, y: number) {
+		this.x = x;
+		this.y = y;
 
-    set(x: number, y: number) {
-        this.x = x;
-        this.y = y;
-        
-        return this;
-    }
+		return this;
+	}
 
-    setX(x: number) {
-        this.x = x;
-        
-        return this;
-    }
+	setX(x: number) {
+		this.x = x;
 
-    setY(y: number) {
-        this.y = y;
+		return this;
+	}
 
-        return this;
-    }
+	setY(y: number) {
+		this.y = y;
 
-    add(vector: Vector2) {
-        return this.set(this.x + vector.x, this.y + vector.y);
-    }
+		return this;
+	}
 
-    subtract(vector: Vector2) {
-        return this.set(this.x - vector.x, this.y - vector.y);
-    }
+	add(vector: Vector2) {
+		return this.set(this.x + vector.x, this.y + vector.y);
+	}
 
-    scale(scaleX: number, scaleY?: number) {
-        const sx = scaleX;
-        const sy = scaleY ?? scaleX;
+	subtract(vector: Vector2) {
+		return this.set(this.x - vector.x, this.y - vector.y);
+	}
 
-        return this.set(sx * this.x, sy * this.y);
-    }
+	scale(scaleX: number, scaleY?: number) {
+		const sx = scaleX;
+		const sy = scaleY ?? scaleX;
 
-    dot(vector: Vector2) {
-        return this.x * vector.x + this.y * vector.y;
-    }
+		return this.set(sx * this.x, sy * this.y);
+	}
 
-    distanceToSquared(vector: Vector2) {
-        const dx = vector.x - this.x;
-        const dy = vector.y - this.y;
+	dot(vector: Vector2) {
+		return this.x * vector.x + this.y * vector.y;
+	}
 
-        return dx * dx + dy * dy;
-    }
+	distanceToSquared(vector: Vector2) {
+		const dx = vector.x - this.x;
+		const dy = vector.y - this.y;
 
-    equals(vector: Vector2, tolerance = 0) {
-        return Math.abs(vector.x - this.x) <= tolerance
-            && Math.abs(vector.y - this.y) <= tolerance;
-    }
+		return dx * dx + dy * dy;
+	}
 
-    toArray() {
-        return [this.x, this.y];
-    }
+	equals(vector: Vector2, tolerance = 0) {
+		return (
+			Math.abs(vector.x - this.x) <= tolerance &&
+			Math.abs(vector.y - this.y) <= tolerance
+		);
+	}
 
-    *[Symbol.iterator]() {
-        yield this.x;
-        yield this.y;
-    }
+	toArray() {
+		return [this.x, this.y];
+	}
+
+	*[Symbol.iterator]() {
+		yield this.x;
+		yield this.y;
+	}
 }
 
 export default Vector2;

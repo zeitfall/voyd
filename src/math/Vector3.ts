@@ -3,128 +3,143 @@ import Vector from './Vector';
 import type Quaternion from './Quaternion';
 
 class Vector3 extends Vector {
+	static cross(vectorA: Vector3, vectorB: Vector3) {
+		return vectorA.clone().cross(vectorB);
+	}
 
-    static cross(vectorA: Vector3, vectorB: Vector3) {
-        return vectorA.clone().cross(vectorB);
-    }
+	constructor(
+		public x = 0,
+		public y = 0,
+		public z = 0,
+	) {
+		super();
+	}
 
-    constructor(public x = 0, public y = 0, public z = 0) {
-        super();
-    }
+	clone() {
+		return new Vector3(this.x, this.y, this.z);
+	}
 
-    clone() {
-        return new Vector3(this.x, this.y, this.z);
-    }
+	copy(vector: Vector3) {
+		return this.set(vector.x, vector.y, vector.z);
+	}
 
-    copy(vector: Vector3) {
-        return this.set(vector.x, vector.y, vector.z);
-    }
+	set(x: number, y: number, z: number) {
+		this.x = x;
+		this.y = y;
+		this.z = z;
 
-    set(x: number, y: number, z: number) {
-        this.x = x;
-        this.y = y;
-        this.z = z;
-        
-        return this;
-    }
+		return this;
+	}
 
-    setX(x: number) {
-        this.x = x;
-        
-        return this;
-    }
+	setX(x: number) {
+		this.x = x;
 
-    setY(y: number) {
-        this.y = y;
+		return this;
+	}
 
-        return this;
-    }
+	setY(y: number) {
+		this.y = y;
 
-    setZ(z: number) {
-        this.z = z;
+		return this;
+	}
 
-        return this;
-    }
+	setZ(z: number) {
+		this.z = z;
 
-    add(vector: Vector3) {
-        return this.set(this.x + vector.x, this.y + vector.y, this.z + vector.z);
-    }
+		return this;
+	}
 
-    subtract(vector: Vector3) {
-        return this.set(this.x - vector.x, this.y - vector.y, this.z - vector.z);
-    }
+	add(vector: Vector3) {
+		return this.set(
+			this.x + vector.x,
+			this.y + vector.y,
+			this.z + vector.z,
+		);
+	}
 
-    // https://blog.molecular-matters.com/2013/05/24/a-faster-quaternion-vector-multiplication/
-    rotateByQuaternion(quaternion: Quaternion) {
-        const quaternionLength = quaternion.length;
+	subtract(vector: Vector3) {
+		return this.set(
+			this.x - vector.x,
+			this.y - vector.y,
+			this.z - vector.z,
+		);
+	}
 
-        if (quaternionLength > 1) {
-            throw new Error(`[Vector3]: Quaternion must be normalized [length=${quaternionLength}].`);
-        }
+	// https://blog.molecular-matters.com/2013/05/24/a-faster-quaternion-vector-multiplication/
+	rotateByQuaternion(quaternion: Quaternion) {
+		const quaternionLength = quaternion.length;
 
-        const vx = this.x;
-        const vy = this.y;
-        const vz = this.z;
+		if (quaternionLength > 1) {
+			throw new Error(
+				`[Vector3]: Quaternion must be normalized [length=${quaternionLength}].`,
+			);
+		}
 
-        const qx = quaternion.x;
-        const qy = quaternion.y;
-        const qz = quaternion.z;
-        const qw = quaternion.w;
+		const vx = this.x;
+		const vy = this.y;
+		const vz = this.z;
 
-        const cx = 2 * (qy * vz - qz * vy);
-        const cy = 2 * (qz * vx - qx * vz);
-        const cz = 2 * (qx * vy - qy * vx);
+		const qx = quaternion.x;
+		const qy = quaternion.y;
+		const qz = quaternion.z;
+		const qw = quaternion.w;
 
-        return this.set(
-            vx + qw * cx + qy * cz - qz * cy,
-            vy + qw * cy + qz * cx - qx * cz,
-            vz + qw * cz + qx * cy - qy * cx,
-        );
-    }
+		const cx = 2 * (qy * vz - qz * vy);
+		const cy = 2 * (qz * vx - qx * vz);
+		const cz = 2 * (qx * vy - qy * vx);
 
-    cross(vector: Vector3) {
-        return this.set(
-            this.y * vector.z - this.z * vector.y,
-            this.z * vector.x - this.x * vector.z,
-            this.x * vector.y - this.y * vector.x
-        );
-    }
+		return this.set(
+			vx + qw * cx + qy * cz - qz * cy,
+			vy + qw * cy + qz * cx - qx * cz,
+			vz + qw * cz + qx * cy - qy * cx,
+		);
+	}
 
-    scale(scaleX: number, scaleY?: number, scaleZ?: number) {
-        const sx = scaleX;
-        const sy = scaleY ?? scaleX;
-        const sz = scaleZ ?? scaleY ?? scaleX;
+	cross(vector: Vector3) {
+		return this.set(
+			this.y * vector.z - this.z * vector.y,
+			this.z * vector.x - this.x * vector.z,
+			this.x * vector.y - this.y * vector.x,
+		);
+	}
 
-        return this.set(sx * this.x, sy * this.y, sz * this.z);
-    }
+	scale(scaleX: number, scaleY?: number, scaleZ?: number) {
+		const sx = scaleX;
+		const sy = scaleY ?? scaleX;
+		const sz = scaleZ ?? scaleY ?? scaleX;
 
-    dot(vector: Vector3) {
-        return this.x * vector.x + this.y * vector.y + this.z * vector.z;
-    }
+		return this.set(sx * this.x, sy * this.y, sz * this.z);
+	}
 
-    distanceToSquared(vector: Vector3) {
-        const dx = vector.x - this.x;
-        const dy = vector.y - this.y;
-        const dz = vector.z - this.z;
+	dot(vector: Vector3) {
+		return this.x * vector.x + this.y * vector.y + this.z * vector.z;
+	}
 
-        return dx * dx + dy * dy + dz * dz;
-    }
+	distanceToSquared(vector: Vector3) {
+		const dx = vector.x - this.x;
+		const dy = vector.y - this.y;
+		const dz = vector.z - this.z;
 
-    equals(vector: Vector3, tolerance = 0) {
-        return Math.abs(vector.x - this.x) <= tolerance
-            && Math.abs(vector.y - this.y) <= tolerance
-            && Math.abs(vector.z - this.z) <= tolerance;
-    }
+		return dx * dx + dy * dy + dz * dz;
+	}
 
-    toArray() {
-        return [this.x, this.y, this.z];
-    }
+	equals(vector: Vector3, tolerance = 0) {
+		return (
+			Math.abs(vector.x - this.x) <= tolerance &&
+			Math.abs(vector.y - this.y) <= tolerance &&
+			Math.abs(vector.z - this.z) <= tolerance
+		);
+	}
 
-    *[Symbol.iterator]() {
-        yield this.x;
-        yield this.y;
-        yield this.z;
-    }
+	toArray() {
+		return [this.x, this.y, this.z];
+	}
+
+	*[Symbol.iterator]() {
+		yield this.x;
+		yield this.y;
+		yield this.z;
+	}
 }
 
 export default Vector3;
