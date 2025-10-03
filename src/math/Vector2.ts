@@ -34,24 +34,18 @@ class Vector2 extends Vector {
     }
 
     add(vector: Vector2) {
-        this.x += vector.x;
-        this.y += vector.y;
-
-        return this;
+        return this.set(this.x + vector.x, this.y + vector.y);
     }
 
     subtract(vector: Vector2) {
-        this.x -= vector.x;
-        this.y -= vector.y;
-
-        return this;
+        return this.set(this.x - vector.x, this.y - vector.y);
     }
 
     scale(scaleX: number, scaleY?: number) {
-        this.x *= scaleX;
-        this.y *= scaleY ?? scaleX;
+        const sx = scaleX;
+        const sy = scaleY ?? scaleX;
 
-        return this;
+        return this.set(sx * this.x, sy * this.y);
     }
 
     dot(vector: Vector2) {

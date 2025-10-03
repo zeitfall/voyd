@@ -1,9 +1,11 @@
 import Vector from './Vector';
 
+import type Quaternion from './Quaternion';
+
 class Vector3 extends Vector {
 
     static cross(vectorA: Vector3, vectorB: Vector3) {
-        return vectorA.cross(vectorB);
+        return vectorA.clone().cross(vectorB);
     }
 
     constructor(public x = 0, public y = 0, public z = 0) {
@@ -45,19 +47,39 @@ class Vector3 extends Vector {
     }
 
     add(vector: Vector3) {
-        this.x += vector.x;
-        this.y += vector.y;
-        this.z += vector.z;
-
-        return this;
+        return this.set(this.x + vector.x, this.y + vector.y, this.z + vector.z);
     }
 
     subtract(vector: Vector3) {
-        this.x -= vector.x;
-        this.y -= vector.y;
-        this.z -= vector.z;
+        return this.set(this.x - vector.x, this.y - vector.y, this.z - vector.z);
+    }
 
-        return this;
+    // https://blog.molecular-matters.com/2013/05/24/a-faster-quaternion-vector-multiplication/
+    rotateByQuaternion(quaternion: Quaternion) {
+        const quaternionLength = quaternion.length;
+
+        if (quaternionLength > 1) {
+            throw new Error(`[Vector3]: Quaternion must be normalized [length=${quaternionLength}].`);
+        }
+
+        const vx = this.x;
+        const vy = this.y;
+        const vz = this.z;
+
+        const qx = quaternion.x;
+        const qy = quaternion.y;
+        const qz = quaternion.z;
+        const qw = quaternion.w;
+
+        const cx = 2 * (qy * vz - qz * vy);
+        const cy = 2 * (qz * vx - qx * vz);
+        const cz = 2 * (qx * vy - qy * vx);
+
+        return this.set(
+            vx + qw * cx + qy * cz - qz * cy,
+            vy + qw * cy + qz * cx - qx * cz,
+            vz + qw * cz + qx * cy - qy * cx,
+        );
     }
 
     cross(vector: Vector3) {
@@ -69,11 +91,11 @@ class Vector3 extends Vector {
     }
 
     scale(scaleX: number, scaleY?: number, scaleZ?: number) {
-        this.x *= scaleX;
-        this.y *= scaleY ?? scaleX;
-        this.z *= scaleZ ?? scaleY ?? scaleX;
+        const sx = scaleX;
+        const sy = scaleY ?? scaleX;
+        const sz = scaleZ ?? scaleY ?? scaleX;
 
-        return this;
+        return this.set(sx * this.x, sy * this.y, sz * this.z);
     }
 
     dot(vector: Vector3) {

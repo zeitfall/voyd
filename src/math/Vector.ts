@@ -6,16 +6,20 @@ abstract class Vector {
         return vector.clone();
     }
 
-    static copy(vectorA: Vector, vectorB: Vector) {
-        return vectorA.copy(vectorB);
-    }
-
     static add(vectorA: Vector, vectorB: Vector) {
-        return vectorA.add(vectorB);
+        return vectorA.clone().add(vectorB);
     }
     
     static subtract(vectorA: Vector, vectorB: Vector) {
-        return vectorA.subtract(vectorB);
+        return vectorA.clone().subtract(vectorB);
+    }
+
+    static normalize(vector: Vector) {
+        return vector.clone().normalize();
+    }
+
+    static negate(vector: Vector) {
+        return vector.clone().negate();
     }
 
     static dot(vectorA: Vector, vectorB: Vector) {
@@ -31,7 +35,7 @@ abstract class Vector {
     }
 
     static angleBetween(vectorA: Vector, vectorB: Vector) {
-        return vectorA.angleBetween(vectorB);
+        return vectorA.angleTo(vectorB);
     }
 
     static equals(vectorA: Vector, vectorB: Vector, tolerance?: number) {
@@ -71,18 +75,26 @@ abstract class Vector {
     }
 
     divideByScalar(scalar: number) {
-        return this.scale(1 / (scalar || 1));
+        if (scalar === 0) {
+            throw new Error('[Vector]: Division by zero.');
+        }
+
+        return this.scale(1 / scalar);
     }
 
     normalize() {
         return this.divideByScalar(this.length);
     }
 
+    negate() {
+        return this.multiplyByScalar(-1);
+    }
+
     distanceTo(vector: Vector) {
         return Math.sqrt(this.distanceToSquared(vector));
     }
 
-    angleBetween(vector: Vector) {
+    angleTo(vector: Vector) {
         const dotProduct = this.dot(vector);
         const cosAlpha = dotProduct / (this.length * vector.length);
 

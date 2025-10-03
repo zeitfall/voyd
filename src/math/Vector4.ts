@@ -48,30 +48,30 @@ class Vector4 extends Vector {
     }
 
     add(vector: Vector4) {
-        this.x += vector.x;
-        this.y += vector.y;
-        this.z += vector.z;
-        this.w += vector.w;
-
-        return this;
+        return this.set(
+            this.x + vector.x,
+            this.y + vector.y,
+            this.z + vector.z,
+            this.w + vector.w
+        );
     }
 
     subtract(vector: Vector4) {
-        this.x -= vector.x;
-        this.y -= vector.y;
-        this.z -= vector.z;
-        this.w -= vector.w;
-
-        return this;
+        return this.set(
+            this.x - vector.x,
+            this.y - vector.y,
+            this.z - vector.z,
+            this.w - vector.w
+        );
     }
 
     scale(scaleX: number, scaleY?: number, scaleZ?: number, scaleW?: number) {
-        this.x *= scaleX;
-        this.y *= scaleY ?? scaleX;
-        this.z *= scaleZ ?? scaleY ?? scaleX;
-        this.w *= scaleW ?? scaleZ ?? scaleY ?? scaleX;
+        const sx = scaleX;
+        const sy = scaleY ?? scaleX;
+        const sz = scaleZ ?? scaleY ?? scaleX;
+        const sw = scaleW ?? scaleZ ?? scaleY ?? scaleX;
 
-        return this;
+        return this.set(sx * this.x, sy * this.y, sz * this.z, sw * this.w);
     }
 
     dot(vector: Vector4) {
@@ -94,7 +94,7 @@ class Vector4 extends Vector {
             && Math.abs(vector.w - this.w) <= tolerance;
     }
 
-    toArray() {
+    toArray() { 
         return [this.x, this.y, this.z, this.w];
     }
 
