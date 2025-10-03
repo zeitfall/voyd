@@ -3,5 +3,6 @@
 	"singleQuote": true,
 	"quoteProps": "as-needed",
 	"tabWidth": 4,
-	"useTabs": true
+	"useTabs": true,
+	"printWidth": 120
 }
