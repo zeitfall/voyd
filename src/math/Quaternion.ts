@@ -23,11 +23,7 @@ class Quaternion {
 		return quaternionA.clone().premultiply(quaternionB);
 	}
 
-	static slerp(
-		quaternionA: Quaternion,
-		quaternionB: Quaternion,
-		fraction: number,
-	) {
+	static slerp(quaternionA: Quaternion, quaternionB: Quaternion, fraction: number) {
 		return quaternionA.clone().slerp(quaternionB, fraction);
 	}
 
@@ -67,19 +63,11 @@ class Quaternion {
 		return quaternionA.angleTo(quaternionB);
 	}
 
-	static equals(
-		quaternionA: Quaternion,
-		quaternionB: Quaternion,
-		tolerance?: number,
-	) {
+	static equals(quaternionA: Quaternion, quaternionB: Quaternion, tolerance?: number) {
 		return quaternionA.equals(quaternionB, tolerance);
 	}
 
-	static notEquals(
-		quaternionA: Quaternion,
-		quaternionB: Quaternion,
-		tolerance?: number,
-	) {
+	static notEquals(quaternionA: Quaternion, quaternionB: Quaternion, tolerance?: number) {
 		return quaternionA.notEquals(quaternionB, tolerance);
 	}
 
@@ -160,12 +148,7 @@ class Quaternion {
 		const cosAlpha = Math.cos(alpha);
 		const sinAlpha = Math.sin(alpha);
 
-		return this.set(
-			sinAlpha * axis.x,
-			sinAlpha * axis.y,
-			sinAlpha * axis.z,
-			cosAlpha,
-		);
+		return this.set(sinAlpha * axis.x, sinAlpha * axis.y, sinAlpha * axis.z, cosAlpha);
 	}
 
 	setFromDifference(quaternion: Quaternion) {
@@ -235,12 +218,7 @@ class Quaternion {
 			k1 = Math.sin(t * alpha) * inverseSinAlpha;
 		}
 
-		return this.set(
-			k0 * q0x + k1 * q1x,
-			k0 * q0y + k1 * q1y,
-			k0 * q0z + k1 * q1z,
-			k0 * q0w + k1 * q1w,
-		);
+		return this.set(k0 * q0x + k1 * q1x, k0 * q0y + k1 * q1y, k0 * q0z + k1 * q1z, k0 * q0w + k1 * q1w);
 	}
 
 	scale(scaleX: number, scaleY?: number, scaleZ?: number, scaleW?: number) {
@@ -318,12 +296,7 @@ class Quaternion {
 	}
 
 	dot(quaternion: Quaternion) {
-		return (
-			this.x * quaternion.x +
-			this.y * quaternion.y +
-			this.z * quaternion.z +
-			this.w * quaternion.w
-		);
+		return this.x * quaternion.x + this.y * quaternion.y + this.z * quaternion.z + this.w * quaternion.w;
 	}
 
 	angleTo(quaternion: Quaternion) {

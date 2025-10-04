@@ -1,5 +1,7 @@
 import Vector from './Vector';
 
+import type Matrix4 from './Matrix4';
+
 class Vector4 extends Vector {
 	constructor(
 		public x = 0,
@@ -52,20 +54,43 @@ class Vector4 extends Vector {
 	}
 
 	add(vector: Vector4) {
-		return this.set(
-			this.x + vector.x,
-			this.y + vector.y,
-			this.z + vector.z,
-			this.w + vector.w,
-		);
+		return this.set(this.x + vector.x, this.y + vector.y, this.z + vector.z, this.w + vector.w);
 	}
 
 	subtract(vector: Vector4) {
+		return this.set(this.x - vector.x, this.y - vector.y, this.z - vector.z, this.w - vector.w);
+	}
+
+	premultiplyByMatrix(matrix: Matrix4): this {
+		const a = matrix.elements;
+
+		const e11 = a[0];
+		const e12 = a[4];
+		const e13 = a[8];
+		const e14 = a[12];
+		const e21 = a[1];
+		const e22 = a[5];
+		const e23 = a[9];
+		const e24 = a[13];
+		const e31 = a[2];
+		const e32 = a[6];
+		const e33 = a[10];
+		const e34 = a[14];
+		const e41 = a[3];
+		const e42 = a[7];
+		const e43 = a[11];
+		const e44 = a[15];
+
+		const x = this.x;
+		const y = this.y;
+		const z = this.z;
+		const w = this.w;
+
 		return this.set(
-			this.x - vector.x,
-			this.y - vector.y,
-			this.z - vector.z,
-			this.w - vector.w,
+			x * e11 + y * e12 + z * e13 + w * e14,
+			x * e21 + y * e22 + z * e23 + w * e24,
+			x * e31 + y * e32 + z * e33 + w * e34,
+			x * e41 + y * e42 + z * e43 + w * e44,
 		);
 	}
 
@@ -79,12 +104,7 @@ class Vector4 extends Vector {
 	}
 
 	dot(vector: Vector4) {
-		return (
-			this.x * vector.x +
-			this.y * vector.y +
-			this.z * vector.z +
-			this.w * vector.w
-		);
+		return this.x * vector.x + this.y * vector.y + this.z * vector.z + this.w * vector.w;
 	}
 
 	distanceToSquared(vector: Vector4) {

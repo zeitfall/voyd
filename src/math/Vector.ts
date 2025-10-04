@@ -1,5 +1,7 @@
 import { clamp } from '~/utils';
 
+import type Matrix from './Matrix';
+
 abstract class Vector {
 	static clone(vector: Vector) {
 		return vector.clone();
@@ -11,6 +13,10 @@ abstract class Vector {
 
 	static subtract(vectorA: Vector, vectorB: Vector) {
 		return vectorA.clone().subtract(vectorB);
+	}
+
+	static premultiplyByMatrix(matrix: Matrix, vector: Vector) {
+		return vector.clone().premultiplyByMatrix(matrix);
 	}
 
 	static normalize(vector: Vector) {
@@ -117,6 +123,8 @@ abstract class Vector {
 	abstract add(vector: Vector): this;
 
 	abstract subtract(vector: Vector): this;
+
+	abstract premultiplyByMatrix(matrix: Matrix): this;
 
 	abstract scale(...scaleFactors: number[]): this;
 

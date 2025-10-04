@@ -1,3 +1,4 @@
+import type Matrix2 from './Matrix2';
 import Vector from './Vector';
 
 class Vector2 extends Vector {
@@ -43,6 +44,19 @@ class Vector2 extends Vector {
 		return this.set(this.x - vector.x, this.y - vector.y);
 	}
 
+	premultiplyByMatrix(matrix: Matrix2) {
+		const x = this.x;
+		const y = this.y;
+		const a = matrix.elements;
+
+		const e11 = a[0];
+		const e12 = a[2];
+		const e21 = a[1];
+		const e22 = a[3];
+
+		return this.set(x * e11 + y * e12, x * e21 + y * e22);
+	}
+
 	scale(scaleX: number, scaleY?: number) {
 		const sx = scaleX;
 		const sy = scaleY ?? scaleX;
@@ -62,10 +76,7 @@ class Vector2 extends Vector {
 	}
 
 	equals(vector: Vector2, tolerance = 0) {
-		return (
-			Math.abs(vector.x - this.x) <= tolerance &&
-			Math.abs(vector.y - this.y) <= tolerance
-		);
+		return Math.abs(vector.x - this.x) <= tolerance && Math.abs(vector.y - this.y) <= tolerance;
 	}
 
 	toArray() {

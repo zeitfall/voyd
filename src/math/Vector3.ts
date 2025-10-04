@@ -1,6 +1,7 @@
 import Vector from './Vector';
 
 import type Quaternion from './Quaternion';
+import type Matrix3 from './Matrix3';
 
 class Vector3 extends Vector {
 	static cross(vectorA: Vector3, vectorB: Vector3) {
@@ -50,19 +51,31 @@ class Vector3 extends Vector {
 	}
 
 	add(vector: Vector3) {
-		return this.set(
-			this.x + vector.x,
-			this.y + vector.y,
-			this.z + vector.z,
-		);
+		return this.set(this.x + vector.x, this.y + vector.y, this.z + vector.z);
 	}
 
 	subtract(vector: Vector3) {
-		return this.set(
-			this.x - vector.x,
-			this.y - vector.y,
-			this.z - vector.z,
-		);
+		return this.set(this.x - vector.x, this.y - vector.y, this.z - vector.z);
+	}
+
+	premultiplyByMatrix(matrix: Matrix3): this {
+		const a = matrix.elements;
+
+		const e11 = a[0];
+		const e12 = a[3];
+		const e13 = a[6];
+		const e21 = a[1];
+		const e22 = a[4];
+		const e23 = a[7];
+		const e31 = a[2];
+		const e32 = a[5];
+		const e33 = a[8];
+
+		const x = this.x;
+		const y = this.y;
+		const z = this.z;
+
+		return this.set(x * e11 + y * e12 + z * e13, x * e21 + y * e22 + z * e23, x * e31 + y * e32 + z * e33);
 	}
 
 	// https://blog.molecular-matters.com/2013/05/24/a-faster-quaternion-vector-multiplication/
@@ -70,9 +83,7 @@ class Vector3 extends Vector {
 		const quaternionLength = quaternion.length;
 
 		if (quaternionLength > 1) {
-			throw new Error(
-				`[Vector3]: Quaternion must be normalized [length=${quaternionLength}].`,
-			);
+			throw new Error(`[Vector3]: Quaternion must be normalized, with length=${quaternionLength} is given.`);
 		}
 
 		const vx = this.x;
