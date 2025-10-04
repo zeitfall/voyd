@@ -13,6 +13,10 @@ export default defineConfig({
 			entry: resolve(__dirname, './src/index.ts'),
 		},
 	},
+	esbuild: {
+		keepNames: true,
+		minifyIdentifiers: false,
+	},
 	resolve: {
 		alias: {
 			'~': resolve(__dirname, './src'),
