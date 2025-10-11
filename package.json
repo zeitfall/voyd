@@ -15,8 +15,14 @@
 		}
 	},
 	"scripts": {
-		"dev": "vite build -w",
-		"build": "vite build"
+		"biome:lint": "biome lint",
+		"biome:format": "biome format",
+		"biome:pretify": "npm run biome:lint && npm run biome:format",
+		"biome:lint:write": "biome lint --write",
+		"biome:format:write": "biome format --write",
+		"biome:pretify:write": "npm run biome:lint:write && npm run biome:format:write",
+		"vite:dev": "vite build -w",
+		"vite:build": "vite build"
 	},
 	"engines": {
 		"node": ">=22.19.0"
@@ -33,6 +39,7 @@
 		"@webgpu/types": "^0.1.65"
 	},
 	"devDependencies": {
+		"@biomejs/biome": "2.2.5",
 		"prettier": "^3.6.2",
 		"typescript": "^5.9.2",
 		"vite": "^7.1.6",

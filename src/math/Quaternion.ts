@@ -156,8 +156,8 @@ class Quaternion {
 	}
 
 	multiply(quaternion: Quaternion, premultiply = false) {
-		let q0 = premultiply ? quaternion : this;
-		let q1 = premultiply ? this : quaternion;
+		const q0 = premultiply ? quaternion : this;
+		const q1 = premultiply ? this : quaternion;
 
 		const q0x = q0.x;
 		const q0y = q0.y;

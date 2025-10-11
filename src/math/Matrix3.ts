@@ -108,7 +108,7 @@ class Matrix3 extends Matrix {
 		const b32 = b.elements[5];
 		const b33 = b.elements[8];
 
-		// prettier-ignore
+		// biome-ignore format: It's easier to distinguish matrix columns.
 		return this.set(
 			a11 * b11 + a12 * b21 + a13 * b31, a21 * b11 + a22 * b21 + a23 * b31, a31 * b11 + a32 * b21 + a33 * b31,
 			a11 * b12 + a12 * b22 + a13 * b32, a21 * b12 + a22 * b22 + a23 * b32, a31 * b12 + a32 * b22 + a33 * b32,

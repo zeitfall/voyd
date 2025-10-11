@@ -4,6 +4,7 @@ import StorageBuffer from './StorageBuffer';
 import VertexBuffer from './VertexBuffer';
 import IndexBuffer from './IndexBuffer';
 
+// biome-ignore format: That's my preference to export things at each line separately.
 export {
     Buffer,
     UniformBuffer,
@@ -11,4 +12,3 @@ export {
     VertexBuffer,
     IndexBuffer
 };
-
