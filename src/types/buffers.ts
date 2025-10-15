@@ -1,3 +1,5 @@
+import type { Tuple } from './utils';
+
 export type TypedArrayConstructors =
 	| Int8ArrayConstructor
 	| Uint8ArrayConstructor
@@ -7,3 +9,5 @@ export type TypedArrayConstructors =
 	| Float32ArrayConstructor;
 
 export type TypedArray = InstanceType<TypedArrayConstructors>;
+
+export type VertexAttributeNames = Tuple<'position' | 'normal' | 'uv'>;

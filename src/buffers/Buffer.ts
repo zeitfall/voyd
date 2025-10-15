@@ -12,11 +12,9 @@ class Buffer extends Instance<GPUBuffer> {
 
 		if (isInputBufferSource) {
 			size = input.byteLength;
-		}
-		else if (typeof input === 'number') {
+		} else if (typeof input === 'number') {
 			size = input;
-		}
-		else {
+		} else {
 			throw new Error('[Buffer]: Invalid buffer input.');
 		}
 
