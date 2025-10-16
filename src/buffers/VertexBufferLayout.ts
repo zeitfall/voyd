@@ -1,6 +1,22 @@
 import { VERTEX_ATTRIBUTE_FORMAT_BYTE_SIZE_MAP } from '~/constants';
 
+import type { Geometry } from '~/geometries';
+
 class VertexBufferLayout implements GPUVertexBufferLayout {
+	static fromGeometry(geometry: Geometry, stepMode?: GPUVertexStepMode) {
+		const layout = new VertexBufferLayout();
+
+		if (stepMode) {
+			layout.setStepMode(stepMode);
+		}
+
+		geometry.attributes.forEach((attribute) => {
+			layout.addAttribute(attribute.format);
+		});
+
+		return layout;
+	}
+
 	declare arrayStride: number;
 	declare stepMode: GPUVertexStepMode;
 	declare attributes: GPUVertexAttribute[];

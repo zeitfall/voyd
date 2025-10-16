@@ -45,7 +45,7 @@ class VertexAttribute<T extends TypedArray = TypedArray> {
 		const startIndex = index * stride;
 		const endIndex = startIndex + stride;
 
-		return this.#array.slice(startIndex, endIndex) as T;
+		return this.#array.subarray(startIndex, endIndex) as T;
 	}
 }
 

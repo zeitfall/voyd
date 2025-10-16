@@ -12,7 +12,17 @@ class Geometry {
 		return this.#attributes;
 	}
 
-	get attributesStride() {
+	get length() {
+		let length = 0;
+
+		this.#attributes.forEach((attribute) => {
+			length += attribute.length;
+		});
+
+		return length;
+	}
+
+	get stride() {
 		let stride = 0;
 
 		this.#attributes.forEach((attribute) => {
@@ -22,7 +32,17 @@ class Geometry {
 		return stride;
 	}
 
-	get attributesByteStride() {
+	get byteLength() {
+		let length = 0;
+
+		this.#attributes.forEach((attribute) => {
+			length += attribute.byteLength;
+		});
+
+		return length;
+	}
+
+	get byteStride() {
 		let stride = 0;
 
 		this.#attributes.forEach((attribute) => {
@@ -44,14 +64,6 @@ class Geometry {
 
 	hasAttribute(name: VertexAttributeNames) {
 		return this.#attributes.has(name);
-	}
-
-	// TODO: Implement
-	toInterleavedBuffer() {
-		const arrayBuffer = new ArrayBuffer();
-		// const arrayBufferView = new Uint8Array(arrayBuffer);
-
-		return arrayBuffer;
 	}
 }
 
