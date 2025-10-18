@@ -234,6 +234,61 @@ class Matrix4 extends Matrix {
 
 		return this.set(e11, e12, e13, e14, e21, e22, e23, e24, e31, e32, e33, e34, e41, e42, e43, e44);
 	}
+
+	inverse() {
+		const det = this.determinant;
+
+		if (Math.abs(det) < Number.EPSILON) {
+			throw new Error(`[Matrix]: Cannot inverse, because matrix is singular [det=${det}].`);
+		}
+
+		const a = this.elements;
+
+		const e11 = a[0];
+		const e12 = a[4];
+		const e13 = a[8];
+		const e14 = a[12];
+		const e21 = a[1];
+		const e22 = a[5];
+		const e23 = a[9];
+		const e24 = a[13];
+		const e31 = a[2];
+		const e32 = a[6];
+		const e33 = a[10];
+		const e34 = a[14];
+		const e41 = a[3];
+		const e42 = a[7];
+		const e43 = a[11];
+		const e44 = a[15];
+
+		const c11 = e22 * (e33 * e44 - e34 * e43) - e23 * (e32 * e44 - e34 * e42) + e24 * (e32 * e43 - e33 * e42);
+		const c12 = -(e21 * (e33 * e44 - e34 * e43) - e23 * (e31 * e44 - e34 * e41) + e24 * (e31 * e43 - e33 * e41));
+		const c13 = e21 * (e32 * e44 - e34 * e42) - e22 * (e31 * e44 - e34 * e41) + e24 * (e31 * e42 - e32 * e41);
+		const c14 = -(e21 * (e32 * e43 - e33 * e42) - e22 * (e31 * e43 - e33 * e41) + e23 * (e31 * e42 - e32 * e41));
+
+		const c21 = -(e12 * (e33 * e44 - e34 * e43) - e13 * (e32 * e44 - e34 * e42) + e14 * (e32 * e43 - e33 * e42));
+		const c22 = e11 * (e33 * e44 - e34 * e43) - e13 * (e31 * e44 - e34 * e41) + e14 * (e31 * e43 - e33 * e41);
+		const c23 = -(e11 * (e32 * e44 - e34 * e42) - e12 * (e31 * e44 - e34 * e41) + e14 * (e31 * e42 - e32 * e41));
+		const c24 = e11 * (e32 * e43 - e33 * e42) - e12 * (e31 * e43 - e33 * e41) + e13 * (e31 * e42 - e32 * e41);
+
+		const c31 = e12 * (e23 * e44 - e24 * e43) - e13 * (e22 * e44 - e24 * e42) + e14 * (e22 * e43 - e23 * e42);
+		const c32 = -(e11 * (e23 * e44 - e24 * e43) - e13 * (e21 * e44 - e24 * e41) + e14 * (e21 * e43 - e23 * e41));
+		const c33 = e11 * (e22 * e44 - e24 * e42) - e12 * (e21 * e44 - e24 * e41) + e14 * (e21 * e42 - e22 * e41);
+		const c34 = -(e11 * (e22 * e43 - e23 * e42) - e12 * (e21 * e43 - e23 * e41) + e13 * (e21 * e42 - e22 * e41));
+
+		const c41 = -(e12 * (e23 * e34 - e24 * e33) - e13 * (e22 * e34 - e24 * e32) + e14 * (e22 * e33 - e23 * e32));
+		const c42 = e11 * (e23 * e34 - e24 * e33) - e13 * (e21 * e34 - e24 * e31) + e14 * (e21 * e33 - e23 * e31);
+		const c43 = -(e11 * (e22 * e34 - e24 * e32) - e12 * (e21 * e34 - e24 * e31) + e14 * (e21 * e32 - e22 * e31));
+		const c44 = e11 * (e22 * e33 - e23 * e32) - e12 * (e21 * e33 - e23 * e31) + e13 * (e21 * e32 - e22 * e31);
+
+		// biome-ignore format: It's easier to distinguish matrix columns.
+		return this.set(
+			c11, c21, c31, c41,
+			c12, c22, c32, c42,
+			c13, c23, c33, c43,
+			c14, c24, c34, c44
+		).transpose().divideByScalar(det);
+	}
 }
 
 export default Matrix4;

@@ -25,10 +25,12 @@ class Matrix2 extends Matrix {
 	}
 
 	get determinant() {
-		const a11 = this.elements[0];
-		const a12 = this.elements[2];
-		const a21 = this.elements[1];
-		const a22 = this.elements[3];
+		const a = this.elements;
+
+		const a11 = a[0];
+		const a12 = a[2];
+		const a21 = a[1];
+		const a22 = a[3];
 
 		return a11 * a22 - a12 * a21;
 	}
@@ -38,45 +40,44 @@ class Matrix2 extends Matrix {
 	}
 
 	set(...elements: Matrix2Elements) {
-		this.elements[0] = elements[0];
-		this.elements[1] = elements[1];
-		this.elements[2] = elements[2];
-		this.elements[3] = elements[3];
+		const a = this.elements;
+		const b = elements;
+
+		a[0] = b[0];
+		a[1] = b[1];
+		a[2] = b[2];
+		a[3] = b[3];
 
 		return this;
 	}
 
 	add(matrix: Matrix2) {
-		return this.set(
-			this.elements[0] + matrix.elements[0],
-			this.elements[1] + matrix.elements[1],
-			this.elements[2] + matrix.elements[2],
-			this.elements[3] + matrix.elements[3],
-		);
+		const a = this.elements;
+		const b = matrix.elements;
+
+		return this.set(a[0] + b[0], a[1] + b[1], a[2] + b[2], a[3] + b[3]);
 	}
 
 	subtract(matrix: Matrix2) {
-		return this.set(
-			this.elements[0] - matrix.elements[0],
-			this.elements[1] - matrix.elements[1],
-			this.elements[2] - matrix.elements[2],
-			this.elements[3] - matrix.elements[3],
-		);
+		const a = this.elements;
+		const b = matrix.elements;
+
+		return this.set(a[0] - b[0], a[1] - b[1], a[2] - b[2], a[3] - b[3]);
 	}
 
 	multiply(matrix: Matrix2, premultiply = false) {
-		const a = premultiply ? matrix : this;
-		const b = premultiply ? this : matrix;
+		const a = premultiply ? matrix.elements : this.elements;
+		const b = premultiply ? this.elements : matrix.elements;
 
-		const a11 = a.elements[0];
-		const a12 = a.elements[2];
-		const a21 = a.elements[1];
-		const a22 = a.elements[3];
+		const a11 = a[0];
+		const a12 = a[2];
+		const a21 = a[1];
+		const a22 = a[3];
 
-		const b11 = b.elements[0];
-		const b12 = b.elements[2];
-		const b21 = b.elements[1];
-		const b22 = b.elements[3];
+		const b11 = b[0];
+		const b12 = b[2];
+		const b21 = b[1];
+		const b22 = b[3];
 
 		// biome-ignore format: It's easier to distinguish matrix columns.
 		return this.set(
@@ -86,21 +87,48 @@ class Matrix2 extends Matrix {
 	}
 
 	multiplyByScalar(scalar: number) {
+		const a = this.elements;
+
+		// biome-ignore format: It's easier to distinguish matrix columns.
 		return this.set(
-			scalar * this.elements[0],
-			scalar * this.elements[1],
-			scalar * this.elements[2],
-			scalar * this.elements[3],
+			scalar * a[0],
+			scalar * a[1],
+			scalar * a[2],
+			scalar * a[3],
 		);
 	}
 
 	transpose() {
-		const e11 = this.elements[0];
-		const e12 = this.elements[2];
-		const e21 = this.elements[1];
-		const e22 = this.elements[3];
+		const a = this.elements;
+
+		const e11 = a[0];
+		const e12 = a[2];
+		const e21 = a[1];
+		const e22 = a[3];
 
 		return this.set(e11, e12, e21, e22);
+	}
+
+	inverse() {
+		const det = this.determinant;
+
+		if (Math.abs(det) < Number.EPSILON) {
+			throw new Error(`[Matrix]: Cannot inverse, because matrix is singular [det=${det}].`);
+		}
+
+		const a = this.elements;
+
+		const e11 = a[0];
+		const e12 = a[2];
+		const e21 = a[1];
+		const e22 = a[3];
+
+		const c11 = e22;
+		const c12 = -e21;
+		const c21 = -e12;
+		const c22 = e11;
+
+		return this.set(c11, c21, c12, c22).transpose().divideByScalar(det);
 	}
 }
 

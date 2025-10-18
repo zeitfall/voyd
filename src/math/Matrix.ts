@@ -29,6 +29,10 @@ abstract class Matrix {
 		return matrix.clone().transpose();
 	}
 
+	static inverse(matrix: Matrix) {
+		return matrix.clone().inverse();
+	}
+
 	declare readonly elements: number[];
 
 	constructor(args: unknown[], elementCount: number, columnCount: number) {
@@ -37,7 +41,7 @@ abstract class Matrix {
 
 	#prepareElements(args: unknown[], elementCount: number, columnCount: number): number[] {
 		if (isArrayOfNumbers(args) && args.length === elementCount) {
-			return args;
+			return args.slice();
 		}
 
 		if (isArrayOfVectors(args) && args.length === columnCount) {
@@ -86,6 +90,8 @@ abstract class Matrix {
 	abstract multiplyByScalar(scalar: number): this;
 
 	abstract transpose(): this;
+
+	abstract inverse(): this;
 }
 
 export default Matrix;

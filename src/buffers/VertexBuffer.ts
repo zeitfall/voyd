@@ -1,6 +1,6 @@
 import Buffer from './Buffer';
 
-import type{ Geometry } from '~/geometries';
+import type { Geometry } from '~/geometries';
 
 class VertexBuffer extends Buffer {
 	static fromGeometry(geometry: Geometry, usage?: number, mappedAtCreation?: boolean) {
@@ -21,7 +21,7 @@ class VertexBuffer extends Buffer {
 				const itemBytesPerComponent = item.BYTES_PER_ELEMENT;
 
 				for (let j = 0; j < item.length; j++) {
-					// biome-ignore lint/style/noNonNullAssertion: We're 99.9% sure that component has type of number.
+					// biome-ignore lint/style/noNonNullAssertion: We're 99.9% sure that component has a type of number.
 					const component = item[j]!;
 					const componentOffset = j * itemBytesPerComponent;
 

@@ -4,6 +4,7 @@ class GPUContext {
 	static #gpu: GPU;
 	static #adapter: GPUAdapter;
 	static #device: GPUDevice;
+	static #preferredFormat: GPUTextureFormat;
 
 	static get gpu() {
 		return GPUContext.#gpu;
@@ -15,6 +16,10 @@ class GPUContext {
 
 	static get device() {
 		return GPUContext.#device;
+	}
+
+	static get preferredFormat() {
+		return GPUContext.#preferredFormat;
 	}
 
 	static get limits() {
@@ -31,12 +36,10 @@ class GPUContext {
 		if (device) {
 			const { reason, message } = await device.lost;
 
-			const needsLocationReload = window.confirm(
-				`[GPUContext]: GPU device is lost.\nReason: ${reason}\nMessage: ${message}`,
-			);
+			const needsLocationReload = confirm(`[GPUContext]: GPU device is lost.\nReason: ${reason}\nMessage: ${message}`);
 
 			if (needsLocationReload) {
-				window.location.reload();
+				location.reload();
 			}
 		}
 	}
@@ -56,6 +59,7 @@ class GPUContext {
 				GPUContext.#gpu = gpu;
 				GPUContext.#adapter = adapter;
 				GPUContext.#device = device;
+				GPUContext.#preferredFormat = gpu.getPreferredCanvasFormat();
 
 				GPUContext.#handleDeviceLost();
 			}
