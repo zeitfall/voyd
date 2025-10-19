@@ -75,7 +75,12 @@ class Vector3 extends Vector {
 		const y = this.y;
 		const z = this.z;
 
-		return this.set(x * e11 + y * e12 + z * e13, x * e21 + y * e22 + z * e23, x * e31 + y * e32 + z * e33);
+		// biome-ignore format: It's easier to distinguish vector columns.
+		return this.set(
+			x * e11 + y * e12 + z * e13,
+			x * e21 + y * e22 + z * e23,
+			x * e31 + y * e32 + z * e33
+		);
 	}
 
 	// https://blog.molecular-matters.com/2013/05/24/a-faster-quaternion-vector-multiplication/
@@ -99,10 +104,11 @@ class Vector3 extends Vector {
 		const cy = 2 * (qz * vx - qx * vz);
 		const cz = 2 * (qx * vy - qy * vx);
 
+		// biome-ignore format: It's easier to distinguish vector columns.
 		return this.set(
 			vx + qw * cx + qy * cz - qz * cy,
 			vy + qw * cy + qz * cx - qx * cz,
-			vz + qw * cz + qx * cy - qy * cx,
+			vz + qw * cz + qx * cy - qy * cx
 		);
 	}
 

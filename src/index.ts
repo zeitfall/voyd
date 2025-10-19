@@ -2,6 +2,8 @@ export * from './core';
 
 export * from './buffers';
 
+export * from './cameras';
+
 export * from './geometries';
 
 export * from './math';
