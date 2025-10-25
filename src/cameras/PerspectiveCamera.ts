@@ -24,9 +24,9 @@ class PerspectiveCamera {
 
 	constructor(
 		public fovy = 80,
-		public aspect = 1,
-		public near = 0.1,
-		public far = 128,
+		public aspectRatio = 1,
+		public nearPlane = 0.1,
+		public farPlane = 128,
 	) {
 		this.#position = new Vector3(0, 0, -1);
 		this.#target = new Vector3();
@@ -72,17 +72,17 @@ class PerspectiveCamera {
 
 	#updateProjection() {
 		const fovy = this.fovy;
-		const a = this.aspect;
-		const n = this.near;
-		const f = this.far;
+		const ar = this.aspectRatio;
+		const np = this.nearPlane;
+		const fp = this.farPlane;
 
-		const fn = f - n;
+		const fn = fp - np;
 
 		const A = 1 / Math.tan(toRadians(fovy / 2));
-		const B = A / a;
-		const C = f / fn;
+		const B = ar * A;
+		const C = fp / fn;
 		const D = 1;
-		const E = -(n * f) / fn;
+		const E = -(np * fp) / fn;
 
 		// biome-ignore format: It's easier to distinguish matrix columns.
 		this.#projectionMatrix.set(
@@ -124,6 +124,24 @@ class PerspectiveCamera {
 		this.#viewMatrixArray.set(this.#viewMatrix.elements);
 
 		GPUContext.device.queue.writeBuffer(this.#viewMatrixBuffer.instance, 0, this.#viewMatrixArray.buffer, 0);
+	}
+
+	setAspectRatio(value: number) {
+		this.aspectRatio = value;
+
+		return this;
+	}
+
+	setNearPlane(value: number) {
+		this.nearPlane = value;
+
+		return this;
+	}
+
+	setFarPlane(value: number) {
+		this.farPlane = value;
+
+		return this;
 	}
 
 	update() {

@@ -1,3 +1,5 @@
+import GPUCanvas from './GPUCanvas';
+
 import type { GPUContextConfig } from '~/types';
 
 class GPUContext {
@@ -62,6 +64,8 @@ class GPUContext {
 				GPUContext.#preferredFormat = gpu.getPreferredCanvasFormat();
 
 				GPUContext.#handleDeviceLost();
+
+				customElements.define('gpu-canvas', GPUCanvas, { extends: 'canvas' });
 			}
 		} catch (error) {
 			console.error(error);

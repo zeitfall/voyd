@@ -21,8 +21,7 @@ class VertexBuffer extends Buffer {
 				const itemBytesPerComponent = item.BYTES_PER_ELEMENT;
 
 				for (let j = 0; j < item.length; j++) {
-					// biome-ignore lint/style/noNonNullAssertion: We're 99.9% sure that component has a type of number.
-					const component = item[j]!;
+					const component = item[j];
 					const componentOffset = j * itemBytesPerComponent;
 
 					const byteOffset = itemStartIndex + attributeOffset + componentOffset;

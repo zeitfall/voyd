@@ -21,12 +21,12 @@ class OrthographicCamera {
 	#viewMatrixBuffer: UniformBuffer;
 
 	constructor(
-		public left = -1,
-		public right = 1,
-		public top = 1,
-		public bottom = -1,
-		public near = 0.1,
-		public far = 128,
+		public leftPlane = -1,
+		public rightPlane = 1,
+		public topPlane = 1,
+		public bottomPlane = -1,
+		public nearPlane = 0.1,
+		public farPlane = 128,
 	) {
 		this.#position = new Vector3(0, 0, -1);
 		this.#target = new Vector3();
@@ -71,23 +71,23 @@ class OrthographicCamera {
 	}
 
 	#updateProjection() {
-		const l = this.left;
-		const r = this.right;
-		const t = this.top;
-		const b = this.bottom;
-		const n = this.near;
-		const f = this.far;
+		const lp = this.leftPlane;
+		const rp = this.rightPlane;
+		const tp = this.topPlane;
+		const bp = this.bottomPlane;
+		const np = this.nearPlane;
+		const fp = this.farPlane;
 
-		const rl = r - l;
-		const tb = t - b;
-		const fn = f - n;
+		const rl = rp - lp;
+		const tb = tp - bp;
+		const fn = fp - np;
 
 		const A = 2 / rl;
 		const B = 2 / tb;
 		const C = 1 / fn;
-		const D = -(r + l) / rl;
-		const E = -(t + b) / tb;
-		const F = -n / fn;
+		const D = -(rp + lp) / rl;
+		const E = -(tp + bp) / tb;
+		const F = -np / fn;
 		const G = 1;
 
 		// biome-ignore format: It's easier to distinguish matrix columns.
@@ -130,6 +130,51 @@ class OrthographicCamera {
 		this.#viewMatrixArray.set(this.#viewMatrix.elements);
 
 		GPUContext.device.queue.writeBuffer(this.#viewMatrixBuffer.instance, 0, this.#viewMatrixArray.buffer, 0);
+	}
+
+	setLeftPlane(value: number) {
+		this.leftPlane = value;
+
+		return this;
+	}
+
+	setRightPlane(value: number) {
+		this.rightPlane = value;
+
+		return this;
+	}
+
+	setTopPlane(value: number) {
+		this.topPlane = value;
+
+		return this;
+	}
+
+	setBottomPlane(value: number) {
+		this.bottomPlane = value;
+
+		return this;
+	}
+
+	setNearPlane(value: number) {
+		this.nearPlane = value;
+
+		return this;
+	}
+
+	setFarPlane(value: number) {
+		this.farPlane = value;
+
+		return this;
+	}
+
+	setPlanes(left: number, right: number, top: number, bottom: number, near: number, far: number) {
+		return this.setLeftPlane(left)
+			.setRightPlane(right)
+			.setTopPlane(top)
+			.setBottomPlane(bottom)
+			.setNearPlane(near)
+			.setFarPlane(far);
 	}
 
 	update() {
