@@ -41,7 +41,7 @@ export const VERTEX_ATTRIBUTE_COMPONENT_COUNT_MAP = {
 	sint32x4: 4,
 	'unorm10-10-10-2': 4,
 	'unorm8x4-bgra': 4,
-};
+} as const;
 
 // https://www.w3.org/TR/webgpu/#dom-gpuvertexformat-uint8x2
 export const VERTEX_ATTRIBUTE_FORMAT_BYTE_SIZE_MAP = {

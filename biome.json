@@ -23,6 +23,10 @@
 			},
 			"suspicious": {
 				"useAdjacentOverloadSignatures": "off"
+			},
+			"complexity": {
+				"noStaticOnlyClass": "off",
+				"useOptionalChain": "off"
 			}
 		}
 	},

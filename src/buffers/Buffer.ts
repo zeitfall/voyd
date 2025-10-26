@@ -2,6 +2,8 @@ import { GPUContext, Instance } from '~/core';
 
 import { isArrayBuffer, isBufferSource } from '~/assertions';
 
+import type { BufferSource } from '~/types';
+
 class Buffer extends Instance<GPUBuffer> {
 	constructor(size: number, usage: number, mappedAtCreation?: boolean);
 	constructor(source: BufferSource, usage: number, mappedAtCreation?: boolean);

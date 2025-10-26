@@ -3,13 +3,23 @@ import type { VertexAttributeNames } from '~/types';
 
 class Geometry {
 	#attributes: Map<VertexAttributeNames, VertexAttribute>;
+	#indices: Uint16Array | Uint32Array | null;
 
 	constructor() {
 		this.#attributes = new Map();
+		this.#indices = null;
 	}
 
 	get attributes() {
 		return this.#attributes;
+	}
+
+	get indices() {
+		return this.#indices;
+	}
+
+	get hasIndices() {
+		return Boolean(this.#indices && this.#indices.length);
 	}
 
 	get length() {
@@ -64,6 +74,12 @@ class Geometry {
 
 	hasAttribute(name: VertexAttributeNames) {
 		return this.#attributes.has(name);
+	}
+
+	setIndices(indices: Uint16Array | Uint32Array) {
+		this.#indices = indices;
+
+		return this;
 	}
 }
 

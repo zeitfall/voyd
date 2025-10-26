@@ -77,9 +77,10 @@ class PerspectiveCamera {
 		const fp = this.farPlane;
 
 		const fn = fp - np;
+		const it = 1 / Math.tan(toRadians(fovy / 2));
 
-		const A = 1 / Math.tan(toRadians(fovy / 2));
-		const B = ar * A;
+		const A = it / ar;
+		const B = it;
 		const C = fp / fn;
 		const D = 1;
 		const E = -(np * fp) / fn;

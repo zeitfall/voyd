@@ -1,6 +1,7 @@
 import Buffer from './Buffer';
 
 import type { Geometry } from '~/geometries';
+import type { BufferSource } from '~/types';
 
 class VertexBuffer extends Buffer {
 	static fromGeometry(geometry: Geometry, usage?: number, mappedAtCreation?: boolean) {
