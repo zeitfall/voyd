@@ -1,17 +1,17 @@
 import { defineReadOnlyProperties } from '~/utils';
 
 class GPUCanvas extends HTMLCanvasElement {
-	private declare readonly resizeObserver: ResizeObserver;
-	private declare readonly resizeEvent: UIEvent;
+	declare private readonly _resizeObserver: ResizeObserver;
+	declare private readonly _resizeEvent: UIEvent;
 
 	constructor() {
 		super();
 
-		const resizeObserver = new ResizeObserver(this._handleResize.bind(this));
-		const resizeEvent = new UIEvent('resize');
+		const _resizeObserver = new ResizeObserver(this._handleResize.bind(this));
+		const _resizeEvent = new UIEvent('resize');
 
 		// @ts-expect-error Object literal may only specify known properties, and 'resizeObserver' does not exist in type 'Record<keyof this, unknown>'.
-		defineReadOnlyProperties(this, { resizeObserver, resizeEvent });
+		defineReadOnlyProperties(this, { _resizeObserver, _resizeEvent });
 	}
 
 	get aspectRatio() {
@@ -39,18 +39,18 @@ class GPUCanvas extends HTMLCanvasElement {
 		this.width = width;
 		this.height = height;
 
-		this.dispatchEvent(this.resizeEvent);
+		this.dispatchEvent(this._resizeEvent);
 	}
 
 	connectedCallback() {
 		this.style.width = '100%';
 		this.style.height = '100%';
 
-		this.resizeObserver.observe(this);
+		this._resizeObserver.observe(this);
 	}
 
 	disconnectedCallback() {
-		this.resizeObserver.disconnect();
+		this._resizeObserver.disconnect();
 	}
 }
 
