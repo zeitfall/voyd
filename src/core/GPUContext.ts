@@ -1,28 +1,14 @@
 import GPUCanvas from './GPUCanvas';
 
+import { defineReadOnlyProperties } from '~/utils';
+
 import type { GPUContextConfig } from '~/types';
 
 class GPUContext {
-	static #gpu: GPU;
-	static #adapter: GPUAdapter;
-	static #device: GPUDevice;
-	static #preferredFormat: GPUTextureFormat;
-
-	static get gpu() {
-		return GPUContext.#gpu;
-	}
-
-	static get adapter() {
-		return GPUContext.#adapter;
-	}
-
-	static get device() {
-		return GPUContext.#device;
-	}
-
-	static get preferredFormat() {
-		return GPUContext.#preferredFormat;
-	}
+	declare static readonly gpu: GPU;
+	declare static readonly adapter: GPUAdapter;
+	declare static readonly device: GPUDevice;
+	declare static readonly preferredFormat: GPUTextureFormat;
 
 	static get limits() {
 		return GPUContext.device.limits;
@@ -32,7 +18,7 @@ class GPUContext {
 		return GPUContext.device.features;
 	}
 
-	static async #handleDeviceLost() {
+	private static async _handleDeviceLost() {
 		const { device } = GPUContext;
 
 		if (device) {
@@ -57,13 +43,16 @@ class GPUContext {
 
 			if (adapter) {
 				const device = await adapter.requestDevice(config?.device);
+				const preferredFormat = gpu.getPreferredCanvasFormat();
 
-				GPUContext.#gpu = gpu;
-				GPUContext.#adapter = adapter;
-				GPUContext.#device = device;
-				GPUContext.#preferredFormat = gpu.getPreferredCanvasFormat();
+				defineReadOnlyProperties(GPUContext, {
+					gpu,
+					adapter,
+					device,
+					preferredFormat,
+				});
 
-				GPUContext.#handleDeviceLost();
+				GPUContext._handleDeviceLost();
 
 				customElements.define('gpu-canvas', GPUCanvas, { extends: 'canvas' });
 			}

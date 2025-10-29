@@ -1,30 +1,23 @@
+import { defineReadOnlyProperties } from '~/utils';
+
 import { VERTEX_ATTRIBUTE_COMPONENT_COUNT_MAP, VERTEX_ATTRIBUTE_FORMAT_BYTE_SIZE_MAP } from '~/constants';
 
 import type { TypedArray } from '~/types';
 
 class VertexAttribute<T extends TypedArray = TypedArray> {
-	#array: TypedArray;
-	#format: GPUVertexFormat;
+	declare readonly array: TypedArray;
+	declare readonly format: GPUVertexFormat;
 
 	constructor(array: T, format: GPUVertexFormat) {
-		this.#array = array;
-		this.#format = format;
-	}
-
-	get array() {
-		return this.#array;
-	}
-
-	get format() {
-		return this.#format;
+		defineReadOnlyProperties(this, { array, format });
 	}
 
 	get length() {
-		return this.#array.length;
+		return this.array.length;
 	}
 
 	get stride() {
-		return VERTEX_ATTRIBUTE_COMPONENT_COUNT_MAP[this.#format];
+		return VERTEX_ATTRIBUTE_COMPONENT_COUNT_MAP[this.format];
 	}
 
 	get itemCount() {
@@ -32,11 +25,11 @@ class VertexAttribute<T extends TypedArray = TypedArray> {
 	}
 
 	get byteLength() {
-		return this.#array.byteLength;
+		return this.array.byteLength;
 	}
 
 	get byteStride() {
-		return VERTEX_ATTRIBUTE_FORMAT_BYTE_SIZE_MAP[this.#format];
+		return VERTEX_ATTRIBUTE_FORMAT_BYTE_SIZE_MAP[this.format];
 	}
 
 	getItem(index: number) {
@@ -45,7 +38,7 @@ class VertexAttribute<T extends TypedArray = TypedArray> {
 		const startIndex = index * stride;
 		const endIndex = startIndex + stride;
 
-		return this.#array.subarray(startIndex, endIndex) as T;
+		return this.array.subarray(startIndex, endIndex) as T;
 	}
 }
 

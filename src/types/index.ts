@@ -1,7 +1,7 @@
 export * from './core';
 
-export * from './arrays';
+export * from './array';
 
-export * from './buffers';
+export * from './buffer';
 
 export * from './utils';

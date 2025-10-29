@@ -1,4 +1,4 @@
-import { isTypedArray } from './arrays';
+import { isTypedArray } from './array';
 
 export function isArrayBuffer(value: unknown): value is ArrayBuffer {
 	return Boolean(value) && value instanceof ArrayBuffer;

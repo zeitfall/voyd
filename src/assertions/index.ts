@@ -1,3 +1,3 @@
-export * from './arrays';
+export * from './array';
 
-export * from './buffers';
+export * from './buffer';

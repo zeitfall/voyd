@@ -1,12 +1,10 @@
+import { defineReadOnlyProperty } from '~/utils';
+
 class Instance<T> {
-	#instance: T;
+	declare readonly instance: T;
 
 	constructor(value: T) {
-		this.#instance = value;
-	}
-
-	get instance() {
-		return this.#instance;
+		defineReadOnlyProperty(this, 'instance', value);
 	}
 }
 

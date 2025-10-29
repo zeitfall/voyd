@@ -1,8 +1,6 @@
 import Geometry from './Geometry';
 
-import { VertexAttribute } from '~/buffers';
-
-import { MAX_16_BIT_VALUE, TWO_PI } from '~/constants';
+import { TWO_PI } from '~/constants';
 
 const MIN_CIRCLE_SEGMENT_COUNT = 3;
 
@@ -17,11 +15,11 @@ class CircleGeometry extends Geometry {
 			throw new Error(`[CircleGeometry]: Circle geometry must have at least ${MIN_CIRCLE_SEGMENT_COUNT} segments.`);
 		}
 
-		this.#updateVertices();
-		this.#updateIndices();
+		this._updateVertices();
+		this._updateIndices();
 	}
 
-	#generateVertices() {
+	protected _generateVertices() {
 		const { radius, segments } = this;
 
 		const sectorAngle = TWO_PI / segments;
@@ -38,7 +36,7 @@ class CircleGeometry extends Geometry {
 		return vertices;
 	}
 
-	#generatePointListIndices() {
+	protected _generatePointListIndices() {
 		const { segments } = this;
 
 		const indices = [0, 0, 0];
@@ -50,7 +48,7 @@ class CircleGeometry extends Geometry {
 		return indices;
 	}
 
-	#generateLineListIndices() {
+	protected _generateLineListIndices() {
 		const { segments } = this;
 
 		const indices: number[] = [];
@@ -65,13 +63,13 @@ class CircleGeometry extends Geometry {
 		return indices;
 	}
 
-	// #generateLineStripIndices() {
-	// 	const indices: number[] = [];
+	protected _generateLineStripIndices() {
+		const indices: number[] = [];
 
-	// 	return indices;
-	// }
+		return indices;
+	}
 
-	#generateTriangleListIndices() {
+	protected _generateTriangleListIndices() {
 		const { segments } = this;
 
 		const indices: number[] = [];
@@ -86,83 +84,22 @@ class CircleGeometry extends Geometry {
 		return indices;
 	}
 
-	// #generateTriangleStripIndices() {
-	// 	const indices: number[] = [];
-
-	// 	return indices;
-	// }
-
-	#generateIndices(topology: GPUPrimitiveTopology) {
-		let indices: number[];
-
-		switch (topology) {
-			case 'point-list':
-				indices = this.#generatePointListIndices();
-
-				break;
-
-			case 'line-list':
-				indices = this.#generateLineListIndices();
-
-				break;
-
-			// case 'line-strip':
-			// 	indices = this.#generateLineStripIndices();
-
-			// 	break;
-
-			case 'triangle-list':
-				indices = this.#generateTriangleListIndices();
-
-				break;
-
-			// case 'triangle-strip':
-			// 	indices = this.#generateTriangleStripIndices();
-
-			// 	break;
-
-			default:
-				indices = [];
-
-				throw new Error(`[CircleGeometry]: Unsupported topology "${topology}"`);
-		}
+	protected _generateTriangleStripIndices() {
+		const indices: number[] = [];
 
 		return indices;
-	}
-
-	#updateVertices() {
-		const vertices = this.#generateVertices();
-		const hasPositionAttribute = this.hasAttribute('position');
-
-		if (hasPositionAttribute) {
-			const positionAttribute = this.getAttribute('position');
-
-			// @ts-expect-error 'positionAttribute' is possibly 'undefined'.
-			positionAttribute.array.set(vertices);
-		} else {
-			const positionAttribute = new VertexAttribute(new Float32Array(vertices), 'float32x3');
-
-			this.setAttribute('position', positionAttribute);
-		}
-	}
-
-	#updateIndices(topology: GPUPrimitiveTopology = 'triangle-list') {
-		const indices = this.#generateIndices(topology);
-		const indicesArray = this.length <= MAX_16_BIT_VALUE ? new Uint16Array(indices) : new Uint32Array(indices);
-
-		this.setIndices(indicesArray);
 	}
 
 	setRadius(value: number) {
 		this.radius = value;
 
-		this.#updateVertices();
+		this._updateVertices();
 	}
 
 	setSegments(value: number) {
 		this.segments = value;
 
-		this.#updateVertices();
+		this._updateVertices();
 	}
 }
 

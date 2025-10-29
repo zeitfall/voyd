@@ -1,4 +1,4 @@
-export * from './buffers';
+export * from './buffer';
 
 export * from './numeric';
 

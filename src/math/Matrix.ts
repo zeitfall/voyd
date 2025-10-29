@@ -36,10 +36,10 @@ abstract class Matrix {
 	declare readonly elements: number[];
 
 	constructor(args: unknown[], elementCount: number, columnCount: number) {
-		this.elements = this.#prepareElements(args, elementCount, columnCount);
+		this.elements = this._prepareElements(args, elementCount, columnCount);
 	}
 
-	#prepareElements(args: unknown[], elementCount: number, columnCount: number): number[] {
+	private _prepareElements(args: unknown[], elementCount: number, columnCount: number): number[] {
 		if (isArrayOfNumbers(args) && args.length === elementCount) {
 			return args.slice();
 		}
@@ -49,7 +49,7 @@ abstract class Matrix {
 		}
 
 		if (isArray(args[0]) && args.length === 1) {
-			return this.#prepareElements(args[0], elementCount, columnCount);
+			return this._prepareElements(args[0], elementCount, columnCount);
 		}
 
 		throw new Error('[Matrix]: Provided arguments are not valid.');
