@@ -1,13 +1,15 @@
 import { defineReadOnlyProperties } from '~/utils';
 
-import type { ControllerCallback, ControllerBindings } from '~/types';
+import type { ControllerOptions, ControllerCallback, ControllerBindings } from '~/types';
 
-abstract class Controller<E extends Event> {
-    declare protected readonly _events: Map<string, E>;
-    declare protected readonly _listeners: Map<string, ControllerCallback<E>>;
+abstract class Controller<K extends string, E extends Event> {
+    declare protected readonly _events: Map<K, E>;
+    declare protected readonly _listeners: Map<K, ControllerCallback<E>>;
 	declare protected readonly _abortController: AbortController;
 
-    constructor(bindings: ControllerBindings<E>) {
+    declare readonly options: ControllerOptions;
+
+    constructor(bindings: Partial<ControllerBindings<K, E>>, options: ControllerOptions = { mode: 'immediate' }) {
         const _events = new Map();
         const _listeners = new Map();
         const _abortController = new AbortController();
@@ -23,20 +25,53 @@ abstract class Controller<E extends Event> {
             _events,
             _listeners,
             _abortController,
+            options,
         });
+    }
+
+    protected abstract _getEventCode(event: E): K;
+
+    protected _setEvent(event: E) {
+        const eventCode = this._getEventCode(event);
+
+        if (this._events.has(eventCode)) {
+            event.preventDefault();
+
+            return;
+        }
+
+        this._events.set(eventCode, event);
+
+        if (this.options.mode === 'immediate') {
+            const listener = this._listeners.get(eventCode);
+
+            listener?.(event);
+        }
+    }
+
+    protected _deleteEvent(event: E) {
+        const eventCode = this._getEventCode(event);
+
+        if (this._events.has(eventCode)) {
+            this._events.delete(eventCode);
+        }
     }
 
     update() {
-        this._events.forEach((event, eventCode) => {
-            const listener = this._listeners.get(eventCode);
+        if (this.options.mode === 'sync') {
+            this._events.forEach((event, eventCode) => {
+                const listener = this._listeners.get(eventCode);
 
-            if (typeof listener === 'function') {
-                listener(event);
-            }
-        });
+                if (typeof listener === 'function') {
+                    listener(event);
+                }
+            });
+        }
     }
 
 	dispose() {
+        this._events.clear();
+        this._listeners.clear();
 		this._abortController.abort();
 	}
 }

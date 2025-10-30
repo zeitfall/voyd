@@ -1,35 +1,54 @@
 import Controller from './Controller';
+import PointerController from './PointerController';
 
-import type { ControllerBindings } from '~/types';
+import { defineReadOnlyProperty } from '~/utils';
 
-class KeyboardController extends Controller<KeyboardEvent> {
-	constructor(bindings: ControllerBindings<KeyboardEvent>) {
-        super(bindings);
+import type { ControllerOptions, ControllerBindings } from '~/types';
+
+class KeyboardController extends Controller<string, KeyboardEvent> {
+    declare private readonly _pointerController: PointerController;
+
+	constructor(
+        targetElement: HTMLElement,
+        bindings: Partial<ControllerBindings<string, KeyboardEvent>>,
+        options?: ControllerOptions
+    ) {
+        super(bindings, options);
+
+        // NOTE: Idk if focusing makes sense here.
+        // Probably, adding event listeners on window should be enough.
+        targetElement.tabIndex = 0;
+
+        const pointerController = new PointerController(targetElement, {
+            LMB: () => targetElement.focus(),
+            RMB: () => targetElement.blur()
+        });
 
 		const eventListenerOptions = { signal: this._abortController.signal };
 
-		window.addEventListener('keydown', this._onKeyDown.bind(this), eventListenerOptions);
-		window.addEventListener('keyup', this._onKeyUp.bind(this), eventListenerOptions);
+		targetElement.addEventListener('keydown', this._handleKeyDown.bind(this), eventListenerOptions);
+		targetElement.addEventListener('keyup', this._handleKeyUp.bind(this), eventListenerOptions);
+
+        // @ts-expect-error Argument of type 'string' is not assignable to parameter of type 'keyof this'.
+        defineReadOnlyProperty(this, '_pointerController', pointerController);
 	}
 
-	private _onKeyDown(event: KeyboardEvent) {
-        const eventCode = event.code;
-
-        if (this._events.has(eventCode)) {
-            event.preventDefault();
-
-            return;
-        }
-
-        this._events.set(eventCode, event);
+    protected _getEventCode(event: KeyboardEvent) {
+        return event.code;
     }
 
-	private _onKeyUp(event: KeyboardEvent) {
-        const eventCode = event.code;
+	private _handleKeyDown(event: KeyboardEvent) {
+        this._setEvent(event);
+    }
 
-        if (this._events.has(eventCode)) {
-            this._events.delete(eventCode);
-        }
+	private _handleKeyUp(event: KeyboardEvent) {
+        this._deleteEvent(event);
+    }
+
+    override dispose() {
+        super.dispose();
+
+        this._pointerController.dispose();
     }
 }
 

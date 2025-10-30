@@ -15,3 +15,5 @@ export * from './utils';
 export * from './assertions';
 
 export * from './constants';
+
+export * from './enums';

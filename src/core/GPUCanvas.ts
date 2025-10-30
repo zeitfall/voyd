@@ -18,6 +18,10 @@ class GPUCanvas extends HTMLCanvasElement {
 		return this.width / this.height;
 	}
 
+	private _handleContextMenu(event: PointerEvent) {
+		event.preventDefault();
+	}
+
 	private _handleResize(entries: ResizeObserverEntry[]) {
 		const { contentBoxSize, devicePixelContentBoxSize } = entries[0];
 
@@ -45,11 +49,16 @@ class GPUCanvas extends HTMLCanvasElement {
 	connectedCallback() {
 		this.style.width = '100%';
 		this.style.height = '100%';
+		this.style.touchAction = 'none';
+
+		this.addEventListener('contextmenu', this._handleContextMenu);
 
 		this._resizeObserver.observe(this);
 	}
 
 	disconnectedCallback() {
+		this.removeEventListener('contextmenu', this._handleContextMenu);
+
 		this._resizeObserver.disconnect();
 	}
 }
