@@ -1,16 +1,28 @@
-import { UniformBuffer } from '~/buffers';
 import { GPUContext } from '~/core';
+import { UniformBuffer } from '~/buffers';
 import { Matrix4, Vector3 } from '~/math';
 
-import { defineReadOnlyProperty, defineReadOnlyProperties } from '~/utils';
+import { defineReadOnlyProperties } from '~/utils';
 
 abstract class Camera {
-	declare static readonly DEFAULT_UP: Vector3;
+	declare static readonly DEFAULT_RIGHT: Readonly<Vector3>;
+	declare static readonly DEFAULT_UP: Readonly<Vector3>;
+	declare static readonly DEFAULT_FORWARD: Readonly<Vector3>;
 
 	static {
+		const DEFAULT_RIGHT = new Vector3(1, 0, 0);
 		const DEFAULT_UP = new Vector3(0, 1, 0);
+		const DEFAULT_FORWARD = new Vector3(0, 0, 1);
 
-		defineReadOnlyProperty(Camera, 'DEFAULT_UP', DEFAULT_UP);
+		Object.freeze(DEFAULT_RIGHT);
+		Object.freeze(DEFAULT_UP);
+		Object.freeze(DEFAULT_FORWARD);
+
+		defineReadOnlyProperties(Camera, {
+			DEFAULT_RIGHT,
+			DEFAULT_UP,
+			DEFAULT_FORWARD
+		});
 	}
 
 	declare readonly position: Vector3;

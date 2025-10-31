@@ -1,5 +1,8 @@
-import type Matrix2 from './Matrix2';
 import Vector from './Vector';
+
+import { lerp } from '~/utils';
+
+import type Matrix2 from './Matrix2';
 
 class Vector2 extends Vector {
 	constructor(
@@ -17,13 +20,6 @@ class Vector2 extends Vector {
 		return this.set(vector.x, vector.y);
 	}
 
-	set(x: number, y: number) {
-		this.x = x;
-		this.y = y;
-
-		return this;
-	}
-
 	setX(x: number) {
 		this.x = x;
 
@@ -36,6 +32,10 @@ class Vector2 extends Vector {
 		return this;
 	}
 
+	set(x: number, y: number) {
+		return this.setX(x).setY(y);
+	}
+
 	add(vector: Vector2) {
 		return this.set(this.x + vector.x, this.y + vector.y);
 	}
@@ -44,7 +44,11 @@ class Vector2 extends Vector {
 		return this.set(this.x - vector.x, this.y - vector.y);
 	}
 
-	premultiplyByMatrix(matrix: Matrix2) {
+	lerp(vector: Vector2, fraction: number) {
+		return this.set(lerp(this.x, vector.x, fraction), lerp(this.y, vector.y, fraction));
+	}
+
+	multiplyByMatrix(matrix: Matrix2) {
 		const x = this.x;
 		const y = this.y;
 		const a = matrix.elements;

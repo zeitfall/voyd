@@ -8,6 +8,8 @@ export * from './geometries';
 
 export * from './controllers';
 
+export * from './controls';
+
 export * from './math';
 
 export * from './utils';

@@ -15,8 +15,12 @@ abstract class Vector {
 		return vectorA.clone().subtract(vectorB);
 	}
 
-	static premultiplyByMatrix(matrix: Matrix, vector: Vector) {
-		return vector.clone().premultiplyByMatrix(matrix);
+	static lerp(vectorA: Vector, vectorB: Vector, fraction: number) {
+		return vectorA.clone().lerp(vectorB, fraction);
+	}
+
+	static multiplyByMatrix(matrix: Matrix, vector: Vector) {
+		return vector.clone().multiplyByMatrix(matrix);
 	}
 
 	static normalize(vector: Vector) {
@@ -124,7 +128,9 @@ abstract class Vector {
 
 	abstract subtract(vector: Vector): this;
 
-	abstract premultiplyByMatrix(matrix: Matrix): this;
+	abstract lerp(vector: Vector, fraction: number): this;
+
+	abstract multiplyByMatrix(matrix: Matrix): this;
 
 	abstract scale(...scaleFactors: number[]): this;
 

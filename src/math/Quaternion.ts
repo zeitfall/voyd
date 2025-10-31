@@ -110,15 +110,6 @@ class Quaternion {
 		return this.set(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
 	}
 
-	set(x: number, y: number, z: number, w: number) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		this.w = w;
-
-		return this;
-	}
-
 	setX(x: number) {
 		this.x = x;
 
@@ -141,6 +132,10 @@ class Quaternion {
 		this.w = w;
 
 		return this;
+	}
+
+	set(x: number, y: number, z: number, w: number) {
+		return this.setX(x).setY(y).setZ(z).setW(w);
 	}
 
 	setFromAxisAngle(axis: Vector3, angle: number) {
@@ -235,7 +230,7 @@ class Quaternion {
 	}
 
 	divideByScalar(scalar: number) {
-		if (scalar === 0) {
+		if (Math.abs(scalar) < Number.EPSILON) {
 			throw new Error('[Quaternion]: Cannot divide by zero.');
 		}
 

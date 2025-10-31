@@ -1,5 +1,7 @@
 import Vector from './Vector';
 
+import { lerp } from '~/utils';
+
 import type Quaternion from './Quaternion';
 import type Matrix3 from './Matrix3';
 
@@ -24,14 +26,6 @@ class Vector3 extends Vector {
 		return this.set(vector.x, vector.y, vector.z);
 	}
 
-	set(x: number, y: number, z: number) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
-
-		return this;
-	}
-
 	setX(x: number) {
 		this.x = x;
 
@@ -50,6 +44,10 @@ class Vector3 extends Vector {
 		return this;
 	}
 
+	set(x: number, y: number, z: number) {
+		return this.setX(x).setY(y).setZ(z);
+	}
+
 	add(vector: Vector3) {
 		return this.set(this.x + vector.x, this.y + vector.y, this.z + vector.z);
 	}
@@ -58,7 +56,15 @@ class Vector3 extends Vector {
 		return this.set(this.x - vector.x, this.y - vector.y, this.z - vector.z);
 	}
 
-	premultiplyByMatrix(matrix: Matrix3): this {
+	lerp(vector: Vector3, fraction: number) {
+		return this.set(
+			lerp(this.x, vector.x, fraction),
+			lerp(this.y, vector.y, fraction),
+			lerp(this.z, vector.z, fraction)
+		);
+	}
+
+	multiplyByMatrix(matrix: Matrix3): this {
 		const a = matrix.elements;
 
 		const e11 = a[0];
@@ -87,8 +93,8 @@ class Vector3 extends Vector {
 	rotateByQuaternion(quaternion: Quaternion) {
 		const quaternionLength = quaternion.length;
 
-		if (quaternionLength > 1) {
-			throw new Error(`[Vector3]: Quaternion must be normalized, with length=${quaternionLength} is given.`);
+		if (Math.abs(quaternionLength - 1) > Number.EPSILON) {
+			throw new Error(`[Vector3]: Quaternion must be normalized, length=${quaternionLength} is given.`);
 		}
 
 		const vx = this.x;

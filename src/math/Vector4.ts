@@ -1,5 +1,7 @@
 import Vector from './Vector';
 
+import { lerp } from '~/utils';
+
 import type Matrix4 from './Matrix4';
 
 class Vector4 extends Vector {
@@ -18,15 +20,6 @@ class Vector4 extends Vector {
 
 	copy(vector: Vector4) {
 		return this.set(vector.x, vector.y, vector.z, vector.w);
-	}
-
-	set(x: number, y: number, z: number, w: number) {
-		this.x = x;
-		this.y = y;
-		this.z = z;
-		this.w = w;
-
-		return this;
 	}
 
 	setX(x: number) {
@@ -53,6 +46,10 @@ class Vector4 extends Vector {
 		return this;
 	}
 
+	set(x: number, y: number, z: number, w: number) {
+		return this.setX(x).setY(y).setZ(z).setW(w);
+	}
+
 	add(vector: Vector4) {
 		return this.set(this.x + vector.x, this.y + vector.y, this.z + vector.z, this.w + vector.w);
 	}
@@ -61,7 +58,16 @@ class Vector4 extends Vector {
 		return this.set(this.x - vector.x, this.y - vector.y, this.z - vector.z, this.w - vector.w);
 	}
 
-	premultiplyByMatrix(matrix: Matrix4): this {
+	lerp(vector: Vector4, fraction: number) {
+		return this.set(
+			lerp(this.x, vector.x, fraction),
+			lerp(this.y, vector.y, fraction),
+			lerp(this.z, vector.z, fraction),
+			lerp(this.w, vector.w, fraction)
+		);
+	}
+
+	multiplyByMatrix(matrix: Matrix4): this {
 		const a = matrix.elements;
 
 		const e11 = a[0];
