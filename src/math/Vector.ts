@@ -15,6 +15,10 @@ abstract class Vector {
 		return vectorA.clone().subtract(vectorB);
 	}
 
+	static direction(vectorA: Vector, vectorB: Vector) {
+		return vectorB.clone().directionFrom(vectorA);
+	}
+
 	static lerp(vectorA: Vector, vectorB: Vector, fraction: number) {
 		return vectorA.clone().lerp(vectorB, fraction);
 	}
@@ -79,12 +83,16 @@ abstract class Vector {
 		return this.normalize().scale(length);
 	}
 
+	directionFrom(vector: Vector) {
+		return this.subtract(vector);
+	}
+
 	multiplyByScalar(scalar: number) {
 		return this.scale(scalar);
 	}
 
 	divideByScalar(scalar: number) {
-		if (scalar === 0) {
+		if (Math.abs(scalar) < Number.EPSILON) {
 			throw new Error('[Vector]: Division by zero.');
 		}
 

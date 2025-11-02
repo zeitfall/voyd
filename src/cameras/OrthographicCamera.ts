@@ -8,10 +8,10 @@ class OrthographicCamera extends Camera {
 		public rightPlane = 1,
 		public topPlane = 1,
 		public bottomPlane = -1,
-		public nearPlane = 0.1,
-		public farPlane = 128,
+		nearPlane?: number,
+		farPlane?: number,
 	) {
-		super();
+		super(nearPlane, farPlane);
 	}
 
 	protected _updateProjection() {
@@ -67,18 +67,6 @@ class OrthographicCamera extends Camera {
 
 	setBottomPlane(value: number) {
 		this.bottomPlane = value;
-
-		return this;
-	}
-
-	setNearPlane(value: number) {
-		this.nearPlane = value;
-
-		return this;
-	}
-
-	setFarPlane(value: number) {
-		this.farPlane = value;
 
 		return this;
 	}

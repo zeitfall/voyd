@@ -2,19 +2,26 @@ import Vector from './Vector';
 
 import { lerp } from '~/utils';
 
+import type Spherical from './Spherical';
 import type Quaternion from './Quaternion';
 import type Matrix3 from './Matrix3';
+
+import { PI_OVER_TWO } from '~/constants';
 
 class Vector3 extends Vector {
 	static cross(vectorA: Vector3, vectorB: Vector3) {
 		return vectorA.clone().cross(vectorB);
 	}
 
-	constructor(
-		public x = 0,
-		public y = 0,
-		public z = 0,
-	) {
+	static fromSphericalCoordinates(radius: number, theta: number, phi: number) {
+		return new Vector3().setFromSphericalCoordinates(radius, theta, phi);
+	}
+
+	static fromSpherical(spherical: Spherical) {
+		return new Vector3().setFromSpherical(spherical);
+	}
+
+	constructor(public x = 0, public y = 0, public z = 0) {
 		super();
 	}
 
@@ -46,6 +53,25 @@ class Vector3 extends Vector {
 
 	set(x: number, y: number, z: number) {
 		return this.setX(x).setY(y).setZ(z);
+	}
+
+	setFromSphericalCoordinates(radius: number, theta: number, phi: number) {
+		const sinTheta = Math.sin(theta - PI_OVER_TWO);
+		const cosTheta = Math.cos(theta - PI_OVER_TWO);
+		const sinPhi = Math.sin(phi + PI_OVER_TWO);
+		const cosPhi = Math.cos(phi + PI_OVER_TWO); 
+
+		return this.set(
+			radius * sinPhi * cosTheta,
+			radius * cosPhi,
+			radius * sinPhi * sinTheta,
+		);
+	}
+
+	setFromSpherical(spherical: Spherical) {
+		const { radius, theta, phi } = spherical;
+
+		return this.setFromSphericalCoordinates(radius, theta, phi);
 	}
 
 	add(vector: Vector3) {
@@ -90,7 +116,7 @@ class Vector3 extends Vector {
 	}
 
 	// https://blog.molecular-matters.com/2013/05/24/a-faster-quaternion-vector-multiplication/
-	rotateByQuaternion(quaternion: Quaternion) {
+	multiplyByQuaternion(quaternion: Quaternion) {
 		const quaternionLength = quaternion.length;
 
 		if (Math.abs(quaternionLength - 1) > Number.EPSILON) {

@@ -1,11 +1,28 @@
-import type Vector from './Vector';
+import { lerp, modRadians } from '~/utils';
 
-abstract class Polar {
-    static clone(polar: Polar) {
-        return polar.clone();
+import { TWO_PI } from '~/constants';
+
+import type Vector2 from './Vector2';
+
+// https://en.wikipedia.org/wiki/Polar_coordinate_system
+class Polar {
+    static fromCartesian(x: number, y: number) {
+        return new Polar().setFromCartesian(x, y);
     }
 
-    constructor(public radius = 1, public theta = 0) {}
+    static fromVector(vector: Vector2) {
+        return new Polar().setFromVector(vector);
+    }
+
+    constructor(public radius = 0, public theta = 0) {}
+
+    clone() {
+        return new Polar(...this);
+    }
+
+    copy(polar: Polar) {
+        return this.set(polar.radius, polar.theta);
+    }
 
     setRadius(radius: number) {
         this.radius = radius;
@@ -19,17 +36,54 @@ abstract class Polar {
         return this;
     }
 
-    abstract clone(): Polar;
-    
-    abstract copy(polar: Polar): this;
+    set(radius: number, theta: number) {
+        return this.setRadius(radius).setTheta(theta);
+    }
 
-    abstract set(...components: number[]): this;
+    setFromCartesian(x: number, y: number) {
+        this.radius = Math.sqrt(x * x + y * y);
 
-    abstract setFromCartesian(...components: number[]): this;
+        if (this.radius === 0) {
+            return this.setTheta(0);
+        }
 
-    abstract setFromVector(vector: Vector): this;
+        return this.setTheta(Math.atan2(y, x));
+    }
 
-    abstract toCanonical(): this;
+    setFromVector(vector: Vector2) {
+        return this.setFromCartesian(vector.x, vector.y);
+    }
+
+    lerp(polar: Polar, fraction: number) {
+        return this.set(
+            lerp(this.radius, polar.radius, fraction),
+            lerp(this.theta, polar.theta, fraction)
+        );
+    }
+
+    toCanonical() {
+        if (this.radius === 0) {
+            return this.setTheta(0);
+        }
+
+        if (this.radius < 0) {
+            this.radius = -this.radius;
+            this.theta += Math.PI;
+        }
+
+        if (this.theta > TWO_PI) {
+            this.theta += Math.PI;
+            this.theta = modRadians(this.theta);
+            this.theta -= Math.PI;
+        }
+
+        return this;
+    }
+
+    *[Symbol.iterator]() {
+        yield this.radius;
+        yield this.theta;
+    }
 }
 
 export default Polar;

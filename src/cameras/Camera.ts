@@ -40,7 +40,7 @@ abstract class Camera {
 	declare readonly viewMatrixBuffer: UniformBuffer;
 	declare readonly projectionMatrixBuffer: UniformBuffer;
 
-	constructor() {
+	constructor(public nearPlane = .1, public farPlane = 128) {
 		const position = new Vector3(0, 0, -1);
 		const target = new Vector3();
 		const right = new Vector3();
@@ -99,6 +99,18 @@ abstract class Camera {
 		this.viewMatrixArray.set(this.viewMatrix.elements);
 
 		GPUContext.device.queue.writeBuffer(this.viewMatrixBuffer.instance, 0, this.viewMatrixArray.buffer, 0);
+	}
+
+	setNearPlane(value: number) {
+		this.nearPlane = value;
+
+		return this;
+	}
+
+	setFarPlane(value: number) {
+		this.farPlane = value;
+
+		return this;
 	}
 
 	update() {

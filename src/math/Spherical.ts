@@ -1,23 +1,43 @@
-import Polar from './Polar';
-
-import { clamp, modRadians } from '~/utils';
+import { clamp, lerp, modRadians } from '~/utils';
 
 import { PI_OVER_TWO, THREE_PI_OVER_TWO } from '~/constants';
 
 import type Vector3 from './Vector3';
 
 // https://en.wikipedia.org/wiki/Spherical_coordinate_system
-class Polar3 extends Polar {
-    constructor(radius?: number, theta?: number, public phi = 0) {
-        super(radius, theta);
+class Spherical {
+    static clone(spherical: Spherical) {
+        return spherical.clone();
     }
+
+    static fromCartesian(x: number, y: number, z: number) {
+        return new Spherical().setFromCartesian(x, y, z);
+    }
+
+    static fromVector(vector: Vector3) {
+        return new Spherical().setFromVector(vector);
+    }
+
+    constructor(public radius = 0, public theta = 0, public phi = 0) {}
 
     clone() {
-        return new Polar3(...this);
+        return new Spherical(...this);
     }
 
-    copy(polar: Polar3) {
-        return this.set(polar.radius, polar.theta, polar.phi);
+    copy(spherical: Spherical) {
+        return this.set(spherical.radius, spherical.theta, spherical.phi);
+    }
+
+    setRadius(radius: number) {
+        this.radius = radius;
+
+        return this;
+    }
+
+    setTheta(theta: number) {
+        this.theta = theta;
+
+        return this;
     }
 
     setPhi(phi: number) {
@@ -37,14 +57,25 @@ class Polar3 extends Polar {
             return this.setTheta(0).setPhi(0);
         }
 
-        const theta = Math.atan2(x, z);
-        const phi = Math.asin(clamp(-y / this.radius, -1, 1));
+        let theta = Math.atan2(z, x);
+        let phi = Math.acos(clamp(y / this.radius, -1, 1));
+
+        theta += PI_OVER_TWO;
+        phi -= PI_OVER_TWO;
 
         return this.setTheta(theta).setPhi(phi);
     }
 
     setFromVector(vector: Vector3) {
         return this.setFromCartesian(vector.x, vector.y, vector.z);
+    }
+
+    lerp(spherical: Spherical, fraction: number) {
+        return this.set(
+            lerp(this.radius, spherical.radius, fraction),
+            lerp(this.theta, spherical.theta, fraction),
+            lerp(this.phi, spherical.phi, fraction),
+        );
     }
 
     toCanonical() {
@@ -81,4 +112,4 @@ class Polar3 extends Polar {
     }
 }
 
-export default Polar3;
+export default Spherical;

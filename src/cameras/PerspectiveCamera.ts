@@ -8,10 +8,10 @@ class PerspectiveCamera extends Camera {
 	constructor(
 		public fovy = 80,
 		public aspectRatio = 1,
-		public nearPlane = 0.1,
-		public farPlane = 128,
+		nearPlane?: number,
+		farPlane?: number,
 	) {
-		super();
+		super(nearPlane, farPlane);
 	}
 
 	protected _updateProjection() {
@@ -44,18 +44,6 @@ class PerspectiveCamera extends Camera {
 
 	setAspectRatio(value: number) {
 		this.aspectRatio = value;
-
-		return this;
-	}
-
-	setNearPlane(value: number) {
-		this.nearPlane = value;
-
-		return this;
-	}
-
-	setFarPlane(value: number) {
-		this.farPlane = value;
 
 		return this;
 	}

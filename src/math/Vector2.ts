@@ -2,13 +2,19 @@ import Vector from './Vector';
 
 import { lerp } from '~/utils';
 
+import type Polar from './Polar';
 import type Matrix2 from './Matrix2';
 
 class Vector2 extends Vector {
-	constructor(
-		public x = 0,
-		public y = 0,
-	) {
+	static fromPolarCoordinates(radius: number, theta: number) {
+		return new Vector2().setFromPolarCoordinates(radius, theta);
+	}
+
+	static fromPolar(polar: Polar) {
+		return new Vector2().setFromPolar(polar);
+	}
+
+	constructor(public x = 0, public y = 0) {
 		super();
 	}
 
@@ -34,6 +40,16 @@ class Vector2 extends Vector {
 
 	set(x: number, y: number) {
 		return this.setX(x).setY(y);
+	}
+
+	setFromPolarCoordinates(radius: number, theta: number) {
+		return this.set(radius * Math.cos(theta), radius * Math.sin(theta));
+	}
+
+	setFromPolar(polar: Polar) {
+		const { radius, theta } = polar;
+
+		return this.setFromPolarCoordinates(radius, theta);
 	}
 
 	add(vector: Vector2) {
