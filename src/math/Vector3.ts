@@ -1,6 +1,6 @@
 import Vector from './Vector';
 
-import { lerp } from '~/utils';
+import { clamp, lerp } from '~/utils';
 
 import type Spherical from './Spherical';
 import type Quaternion from './Quaternion';
@@ -9,16 +9,20 @@ import type Matrix3 from './Matrix3';
 import { PI_OVER_TWO } from '~/constants';
 
 class Vector3 extends Vector {
-	static cross(vectorA: Vector3, vectorB: Vector3) {
-		return vectorA.clone().cross(vectorB);
-	}
-
 	static fromSphericalCoordinates(radius: number, theta: number, phi: number) {
 		return new Vector3().setFromSphericalCoordinates(radius, theta, phi);
 	}
 
 	static fromSpherical(spherical: Spherical) {
 		return new Vector3().setFromSpherical(spherical);
+	}
+
+	static cross(vectorA: Vector3, vectorB: Vector3) {
+		return vectorA.clone().cross(vectorB);
+	}
+
+	static projectOnPlane(vector: Vector3, planeNormal: Vector3) {
+		return vector.clone().projectOnPlane(planeNormal);
 	}
 
 	constructor(public x = 0, public y = 0, public z = 0) {
@@ -55,6 +59,10 @@ class Vector3 extends Vector {
 		return this.setX(x).setY(y).setZ(z);
 	}
 
+	reset() {
+		return this.set(0, 0, 0);
+	}
+
 	setFromSphericalCoordinates(radius: number, theta: number, phi: number) {
 		const sinTheta = Math.sin(theta - PI_OVER_TWO);
 		const cosTheta = Math.cos(theta - PI_OVER_TWO);
@@ -80,6 +88,14 @@ class Vector3 extends Vector {
 
 	subtract(vector: Vector3) {
 		return this.set(this.x - vector.x, this.y - vector.y, this.z - vector.z);
+	}
+
+	clamp(min: Vector3, max: Vector3) {
+		return this.set(
+			clamp(this.x, min.x, max.x),
+			clamp(this.y, min.y, max.y),
+			clamp(this.z, min.z, max.z)
+		);
 	}
 
 	lerp(vector: Vector3, fraction: number) {
@@ -152,6 +168,12 @@ class Vector3 extends Vector {
 		);
 	}
 
+	projectOnPlane(planeNormal: Vector3) {
+		_vector.copy(this).projectOnVector(planeNormal);
+
+		return this.subtract(_vector);
+	}
+
 	scale(scaleX: number, scaleY?: number, scaleZ?: number) {
 		const sx = scaleX;
 		const sy = scaleY ?? scaleX;
@@ -190,5 +212,7 @@ class Vector3 extends Vector {
 		yield this.z;
 	}
 }
+
+const _vector = new Vector3();
 
 export default Vector3;

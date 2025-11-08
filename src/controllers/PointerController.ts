@@ -1,13 +1,15 @@
 import Controller from './Controller';
 
-import { PointerControllerButton } from '~/enums';
+import { PointerButton } from '~/enums';
 
-import type { ControllerOptions, ControllerBindings, PointerControllerButtonKeys } from '~/types';
+import type { ControllerOptions, ControllerBindings } from '~/types';
 
-class PointerController extends Controller<PointerControllerButtonKeys, PointerEvent> {
+type PointerButtonKeys = keyof typeof PointerButton;
+
+class PointerController extends Controller<PointerButtonKeys, PointerEvent> {
     constructor(
         targetElement: HTMLElement,
-        bindings: Partial<ControllerBindings<PointerControllerButtonKeys, PointerEvent>>,
+        bindings: Partial<ControllerBindings<PointerButtonKeys, PointerEvent>>,
         options?: ControllerOptions
     ) {
         super(bindings, options);
@@ -21,7 +23,7 @@ class PointerController extends Controller<PointerControllerButtonKeys, PointerE
     }
 
     protected _getEventCode(event: PointerEvent) {
-        return PointerControllerButton[event.button] as PointerControllerButtonKeys;
+        return PointerButton[event.button] as PointerButtonKeys;
     }
 
     protected _handlePointerDown(event: PointerEvent) {

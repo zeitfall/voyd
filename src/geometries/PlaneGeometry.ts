@@ -10,10 +10,11 @@ class PlaneGeometry extends Geometry {
 		super();
 
 		this._updateVertices();
-		this._updateIndices();
+
+		this.setTopology('triangle-list');
 	}
 
-	protected _generateVertices() {
+	protected _generateVertexData() {
 		const { width, height, segmentsX, segmentsY } = this;
 
 		const halfWidth = width / 2;
@@ -23,34 +24,32 @@ class PlaneGeometry extends Geometry {
 		const segmentHeight = height / segmentsY;
 
 		const vertices: number[] = [];
+		const normals: number[] = [];
+		const uvs: number[] = [];
 
 		for (let j = 0; j <= segmentsY; j++) {
-			const y = j * segmentHeight - halfHeight;
+			let y = j * segmentHeight;
+			const v = 1 - y / segmentsY;
+
+			y -= halfHeight;
 
 			for (let i = 0; i <= segmentsX; i++) {
-				const x = i * segmentWidth - halfWidth;
+				let x = i * segmentWidth;
+				const u = x / segmentsX;
+
+				x -= halfWidth;
 
 				vertices.push(x, -y, 0);
+				normals.push(0, 0, -1);
+				uvs.push(u, v);
 			}
 		}
 
-		return vertices;
-	}
-
-	protected _generatePointListIndices() {
-		const positionAttribute = this.getAttribute('position');
-
-		const indices: number[] = [];
-
-		if (positionAttribute) {
-			const vertexCount = positionAttribute.array.length;
-
-			for (let i = 0; i <= vertexCount; i++) {
-				indices.push(i);
-			}
-		}
-
-		return indices;
+		return {
+			vertices,
+			normals,
+			uvs,
+		};
 	}
 
 	protected _generateLineListIndices() {

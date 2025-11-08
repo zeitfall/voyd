@@ -19,12 +19,20 @@ abstract class Vector {
 		return vectorB.clone().directionFrom(vectorA);
 	}
 
+	static clamp(vector: Vector, min: Vector, max: Vector) {
+		return vector.clone().clamp(min, max);
+	}
+
 	static lerp(vectorA: Vector, vectorB: Vector, fraction: number) {
 		return vectorA.clone().lerp(vectorB, fraction);
 	}
 
 	static multiplyByMatrix(matrix: Matrix, vector: Vector) {
 		return vector.clone().multiplyByMatrix(matrix);
+	}
+
+	static projectOnVector(vectorA: Vector, vectorB: Vector) {
+		return vectorA.clone().projectOnVector(vectorB);
 	}
 
 	static normalize(vector: Vector) {
@@ -83,6 +91,18 @@ abstract class Vector {
 		return this.normalize().scale(length);
 	}
 
+	projectOnVector(vector: Vector) {
+		const vectorLengthSquared = vector.lengthSquared;
+
+		if (vectorLengthSquared > 0) {
+			const scalarPart = this.dot(vector) / vectorLengthSquared;
+
+			return this.copy(vector).multiplyByScalar(scalarPart);
+		}
+
+		return this.reset();
+	}
+
 	directionFrom(vector: Vector) {
 		return this.subtract(vector);
 	}
@@ -132,9 +152,13 @@ abstract class Vector {
 
 	abstract set(...components: number[]): this;
 
+	abstract reset(...components: number[]): this;
+
 	abstract add(vector: Vector): this;
 
 	abstract subtract(vector: Vector): this;
+
+	abstract clamp(min: Vector, max: Vector): this;
 
 	abstract lerp(vector: Vector, fraction: number): this;
 

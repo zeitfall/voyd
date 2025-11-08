@@ -1,7 +1,7 @@
 import OrbitControls from './OrbitControls';
-import TrackballControls from './TrackballControls';
+import TrackControls from './TrackControls';
 
 export {
     OrbitControls,
-    TrackballControls
+    TrackControls
 };

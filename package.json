@@ -21,8 +21,9 @@
 		"biome:lint:write": "biome lint --write",
 		"biome:format:write": "biome format --write",
 		"biome:pretify:write": "npm run biome:lint:write && npm run biome:format:write",
-		"vite:dev": "vite build -w",
-		"vite:build": "vite build"
+		"vite:build": "vite build -c vite.config.build.js",
+		"vite:build:watch": "vite build -w -c vite.config.build.js",
+		"vite:serve": "vite serve -c vite.config.serve.js"
 	},
 	"engines": {
 		"node": ">=22.19.0"

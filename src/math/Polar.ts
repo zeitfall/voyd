@@ -1,4 +1,4 @@
-import { lerp, modRadians } from '~/utils';
+import { clamp, lerp, modRadians } from '~/utils';
 
 import { TWO_PI } from '~/constants';
 
@@ -54,11 +54,12 @@ class Polar {
         return this.setFromCartesian(vector.x, vector.y);
     }
 
+    clamp(min: Polar, max: Polar) {
+        return this.set(clamp(this.radius, min.radius, max.radius), clamp(this.theta, min.theta, max.theta));
+    }
+
     lerp(polar: Polar, fraction: number) {
-        return this.set(
-            lerp(this.radius, polar.radius, fraction),
-            lerp(this.theta, polar.theta, fraction)
-        );
+        return this.set(lerp(this.radius, polar.radius, fraction), lerp(this.theta, polar.theta, fraction));
     }
 
     toCanonical() {

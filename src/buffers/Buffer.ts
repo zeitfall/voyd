@@ -20,6 +20,9 @@ class Buffer extends Instance<GPUBuffer> {
 			throw new Error('[Buffer]: Invalid buffer input.');
 		}
 
+		// NOTE: Ensure buffer size is multiple of 4.
+		size = 4 * Math.ceil(size / 4);
+
 		const instance = GPUContext.device.createBuffer({
 			size,
 			usage,

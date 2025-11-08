@@ -1,6 +1,6 @@
 import Vector from './Vector';
 
-import { lerp } from '~/utils';
+import { clamp, lerp } from '~/utils';
 
 import type Polar from './Polar';
 import type Matrix2 from './Matrix2';
@@ -42,6 +42,10 @@ class Vector2 extends Vector {
 		return this.setX(x).setY(y);
 	}
 
+	reset() {
+		return this.set(0, 0);
+	}
+
 	setFromPolarCoordinates(radius: number, theta: number) {
 		return this.set(radius * Math.cos(theta), radius * Math.sin(theta));
 	}
@@ -58,6 +62,10 @@ class Vector2 extends Vector {
 
 	subtract(vector: Vector2) {
 		return this.set(this.x - vector.x, this.y - vector.y);
+	}
+
+	clamp(min: Vector2, max: Vector2) {
+		return this.set(clamp(this.x, min.x, max.x), clamp(this.y, min.y, max.y));
 	}
 
 	lerp(vector: Vector2, fraction: number) {

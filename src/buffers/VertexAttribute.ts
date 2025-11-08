@@ -5,27 +5,31 @@ import { VERTEX_ATTRIBUTE_COMPONENT_COUNT_MAP, VERTEX_ATTRIBUTE_FORMAT_BYTE_SIZE
 import type { TypedArray } from '~/types';
 
 class VertexAttribute<T extends TypedArray = TypedArray> {
-	declare readonly array: TypedArray;
+	declare readonly array: T;
 	declare readonly format: GPUVertexFormat;
 
 	constructor(array: T, format: GPUVertexFormat) {
 		defineReadOnlyProperties(this, { array, format });
 	}
 
-	get length() {
+	get size() {
 		return this.array.length;
+	}
+
+	get length() {
+		return Math.floor(this.size / this.stride);
 	}
 
 	get stride() {
 		return VERTEX_ATTRIBUTE_COMPONENT_COUNT_MAP[this.format];
 	}
 
-	get itemCount() {
-		return Math.floor(this.length / this.stride);
+	get byteSize() {
+		return this.array.byteLength;
 	}
 
 	get byteLength() {
-		return this.array.byteLength;
+		return this.byteStride * this.length;
 	}
 
 	get byteStride() {

@@ -5,10 +5,10 @@ import type { BufferSource } from '~/types';
 
 class VertexBuffer extends Buffer {
 	static fromGeometry(geometry: Geometry, usage?: number, mappedAtCreation?: boolean) {
-		const geometryByteLength = geometry.byteLength;
+		const geometryByteSize = geometry.byteSize;
 		const geometryByteStride = geometry.byteStride;
 
-		const arrayBuffer = new ArrayBuffer(geometryByteLength);
+		const arrayBuffer = new ArrayBuffer(geometryByteSize);
 		const arrayBufferView = new DataView(arrayBuffer);
 
 		let attributeOffset = 0;
@@ -16,7 +16,7 @@ class VertexBuffer extends Buffer {
 		geometry.attributes.forEach((attribute, attributeName) => {
 			const attributeArrayConstructor = attribute.array.constructor;
 
-			for (let i = 0; i < attribute.itemCount; i++) {
+			for (let i = 0; i < attribute.length; i++) {
 				const item = attribute.getItem(i);
 				const itemStartIndex = i * geometryByteStride;
 				const itemBytesPerComponent = item.BYTES_PER_ELEMENT;

@@ -16,36 +16,39 @@ class CircleGeometry extends Geometry {
 		}
 
 		this._updateVertices();
-		this._updateIndices();
+
+		this.setTopology('triangle-list');
 	}
 
-	protected _generateVertices() {
+	protected _generateVertexData() {
 		const { radius, segments } = this;
 
 		const sectorAngle = TWO_PI / segments;
 
 		const vertices = [0, 0, 0];
+		const normals = [0, 0, -1];
+		const uvs = [0, 0];
 
 		for (let i = 0; i < segments; i++) {
-			const x = radius * Math.cos(i * sectorAngle);
-			const y = radius * Math.sin(i * sectorAngle);
+			let x = Math.cos(i * sectorAngle);
+			let y = Math.sin(i * sectorAngle);
+
+			const u = (x + 1) / 2;
+			const v = (y + 1) / 2;
+
+			x *= radius;
+			y *= radius;
 
 			vertices.push(x, y, 0);
+			normals.push(0, 0, -1);
+			uvs.push(u, v);
 		}
 
-		return vertices;
-	}
-
-	protected _generatePointListIndices() {
-		const { segments } = this;
-
-		const indices = [0, 0, 0];
-
-		for (let i = 0; i <= segments; i++) {
-			indices.push(i);
-		}
-
-		return indices;
+		return {
+			vertices,
+			normals,
+			uvs
+		};
 	}
 
 	protected _generateLineListIndices() {

@@ -1,6 +1,6 @@
 import Vector from './Vector';
 
-import { lerp } from '~/utils';
+import { clamp, lerp } from '~/utils';
 
 import type Matrix4 from './Matrix4';
 
@@ -45,12 +45,25 @@ class Vector4 extends Vector {
 		return this.setX(x).setY(y).setZ(z).setW(w);
 	}
 
+	reset() {
+		return this.set(0, 0, 0, 0);
+	}
+
 	add(vector: Vector4) {
 		return this.set(this.x + vector.x, this.y + vector.y, this.z + vector.z, this.w + vector.w);
 	}
 
 	subtract(vector: Vector4) {
 		return this.set(this.x - vector.x, this.y - vector.y, this.z - vector.z, this.w - vector.w);
+	}
+
+	clamp(min: Vector4, max: Vector4) {
+		return this.set(
+			clamp(this.x, min.x, max.x),
+			clamp(this.y, min.y, max.y),
+			clamp(this.z, min.z, max.z),
+			clamp(this.w, min.w, max.w)
+		);
 	}
 
 	lerp(vector: Vector4, fraction: number) {

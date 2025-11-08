@@ -70,6 +70,14 @@ class Spherical {
         return this.setFromCartesian(vector.x, vector.y, vector.z);
     }
 
+    clamp(min: Spherical, max: Spherical) {
+        return this.set(
+            clamp(this.radius, min.radius, max.radius),
+            clamp(this.theta, min.theta, max.theta),
+            clamp(this.phi, min.phi, max.phi),
+        );
+    }
+
     lerp(spherical: Spherical, fraction: number) {
         return this.set(
             lerp(this.radius, spherical.radius, fraction),

@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=0">
+        <style>
+            * {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
+
+            html,
+            body {
+                height: 100%;
+            }
+
+            body {
+                overflow: hidden;
+            }
+        </style>
+    </head>
+
+    <body>
+        <script type="importmap">
+            {
+                "imports": {
+                    "voyd": "../dist/voyd.js"
+                }
+            }
+        </script>
+
+        <canvas is="gpu-canvas"></canvas>
+
+        <script type="module">
+            import {
+                Geometry,
+                GPUContext,
+                IndexBuffer,
+                Matrix3,
+                PerspectiveCamera,
+                OrthographicCamera,
+                VertexAttribute,
+                VertexBuffer,
+                VertexBufferLayout,
+                GPUCanvas,
+                PlaneGeometry,
+                CircleGeometry,
+                SphereGeometry,
+                Camera,
+                KeyboardController,
+                PointerController,
+                OrbitControls,
+                TrackControls,
+                Vector3,
+            } from 'voyd';
+
+            const canvas = document.querySelector('canvas');
+            const canvasContext = canvas.getContext('webgpu');
+
+            await GPUContext.init();
+
+            canvasContext.configure({
+                device: GPUContext.device,
+                format: GPUContext.preferredFormat,
+            });
+
+            // const camera = new OrthographicCamera();
+            const camera = new PerspectiveCamera(30);
+
+            camera.position.set(0, 2, -4);
+
+            const controls = new OrbitControls(camera);
+
+            // const geometry = new PlaneGeometry(1, 1, 8, 4);
+            // const geometry = new CircleGeometry(1, 32);
+            const geometry = new SphereGeometry(1, 32, 32);
+
+            geometry.setTopology('point-list');
+
+            console.log(geometry);
+
+            const vertexBuffer = VertexBuffer.fromGeometry(geometry, 0, true);
+            const vertexBufferLayout = VertexBufferLayout.fromGeometry(geometry);
+
+            const indexBuffer = new IndexBuffer(geometry.indices, 0, true);
+
+            const renderShader = GPUContext.device.createShaderModule({
+                code: `
+                    struct VertexInput {
+                        @location(0) position: vec3f,
+                        @location(1) normal: vec3f,
+                        @location(2) uv: vec2f
+                    }
+
+                    struct VertexOutput {
+                        @builtin(position) position: vec4f,
+                        @location(0) normal: vec3f,
+                        @location(1) uv: vec2f
+                    }
+
+                    @group(0) @binding(0) var<uniform> projection_matrix: mat4x4f;
+                    @group(0) @binding(1) var<uniform> view_matrix: mat4x4f;
+
+                    @vertex
+                    fn vs(input: VertexInput) -> VertexOutput {
+                        var output: VertexOutput;
+
+                        output.position = projection_matrix * view_matrix * vec4f(input.position, 1);
+                        output.normal = input.normal;
+                        output.uv = input.uv;
+
+                        return output;
+                    }
+
+                    @fragment
+                    fn fs(input: VertexOutput) -> @location(0) vec4f {
+                        return vec4f(1);
+                    }
+                `,
+            });
+
+            const bindGroupLayout = GPUContext.device.createBindGroupLayout({
+                entries: [
+                    {
+                        binding: 0,
+                        visibility: GPUShaderStage.VERTEX,
+                        buffer: {
+                            type: 'uniform'
+                        }
+                    },
+                    {
+                        binding: 1,
+                        visibility: GPUShaderStage.VERTEX,
+                        buffer: {
+                            type: 'uniform'
+                        }
+                    },
+                ]
+            });
+
+            const bindGroup = GPUContext.device.createBindGroup({
+                layout: bindGroupLayout,
+                entries: [
+                    {
+                        binding: 0,
+                        resource: {
+                            buffer: camera.projectionMatrixBuffer.instance,
+                        }
+                    },
+                    {
+                        binding: 1,
+                        resource: {
+                            buffer: camera.viewMatrixBuffer.instance
+                        }
+                    }
+                ]
+            });
+
+            const renderPipelineLayout = GPUContext.device.createPipelineLayout({ bindGroupLayouts: [bindGroupLayout] });
+
+            const renderPipeline = GPUContext.device.createRenderPipeline({
+                layout: renderPipelineLayout,
+                vertex: {
+                    module: renderShader,
+                    entryPoint: 'vs',
+                    buffers: [vertexBufferLayout],
+                },
+                fragment: {
+                    module: renderShader,
+                    entryPoint: 'fs',
+                    targets: [
+                        {
+                            format: GPUContext.preferredFormat
+                        }
+                    ]
+                },
+                primitive: {
+                    topology: geometry.topology,
+                }
+            });
+
+            requestAnimationFrame(loop);
+
+            let t = 0;
+
+            function loop() {
+                // controls.track(-.1, 0);
+                controls.update();
+                camera.setAspectRatio(canvas.aspectRatio);
+                camera.update();
+
+                const commandEncoder = GPUContext.device.createCommandEncoder();
+
+                const renderPass = commandEncoder.beginRenderPass({
+                    colorAttachments: [
+                        {
+                            loadOp: 'clear',
+                            storeOp: 'store',
+                            clearValue: [0, 0, 0, 1],
+                            view: canvasContext.getCurrentTexture().createView()
+                        }
+                    ]
+                });
+
+                renderPass.setPipeline(renderPipeline);
+                renderPass.setBindGroup(0, bindGroup);
+                renderPass.setVertexBuffer(0, vertexBuffer.instance);
+                renderPass.setIndexBuffer(indexBuffer.instance, 'uint16');
+                renderPass.drawIndexed(geometry.indices.length);
+                renderPass.end();
+
+                GPUContext.device.queue.submit([commandEncoder.finish()]);
+
+                t += .01;
+
+                requestAnimationFrame(loop);
+            }
+        </script>
+    </body>
+</html>
