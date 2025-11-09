@@ -66,17 +66,17 @@
             });
 
             // const camera = new OrthographicCamera();
-            const camera = new PerspectiveCamera(30);
+            const camera = new PerspectiveCamera(90);
 
-            camera.position.set(0, 2, -4);
+            camera.position.set(0, 0, -2);
 
             const controls = new OrbitControls(camera);
 
-            // const geometry = new PlaneGeometry(1, 1, 8, 4);
+            // const geometry = new PlaneGeometry(1, 1, 16, 16);
             // const geometry = new CircleGeometry(1, 32);
-            const geometry = new SphereGeometry(1, 32, 32);
+            const geometry = new SphereGeometry(1, 16, 16);
 
-            geometry.setTopology('point-list');
+            geometry.setTopology('line-list');
 
             console.log(geometry);
 
@@ -95,8 +95,9 @@
 
                     struct VertexOutput {
                         @builtin(position) position: vec4f,
-                        @location(0) normal: vec3f,
-                        @location(1) uv: vec2f
+                        @location(0) vertex: vec3f,
+                        @location(1) normal: vec3f,
+                        @location(2) uv: vec2f
                     }
 
                     @group(0) @binding(0) var<uniform> projection_matrix: mat4x4f;
@@ -107,6 +108,7 @@
                         var output: VertexOutput;
 
                         output.position = projection_matrix * view_matrix * vec4f(input.position, 1);
+                        output.vertex = input.position;
                         output.normal = input.normal;
                         output.uv = input.uv;
 
@@ -115,7 +117,10 @@
 
                     @fragment
                     fn fs(input: VertexOutput) -> @location(0) vec4f {
-                        return vec4f(1);
+                        // var vertex_color = 1 - smoothstep(0, 1, 4 * input.vertex.z);
+                        var vertex_color = 1f;
+
+                        return vec4f(vec3f(vertex_color), 1);
                     }
                 `,
             });

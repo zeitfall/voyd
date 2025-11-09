@@ -1,23 +1,51 @@
 import Geometry from './Geometry';
 
+import { defineWritableProperties } from '~/utils';
+
 import { TWO_PI } from '~/constants';
 
 const MIN_CIRCLE_SEGMENT_COUNT = 3;
 
 class CircleGeometry extends Geometry {
-	constructor(
-		public radius: number,
-		public segments = MIN_CIRCLE_SEGMENT_COUNT,
-	) {
+	declare private _radius: number;
+	declare private _segments: number;
+
+	constructor(radius = 1, segments = 8) {
 		super();
 
 		if (segments < MIN_CIRCLE_SEGMENT_COUNT) {
 			throw new Error(`[CircleGeometry]: Circle geometry must have at least ${MIN_CIRCLE_SEGMENT_COUNT} segments.`);
 		}
 
+		defineWritableProperties(this, {
+			// @ts-expect-error Object literal may only specify known properties, and '_radius' does not exist in type 'Record<keyof this, unknown>'.
+			_radius: radius,
+			_segments: segments,
+		});
+
 		this._updateVertices();
 
 		this.setTopology('triangle-list');
+	}
+
+	get radius() {
+		return this._radius;
+	}
+
+	get segments() {
+		return this._segments;
+	}
+
+	set radius(value: number) {
+		this._radius = value;
+
+		this._updateVertices();
+	}
+
+	set segments(value: number) {
+		this._segments = value;
+
+		this._updateVertices();
 	}
 
 	protected _generateVertexData() {
@@ -58,7 +86,7 @@ class CircleGeometry extends Geometry {
 
 		for (let i = 1; i <= segments; i++) {
 			const A = i;
-			const B = A < segments ? A + 1 : 1;
+			const B = i % segments + 1;
 
 			indices.push(0, A, A, B);
 		}
@@ -79,7 +107,7 @@ class CircleGeometry extends Geometry {
 
 		for (let i = 1; i <= segments; i++) {
 			const A = i;
-			const B = A < segments ? A + 1 : 1;
+			const B = i % segments + 1;
 
 			indices.push(0, A, B);
 		}
@@ -96,13 +124,22 @@ class CircleGeometry extends Geometry {
 	setRadius(value: number) {
 		this.radius = value;
 
-		this._updateVertices();
+		return this;
 	}
 
 	setSegments(value: number) {
 		this.segments = value;
 
+		return this;
+	}
+
+	set(radius: number, segments: number) {
+		this._radius = radius;
+		this._segments = segments
+
 		this._updateVertices();
+
+		return this;
 	}
 }
 

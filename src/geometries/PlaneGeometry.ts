@@ -1,17 +1,78 @@
 import Geometry from './Geometry';
 
+import { defineWritableProperties } from '~/utils';
+
+const MIN_SEGMENTS_X = 1;
+const MIN_SEGMENTS_Y = 1;
+
 class PlaneGeometry extends Geometry {
-	constructor(
-		public width: number,
-		public height: number,
-		public segmentsX = 1,
-		public segmentsY = 1,
-	) {
+	declare private _width: number;
+	declare private _height: number;
+	declare private _segmentsX: number;
+	declare private _segmentsY: number;
+
+	constructor(width = 1, height = 1, segmentsX = 1, segmentsY = 1) {
 		super();
+
+		if (segmentsX < 1) {
+			throw new Error(`[PlaneGeometry]: Plane geometry must have at least ${MIN_SEGMENTS_X} segments per row.`);
+		}
+
+		if (segmentsY < 1) {
+			throw new Error(`[PlaneGeometry]: Plane geometry must have at least ${MIN_SEGMENTS_Y} segments per column.`);
+		}
+
+		defineWritableProperties(this, {
+			// @ts-expect-error Object literal may only specify known properties, and '_width' does not exist in type 'Record<keyof this, unknown>'.
+			_width: width,
+			_height: height,
+			_segmentsX: segmentsX,
+			_segmentsY: segmentsY
+		});
 
 		this._updateVertices();
 
 		this.setTopology('triangle-list');
+	}
+
+	get width() {
+		return this._width;
+	}
+
+	get height() {
+		return this._height;
+	}
+
+	get segmentsX() {
+		return this._segmentsX;
+	}
+
+	get segmentsY() {
+		return this._segmentsY;
+	}
+
+	set width(value: number) {
+		this._width = value;
+
+		this._updateVertices();
+	}
+
+	set height(value: number) {
+		this._height = value;
+
+		this._updateVertices();
+	}
+
+	set segmentsX(value: number) {
+		this._segmentsX = value;
+
+		this._updateVertices();
+	}
+
+	set segmentsY(value: number) {
+		this._segmentsY = value;
+
+		this._updateVertices();
 	}
 
 	protected _generateVertexData() {
@@ -60,15 +121,29 @@ class PlaneGeometry extends Geometry {
 		const indices: number[] = [];
 
 		for (let j = 0; j < segmentsY; j++) {
-			const rowOffset = j * vertexPerRow;
+			const currentRowStartIndex = j * vertexPerRow;
+			const nextRowStartIndex = currentRowStartIndex + vertexPerRow;
 
-			for (let i = 0; i < segmentsX; i++) {
-				const A = rowOffset + i;
-				const B = A + 1;
-				const C = A + vertexPerRow;
-				const D = C + 1;
+			for (let i = 0; i <= segmentsX; i++) {
+				const A = currentRowStartIndex + i;
+				const B = nextRowStartIndex + i;
+				const C = B + 1;
 
-				indices.push(B, A, A, C, C, D, D, B, B, C);
+				// NOTE: Fills the most right line.
+				if (i === segmentsX) {
+					indices.push(A, B);
+
+					continue;
+				}
+
+				// NOTE: Fills the most top line.
+				if (j === 0) {
+					const D = A + 1;
+
+					indices.push(A, D);
+				}
+
+				indices.push(A, B, B, C, C, A);
 			}
 		}
 
@@ -89,15 +164,16 @@ class PlaneGeometry extends Geometry {
 		const indices: number[] = [];
 
 		for (let j = 0; j < segmentsY; j++) {
-			const rowOffset = j * vertexPerRow;
+			const currentRowStartIndex = j * vertexPerRow;
+			const nextRowStartIndex = currentRowStartIndex + vertexPerRow;
 
 			for (let i = 0; i < segmentsX; i++) {
-				const A = rowOffset + i;
-				const B = A + 1;
-				const C = A + vertexPerRow;
-				const D = C + 1;
+				const A = currentRowStartIndex + i;
+				const B = nextRowStartIndex + i;
+				const C = B + 1;
+				const D = A + 1;
 
-				indices.push(B, A, C, B, C, D);
+				indices.push(A, B, C, A, C, D);
 			}
 		}
 
@@ -113,32 +189,34 @@ class PlaneGeometry extends Geometry {
 	setWidth(value: number) {
 		this.width = value;
 
-		this._updateVertices();
+		return this;
 	}
 
 	setHeight(value: number) {
 		this.height = value;
 
-		this._updateVertices();
+		return this;
 	}
 
 	setSize(width: number, height: number) {
-		this.width = width;
-		this.height = height;
+		this._width = width;
+		this._height = height;
 
 		this._updateVertices();
+
+		return this;
 	}
 
 	setSegmentsX(value: number) {
 		this.segmentsX = value;
 
-		this._updateVertices();
+		return this;
 	}
 
 	setSegmentsY(value: number) {
 		this.segmentsY = value;
 
-		this._updateVertices();
+		return this;
 	}
 
 	setSegments(x: number, y: number) {
@@ -146,6 +224,8 @@ class PlaneGeometry extends Geometry {
 		this.segmentsY = y;
 
 		this._updateVertices();
+
+		return this;
 	}
 }
 

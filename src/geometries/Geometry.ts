@@ -106,7 +106,7 @@ abstract class Geometry {
 		const indices: number[] = [];
 
 		if (positionAttribute) {
-			const vertexCount = positionAttribute.array.length / 3;
+			const vertexCount = this.length;
 
 			for (let i = 0; i < vertexCount; i++) {
 				indices.push(i);
