@@ -12,24 +12,20 @@ class VertexAttribute<T extends TypedArray = TypedArray> {
 		defineReadOnlyProperties(this, { array, format });
 	}
 
-	get size() {
-		return this.array.length;
-	}
-
 	get length() {
-		return Math.floor(this.size / this.stride);
+		return this.array.length;
 	}
 
 	get stride() {
 		return VERTEX_ATTRIBUTE_COMPONENT_COUNT_MAP[this.format];
 	}
 
-	get byteSize() {
-		return this.array.byteLength;
+	get count() {
+		return Math.floor(this.length / this.stride);
 	}
 
 	get byteLength() {
-		return this.byteStride * this.length;
+		return this.array.byteLength;
 	}
 
 	get byteStride() {

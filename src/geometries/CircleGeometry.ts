@@ -94,12 +94,6 @@ class CircleGeometry extends Geometry {
 		return indices;
 	}
 
-	protected _generateLineStripIndices() {
-		const indices: number[] = [];
-
-		return indices;
-	}
-
 	protected _generateTriangleListIndices() {
 		const { segments } = this;
 
@@ -111,6 +105,12 @@ class CircleGeometry extends Geometry {
 
 			indices.push(0, A, B);
 		}
+
+		return indices;
+	}
+
+	protected _generateLineStripIndices() {
+		const indices: number[] = [];
 
 		return indices;
 	}

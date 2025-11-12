@@ -150,12 +150,6 @@ class PlaneGeometry extends Geometry {
 		return indices;
 	}
 
-	protected _generateLineStripIndices() {
-		const indices: number[] = [];
-
-		return indices;
-	}
-
 	protected _generateTriangleListIndices() {
 		const { segmentsX, segmentsY } = this;
 
@@ -176,6 +170,12 @@ class PlaneGeometry extends Geometry {
 				indices.push(A, B, C, A, C, D);
 			}
 		}
+
+		return indices;
+	}
+
+	protected _generateLineStripIndices() {
+		const indices: number[] = [];
 
 		return indices;
 	}

@@ -5,10 +5,10 @@ import type { BufferSource } from '~/types';
 
 class VertexBuffer extends Buffer {
 	static fromGeometry(geometry: Geometry, usage?: number, mappedAtCreation?: boolean) {
-		const geometryByteSize = geometry.byteSize;
+		const geometryByteLength = geometry.byteLength;
 		const geometryByteStride = geometry.byteStride;
 
-		const arrayBuffer = new ArrayBuffer(geometryByteSize);
+		const arrayBuffer = new ArrayBuffer(geometryByteLength);
 		const arrayBufferView = new DataView(arrayBuffer);
 
 		let attributeOffset = 0;

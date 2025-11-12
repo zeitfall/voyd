@@ -8,42 +8,29 @@ import type { GeometryAttributeNames, GeometryVertexData } from '~/types';
 
 abstract class Geometry {
 	declare private _topology: GPUPrimitiveTopology;
+	declare private _indices: Uint16Array | Uint32Array | null;
 
 	declare readonly attributes: Map<GeometryAttributeNames, VertexAttribute>;
-	declare indices: Uint16Array | Uint32Array | null;
 
 	constructor() {
 		const _topology = 'triangle-list';
+		const _indices = null;
 
 		const attributes = new Map();
-		const indices = null;
 
+		// @ts-expect-error Object literal may only specify known properties, and '_topology' does not exist in type 'Record<keyof this, unknown>'.
+		defineWritableProperties(this, { _topology, _indices });
 		defineReadOnlyProperty(this, 'attributes', attributes);
-		// @ts-expect-error Object literal may only specify known properties, and 'topology' does not exist in type 'Record<keyof this, unknown>'.
-		defineWritableProperties(this, { _topology, indices });
-	}
-
-	get size() {
-		let size = 0;
-
-		this.attributes.forEach((attribute) => {
-			size += attribute.size;
-		});
-
-		return size;
 	}
 
 	get length() {
-		const hasPositionAttribute = this.hasAttribute('position');
+		let size = 0;
 
-		if (hasPositionAttribute) {
-			const positionAttribute = this.getAttribute('position');
+		this.attributes.forEach((attribute) => {
+			size += attribute.length;
+		});
 
-			// @ts-expect-error 'positionAttribute' is possibly 'undefined'.
-			return positionAttribute.length;
-		}
-
-		return 0;
+		return size;
 	}
 
 	get stride() {
@@ -56,24 +43,27 @@ abstract class Geometry {
 		return stride;
 	}
 
-	get byteSize() {
-		let size = 0;
+	get vertexCount() {
+		const hasPositionAttribute = this.hasAttribute('position');
 
-		this.attributes.forEach((attribute) => {
-			size += attribute.byteSize;
-		});
+		if (hasPositionAttribute) {
+			const positionAttribute = this.getAttribute('position');
 
-		return size;
+			// @ts-expect-error 'positionAttribute' is possibly 'undefined'.
+			return positionAttribute.count;
+		}
+
+		return 0;
 	}
 
 	get byteLength() {
-		let length = 0;
+		let size = 0;
 
 		this.attributes.forEach((attribute) => {
-			length += attribute.byteLength;
+			size += attribute.byteLength;
 		});
 
-		return length;
+		return size;
 	}
 
 	get byteStride() {
@@ -86,12 +76,28 @@ abstract class Geometry {
 		return stride;
 	}
 
-	get hasIndices() {
-		return Boolean(this.indices && this.indices.length);
-	}
-
 	get topology() {
 		return this._topology;
+	}
+
+	get indices() {
+		return this._indices;
+	}
+
+	get indexFormat(): GPUIndexFormat | null {
+		if (this.indices instanceof Uint16Array) {
+			return 'uint16';
+		}
+
+		if (this.indices instanceof Uint32Array) {
+			return 'uint32';
+		}
+
+		return null;
+	}
+ 
+	get hasIndices() {
+		return Boolean(this.indices && this.indices.length);
 	}
 
 	set topology(value: GPUPrimitiveTopology) {
@@ -100,13 +106,17 @@ abstract class Geometry {
 		this._updateIndices(value);
 	}
 
+	set indices(value: Uint16Array | Uint32Array | null) {
+		this._indices = value;
+	}
+
 	protected _generatePointListIndices() {
 		const positionAttribute = this.getAttribute('position');
 
 		const indices: number[] = [];
 
 		if (positionAttribute) {
-			const vertexCount = this.length;
+			const { vertexCount } = this;
 
 			for (let i = 0; i < vertexCount; i++) {
 				indices.push(i);
@@ -204,9 +214,9 @@ abstract class Geometry {
 
 	protected abstract _generateLineListIndices(): number[];
 
-	protected abstract _generateLineStripIndices(): number[];
-
 	protected abstract _generateTriangleListIndices(): number[];
+
+	protected abstract _generateLineStripIndices(): number[];
 
 	protected abstract _generateTriangleStripIndices(): number[];
 

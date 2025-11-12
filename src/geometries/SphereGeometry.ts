@@ -1,11 +1,15 @@
 import Geometry from './Geometry';
 
+import { Vector3 } from '~/math';
+
 import { defineWritableProperties } from '~/utils';
 
 import { TWO_PI } from '~/constants';
 
 const MIN_LONGITUDES = 3;
 const MIN_LATITUDES = 2;
+
+const _vertexNormal = new Vector3();
 
 class SphereGeometry extends Geometry {
     declare private _radius: number;
@@ -76,14 +80,16 @@ class SphereGeometry extends Geometry {
         const uvs: number[] = [];
 
         vertices.push(0, radius, 0);
-        normals.push(0, 0, 0); // Figure out later
-        uvs.push(0, 0); // Figure out later
+        normals.push(0, 1, 0);
+        uvs.push(0, 0);
 
         for (let j = 1; j < latitudes; j++) {
             const phi = j * latitudeAngle;
             
             const sinPhi = Math.sin(phi);
             const cosPhi = Math.cos(phi);
+
+            const v = 1 - j / latitudes;
 
             for (let i = 0; i < longitudes; i++) {
                 const theta = i * longitudeAngle;
@@ -95,15 +101,19 @@ class SphereGeometry extends Geometry {
                 const y = radius * cosPhi;
                 const z = radius * sinPhi * sinTheta;
 
+                const u = i / longitudes;
+
+                _vertexNormal.set(x, y, z).normalize();
+
                 vertices.push(x, y, z);
-                normals.push(0, 0, 0); // Figure out later
-                uvs.push(0, 0); // Figure out later
+                normals.push(..._vertexNormal);
+                uvs.push(u, v);
             }
         }
 
         vertices.push(0, -radius, 0);
-        normals.push(0, 0, 0); // Figure out later
-        uvs.push(0, 0); // Figure out later
+        normals.push(0, -1, 0);
+        uvs.push(0, 1);
 
         return {
             vertices,
@@ -113,10 +123,10 @@ class SphereGeometry extends Geometry {
     }
 
     protected _generateLineListIndices() {
-		const { length, longitudes, latitudes } = this;
+		const { vertexCount, longitudes, latitudes } = this;
 
         const northPoleIndex = 0;
-        const southPoleIndex = length - 1;
+        const southPoleIndex = vertexCount - 1;
 
         const firstLatitudeStartIndex = 1;
         const lastLatitudeStartIndex = southPoleIndex - longitudes;
@@ -159,16 +169,16 @@ class SphereGeometry extends Geometry {
     }
 
 	protected _generateLineStripIndices() {
-		const indices: number[] = [];
+        const indices: number[] = [];
 
 		return indices;
 	}
 
 	protected _generateTriangleListIndices() {
-		const { length, longitudes, latitudes } = this;
+		const { vertexCount, longitudes, latitudes } = this;
 
         const northPoleIndex = 0;
-        const southPoleIndex = length - 1;
+        const southPoleIndex = vertexCount - 1;
 
         const firstLatitudeStartIndex = 1;
         const lastLatitudeStartIndex = southPoleIndex - longitudes;
