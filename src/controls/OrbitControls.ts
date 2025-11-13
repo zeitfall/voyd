@@ -41,7 +41,7 @@ class OrbitControls {
 		const _trackCameraTarget = new Vector3();
 		const _trackOffset = new Vector3();
 
-		const _orbitOffset = Vector3.direction(camera.target, camera.position) as Vector3;
+		const _orbitOffset = Vector3.direction(camera.target, camera.position);
 		const _minOrientation = new Spherical(camera.nearPlane, Number.NEGATIVE_INFINITY, -PI_OVER_TWO + Number.EPSILON);
 		const _maxOrientation = new Spherical(camera.farPlane, Number.POSITIVE_INFINITY, PI_OVER_TWO - Number.EPSILON);
 		const _currentOrientation = Spherical.fromVector(_orbitOffset);

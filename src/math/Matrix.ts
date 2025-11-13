@@ -1,36 +1,38 @@
 import { isArray, isArrayOfNumbers, isArrayOfVectors } from '~/assertions';
 
+import type { Constructor } from '~/types';
+
 abstract class Matrix {
-	static determinant(matrix: Matrix) {
+	static determinant<T extends Matrix>(this: Constructor<T>, matrix: T) {
 		return matrix.determinant;
 	}
 
-	static clone(matrix: Matrix) {
-		return matrix.clone();
+	static clone<T extends Matrix>(this: Constructor<T>, matrix: T) {
+		return matrix.clone() as T;
 	}
 
-	static add(matrixA: Matrix, matrixB: Matrix) {
-		return matrixA.clone().add(matrixB);
+	static add<T extends Matrix>(this: Constructor<T>, matrixA: T, matrixB: T) {
+		return matrixA.clone().add(matrixB) as T;
 	}
 
-	static subtract(matrixA: Matrix, matrixB: Matrix) {
-		return matrixA.clone().subtract(matrixB);
+	static subtract<T extends Matrix>(this: Constructor<T>, matrixA: T, matrixB: T) {
+		return matrixA.clone().subtract(matrixB) as T;
 	}
 
-	static multiply(matrixA: Matrix, matrixB: Matrix) {
-		return matrixA.clone().multiply(matrixB);
+	static multiply<T extends Matrix>(this: Constructor<T>, matrixA: T, matrixB: T) {
+		return matrixA.clone().multiply(matrixB) as T;
 	}
 
-	static premultiply(matrixA: Matrix, matrixB: Matrix) {
-		return matrixA.clone().premultiply(matrixB);
+	static premultiply<T extends Matrix>(this: Constructor<T>, matrixA: T, matrixB: T) {
+		return matrixA.clone().premultiply(matrixB) as T;
 	}
 
-	static transpose(matrix: Matrix) {
-		return matrix.clone().transpose();
+	static transpose<T extends Matrix>(this: Constructor<T>, matrix: T) {
+		return matrix.clone().transpose() as T;
 	}
 
-	static inverse(matrix: Matrix) {
-		return matrix.clone().inverse();
+	static inverse<T extends Matrix>(this: Constructor<T>, matrix: T) {
+		return matrix.clone().inverse() as T;
 	}
 
 	declare readonly elements: number[];

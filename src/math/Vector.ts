@@ -2,76 +2,78 @@ import { clamp } from '~/utils';
 
 import type Matrix from './Matrix';
 
+import type { Constructor } from '~/types';
+
 abstract class Vector {
-	static clone(vector: Vector) {
-		return vector.clone();
+	static clone<T extends Vector>(this: Constructor<T>, vector: T) {
+		return vector.clone() as T;
 	}
 
-	static add(vectorA: Vector, vectorB: Vector) {
-		return vectorA.clone().add(vectorB);
+	static add<T extends Vector>(this: Constructor<T>, vectorA: T, vectorB: T) {
+		return vectorA.clone().add(vectorB) as T;
 	}
 
-	static subtract(vectorA: Vector, vectorB: Vector) {
-		return vectorA.clone().subtract(vectorB);
+	static subtract<T extends Vector>(this: Constructor<T>, vectorA: T, vectorB: T) {
+		return vectorA.clone().subtract(vectorB) as T;
 	}
 
-	static direction(vectorA: Vector, vectorB: Vector) {
-		return vectorB.clone().directionFrom(vectorA);
+	static direction<T extends Vector>(this: Constructor<T>, vectorA: T, vectorB: T) {
+		return vectorB.clone().directionFrom(vectorA) as T;
 	}
 
-	static clamp(vector: Vector, min: Vector, max: Vector) {
-		return vector.clone().clamp(min, max);
+	static clamp<T extends Vector>(this: Constructor<T>, vector: T, min: T, max: T) {
+		return vector.clone().clamp(min, max) as T;
 	}
 
-	static lerp(vectorA: Vector, vectorB: Vector, fraction: number) {
-		return vectorA.clone().lerp(vectorB, fraction);
+	static lerp<T extends Vector>(this: Constructor<T>, vectorA: T, vectorB: T, fraction: number) {
+		return vectorA.clone().lerp(vectorB, fraction) as T;
 	}
 
-	static multiplyByMatrix(matrix: Matrix, vector: Vector) {
-		return vector.clone().multiplyByMatrix(matrix);
+	static multiplyByMatrix<T extends Vector>(this: Constructor<T>, matrix: Matrix, vector: T) {
+		return vector.clone().multiplyByMatrix(matrix) as T;
 	}
 
-	static projectOnVector(vectorA: Vector, vectorB: Vector) {
-		return vectorA.clone().projectOnVector(vectorB);
+	static projectOnVector<T extends Vector>(this: Constructor<T>, vectorA: T, vectorB: T) {
+		return vectorA.clone().projectOnVector(vectorB) as T;
 	}
 
-	static normalize(vector: Vector) {
-		return vector.clone().normalize();
+	static normalize<T extends Vector>(this: Constructor<T>, vector: T) {
+		return vector.clone().normalize() as T;
 	}
 
-	static negate(vector: Vector) {
-		return vector.clone().negate();
+	static negate<T extends Vector>(this: Constructor<T>, vector: T) {
+		return vector.clone().negate() as T;
 	}
 
-	static dot(vectorA: Vector, vectorB: Vector) {
+	static dot<T extends Vector>(this: Constructor<T>, vectorA: T, vectorB: T) {
 		return vectorA.dot(vectorB);
 	}
 
-	static distanceBetweenSquared(vectorA: Vector, vectorB: Vector) {
+	static distanceBetweenSquared<T extends Vector>(this: Constructor<T>, vectorA: T, vectorB: T) {
 		return vectorA.distanceToSquared(vectorB);
 	}
 
-	static distanceBetween(vectorA: Vector, vectorB: Vector) {
+	static distanceBetween<T extends Vector>(this: Constructor<T>, vectorA: T, vectorB: T) {
 		return vectorA.distanceTo(vectorB);
 	}
 
-	static angleBetween(vectorA: Vector, vectorB: Vector) {
+	static angleBetween<T extends Vector>(this: Constructor<T>, vectorA: T, vectorB: T) {
 		return vectorA.angleTo(vectorB);
 	}
 
-	static equals(vectorA: Vector, vectorB: Vector, tolerance?: number) {
+	static equals<T extends Vector>(this: Constructor<T>, vectorA: T, vectorB: T, tolerance?: number) {
 		return vectorA.equals(vectorB, tolerance);
 	}
 
-	static notEquals(vectorA: Vector, vectorB: Vector, tolerance?: number) {
+	static notEquals<T extends Vector>(this: Constructor<T>, vectorA: T, vectorB: T, tolerance?: number) {
 		return vectorA.notEquals(vectorB, tolerance);
 	}
 
-	static toArray(vector: Vector) {
+	static toArray<T extends Vector>(this: Constructor<T>, vector: T) {
 		return vector.toArray();
 	}
 
-	static toString(vector: Vector) {
+	static toString<T extends Vector>(this: Constructor<T>, vector: T) {
 		return vector.toString();
 	}
 
