@@ -1,6 +1,6 @@
 import { VertexAttribute } from '~/buffers';
 
-import { defineReadOnlyProperty, defineWritableProperties } from '~/utils';
+import { defineReadOnlyProperty } from '~/utils';
 
 import { MAX_16_BIT_VALUE } from '~/constants';
 
@@ -13,13 +13,11 @@ abstract class Geometry {
 	declare readonly attributes: Map<GeometryAttributeNames, VertexAttribute>;
 
 	constructor() {
-		const _topology = 'triangle-list';
-		const _indices = null;
+		this._topology = 'triangle-list';
+		this._indices = null;
 
 		const attributes = new Map();
 
-		// @ts-expect-error Object literal may only specify known properties, and '_topology' does not exist in type 'Record<keyof this, unknown>'.
-		defineWritableProperties(this, { _topology, _indices });
 		defineReadOnlyProperty(this, 'attributes', attributes);
 	}
 

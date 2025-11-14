@@ -4,26 +4,28 @@ import { PointerButton } from '~/enums';
 
 import type { ControllerOptions, ControllerBindings } from '~/types';
 
-type PointerButtonKeys = keyof typeof PointerButton;
+type PointerButtonNames = keyof typeof PointerButton;
 
-class PointerController extends Controller<PointerButtonKeys, PointerEvent> {
+class PointerController extends Controller<PointerButtonNames, PointerEvent> {
     constructor(
-        targetElement: HTMLElement,
-        bindings: Partial<ControllerBindings<PointerButtonKeys, PointerEvent>>,
+        eventTarget: HTMLElement,
+        bindings: Partial<ControllerBindings<PointerButtonNames, PointerEvent>>,
         options?: ControllerOptions
     ) {
-        super(bindings, options);
+        super(eventTarget, bindings, options);
 
-		const eventListenerOptions = { signal: this._abortController.signal };
+        this._addEventListeners();
+    }
 
-        targetElement.addEventListener('pointerdown', this._handlePointerDown.bind(this), eventListenerOptions);
-        targetElement.addEventListener('pointerenter', this._handlePointerOver.bind(this), eventListenerOptions);
-        targetElement.addEventListener('pointerup', this._handlePointerUp.bind(this), eventListenerOptions);
-        targetElement.addEventListener('pointerleave', this._handlePointerOut.bind(this), eventListenerOptions);
+    protected override _addEventListeners() {
+        this.eventTarget.addEventListener('pointerdown', this._handlePointerDown.bind(this), this._eventListenerOptions);
+        this.eventTarget.addEventListener('pointerenter', this._handlePointerOver.bind(this), this._eventListenerOptions);
+        this.eventTarget.addEventListener('pointerup', this._handlePointerUp.bind(this), this._eventListenerOptions);
+        this.eventTarget.addEventListener('pointerleave', this._handlePointerOut.bind(this), this._eventListenerOptions);
     }
 
     protected _getEventCode(event: PointerEvent) {
-        return PointerButton[event.button] as PointerButtonKeys;
+        return PointerButton[event.button] as PointerButtonNames;
     }
 
     protected _handlePointerDown(event: PointerEvent) {

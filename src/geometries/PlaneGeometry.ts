@@ -1,7 +1,5 @@
 import Geometry from './Geometry';
 
-import { defineWritableProperties } from '~/utils';
-
 const MIN_SEGMENTS_X = 1;
 const MIN_SEGMENTS_Y = 1;
 
@@ -22,13 +20,10 @@ class PlaneGeometry extends Geometry {
 			throw new Error(`[PlaneGeometry]: Plane geometry must have at least ${MIN_SEGMENTS_Y} segments per column.`);
 		}
 
-		defineWritableProperties(this, {
-			// @ts-expect-error Object literal may only specify known properties, and '_width' does not exist in type 'Record<keyof this, unknown>'.
-			_width: width,
-			_height: height,
-			_segmentsX: segmentsX,
-			_segmentsY: segmentsY
-		});
+		this._width = width;
+		this._height = height;
+		this._segmentsX = segmentsX;
+		this._segmentsY = segmentsY;
 
 		this._updateVertices();
 

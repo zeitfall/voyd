@@ -1,6 +1,8 @@
-import { Vector3, Spherical } from '~/math';
+import Controls from './Controls';
 
+import { Vector3, Spherical } from '~/math';
 import { Camera } from '~/cameras';
+import { PointerLockController } from '~/controllers';
 
 import { defineReadOnlyProperties } from '~/utils';
 
@@ -8,14 +10,13 @@ import { PI_OVER_TWO } from '~/constants';
 
 import { PointerMoveButton } from '~/enums';
 
-class OrbitControls {
-	declare private readonly _abortController: AbortController;
-
+class OrbitControls extends Controls {
+    declare private readonly _pointerLockController: PointerLockController;
+	
+	declare private readonly _trackPosition: Vector3;
+	declare private readonly _trackTarget: Vector3;
 	declare private readonly _trackRight: Vector3;
 	declare private readonly _trackForward: Vector3;
-	declare private readonly _trackCameraPosition: Vector3;
-	declare private readonly _trackCameraTarget: Vector3;
-	declare private readonly _trackOffset: Vector3;
 
 	declare private readonly _orbitOffset: Vector3;
 	declare private readonly _minOrientation: Spherical;
@@ -25,21 +26,32 @@ class OrbitControls {
 
 	declare protected readonly _controlBindings: Record<'track' | 'orbit', PointerMoveButton>;
 
-	declare readonly camera: Camera;
-
-	declare dampingFactor: number;
 	declare rotationSpeed: number;
 	declare trackingSpeed: number;
 	declare zoomingSpeed: number;
+	declare dampingFactor: number;
 
-	constructor(camera: Camera) {
-		const _abortController = new AbortController();
+	constructor(targetElement: HTMLElement, camera: Camera) {
+		super(camera);
 
-		const _trackRight = new Vector3();
-		const _trackForward = new Vector3();
-		const _trackCameraPosition = new Vector3();
-		const _trackCameraTarget = new Vector3();
-		const _trackOffset = new Vector3();
+		const handlePointerMove = (event: PointerEvent) => this._handlePointerMove(event);
+		const handleWheel = (event: WheelEvent) => this._handleWheel(event);
+
+		const _pointerLockController = new PointerLockController(targetElement, {
+			locked: () => {
+				window.addEventListener('pointermove', handlePointerMove, this._eventListenerOptions);
+				window.addEventListener('wheel', handleWheel, this._eventListenerOptions);
+			},
+			unlocked: () => {
+				window.removeEventListener('pointermove', handlePointerMove, this._eventListenerOptions);
+				window.removeEventListener('wheel', handleWheel, this._eventListenerOptions);
+			}
+		});
+
+		const _trackPosition = Vector3.clone(camera.position);
+		const _trackTarget = Vector3.clone(camera.target);
+        const _trackRight = Vector3.clone(camera.right)
+		const _trackForward = Vector3.clone(camera.forward);
 
 		const _orbitOffset = Vector3.direction(camera.target, camera.position);
 		const _minOrientation = new Spherical(camera.nearPlane, Number.NEGATIVE_INFINITY, -PI_OVER_TWO + Number.EPSILON);
@@ -57,30 +69,20 @@ class OrbitControls {
 		this.trackingSpeed = 0.01;
 		this.zoomingSpeed = 0.001;
 
-		const eventListenerOptions = {
-			signal: _abortController.signal,
-			passive: true,
-		};
-
 		defineReadOnlyProperties(this, {
-			// @ts-expect-error Object literal may only specify known properties, and '_abortController' does not exist in type 'Record<keyof this, unknown>'.
-			_abortController,
+			// @ts-expect-error Object literal may only specify known properties, and '_pointerLockController' does not exist in type 'Record<keyof this, unknown>'.
+			_pointerLockController,
+			_trackPosition,
+			_trackTarget,
 			_trackRight,
 			_trackForward,
-			_trackCameraPosition,
-			_trackCameraTarget,
-			_trackOffset,
 			_orbitOffset,
 			_minOrientation,
 			_maxOrientation,
 			_currentOrientation,
 			_targetOrientation,
 			_controlBindings,
-			camera,
 		});
-
-		window.addEventListener('pointermove', this._handlePointerMove.bind(this), eventListenerOptions);
-		window.addEventListener('wheel', this._handleWheel.bind(this), eventListenerOptions);
 	}
 
 	get radius() {
@@ -188,6 +190,76 @@ class OrbitControls {
 		// }		
 	}
 
+	setRadius(radius: number) {
+		this.radius = radius;
+
+		return this;
+	}
+
+	setMinRadius(radius: number) {
+		this.minRadius = radius;
+
+		return this;
+	}
+
+	setMaxRadius(radius: number) {
+		this.maxRadius = radius;
+
+		return this;
+	}
+
+	setAzimuthAngle(angle: number) {
+		this.azimuthAngle = angle;
+
+		return this;
+	}
+
+	setMinAzimuthAngle(angle: number) {
+		this.minAzimuthAngle = angle;
+		
+		return this;
+	}
+
+	setMaxAzimuthAngle(angle: number) {
+		this.maxAzimuthAngle = angle;
+
+		return this;
+	}
+
+	setPolarAngle(angle: number) {
+		this.polarAngle = angle;
+
+		return this;
+	}
+
+	setMinPolarAngle(angle: number) {
+		this.minPolarAngle = angle;
+
+		return this;
+	}
+
+	setMaxPolarAngle(angle: number) {
+		this.maxPolarAngle = angle;
+
+		return this;
+	}
+
+	setRotationSpeed(speed: number) {
+		this.rotationSpeed = speed;
+
+		return this;
+	}
+
+	setTrackingSpeed(speed: number) {
+		this.trackingSpeed = speed;
+
+		return this;
+	}
+
+	setDampingFactor(factor: number) {
+		this.dampingFactor = factor;
+	}
+
 	orbit(deltaX: number, deltaY: number) {
 		this._targetOrientation.theta -= this.rotationSpeed * deltaX;
 		this._targetOrientation.phi -= this.rotationSpeed * deltaY;
@@ -206,16 +278,25 @@ class OrbitControls {
 	}
 
 	track(deltaX: number, deltaY: number) {
-		this._trackForward.copy(this.camera.forward).projectOnPlane(Camera.DEFAULT_UP).normalize();
-		this._trackRight.copy(Camera.DEFAULT_UP).cross(this._trackForward);
+		const {
+            _trackRight,
+            _trackForward,
+            _trackPosition,
+            _trackTarget,
+            trackingSpeed,
+            camera
+        } = this;
 
-		this._trackRight.scale(-this.trackingSpeed * deltaX);
-		this._trackForward.scale(this.trackingSpeed * deltaY);
+		_trackForward.copy(camera.forward).projectOnPlane(Camera.DEFAULT_UP).normalize();
+		_trackRight.copy(Camera.DEFAULT_UP).cross(_trackForward);
 
-		const trackDirection = this._trackRight.add(this._trackForward);
+		_trackRight.scale(-trackingSpeed * deltaX);
+		_trackForward.scale(trackingSpeed * deltaY);
 
-		this._trackCameraPosition.add(trackDirection);
-		this._trackCameraTarget.add(trackDirection);
+		const trackDirection = _trackRight.add(_trackForward);
+
+		_trackPosition.add(trackDirection);
+		_trackTarget.add(trackDirection);
 
 		return this;
 	}
@@ -231,19 +312,19 @@ class OrbitControls {
 	update() {
 		const { position, target } = this.camera;
 
-		position.lerp(this._trackCameraPosition, this.dampingFactor);
-		target.lerp(this._trackCameraTarget, this.dampingFactor);
+		position.lerp(this._trackPosition, this.dampingFactor);
+		target.lerp(this._trackTarget, this.dampingFactor);
 
 		this._currentOrientation.lerp(this._targetOrientation, this.dampingFactor);
 		this._orbitOffset.setFromSpherical(this._currentOrientation);
 
 		position.copy(target).add(this._orbitOffset);
-
-		return this;
 	}
 
-	dispose() {
-		this._abortController.abort();
+	override dispose() {
+		super.dispose();
+
+		this._pointerLockController.dispose();
 	}
 }
 

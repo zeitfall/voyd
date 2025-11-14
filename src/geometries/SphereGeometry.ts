@@ -2,8 +2,6 @@ import Geometry from './Geometry';
 
 import { Vector3 } from '~/math';
 
-import { defineWritableProperties } from '~/utils';
-
 import { TWO_PI } from '~/constants';
 
 const MIN_LONGITUDES = 3;
@@ -27,12 +25,9 @@ class SphereGeometry extends Geometry {
 			throw new Error(`[SphereGeometry]: Sphere geometry must have at least ${MIN_LATITUDES} latitudes.`);
         }
 
-        defineWritableProperties(this, {
-            // @ts-expect-error Object literal may only specify known properties, and '_radius' does not exist in type 'Record<keyof this, unknown>'.
-            _radius: radius,
-            _longitudes: longitudes,
-            _latitudes: latitudes
-        });
+        this._radius = radius;
+        this._longitudes = longitudes;
+        this._latitudes = latitudes;
 
         this._updateVertices();
 

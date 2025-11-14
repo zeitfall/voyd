@@ -52,11 +52,12 @@
                 PointerController,
                 OrbitControls,
                 TrackControls,
+                FirstPersonControls,
                 Vector3,
             } from 'voyd';
 
-            const canvas = document.querySelector('canvas');
-            const canvasContext = canvas.getContext('webgpu');
+            const canvasElement = document.querySelector('canvas');
+            const canvasContext = canvasElement.getContext('webgpu');
 
             await GPUContext.init();
 
@@ -68,13 +69,18 @@
             // const camera = new OrthographicCamera();
             const camera = new PerspectiveCamera(90);
 
-            camera.position.set(0, 0, -2);
+            camera.position.set(0, 1, -1);
 
-            const controls = new OrbitControls(camera);
+            console.log(camera);
 
-            const geometry = new PlaneGeometry(1, 1, 16, 16);
+            // const controls = new OrbitControls(canvasElement, camera);
+            const controls = new FirstPersonControls(canvasElement, camera);
+
+            console.log(controls);
+
+            // const geometry = new PlaneGeometry(1, 1, 16, 16);
             // const geometry = new CircleGeometry(1, 4);
-            // const geometry = new SphereGeometry(1, 8, 8);
+            const geometry = new SphereGeometry(1, 32, 32);
 
             geometry.setTopology('line-list');
 
@@ -192,7 +198,7 @@
 
             function loop() {
                 controls.update();
-                camera.setAspectRatio(canvas.aspectRatio);
+                camera.setAspectRatio(canvasElement.aspectRatio);
                 camera.update();
 
                 const commandEncoder = GPUContext.device.createCommandEncoder();

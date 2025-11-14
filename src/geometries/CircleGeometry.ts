@@ -1,7 +1,5 @@
 import Geometry from './Geometry';
 
-import { defineWritableProperties } from '~/utils';
-
 import { TWO_PI } from '~/constants';
 
 const MIN_CIRCLE_SEGMENT_COUNT = 3;
@@ -17,11 +15,8 @@ class CircleGeometry extends Geometry {
 			throw new Error(`[CircleGeometry]: Circle geometry must have at least ${MIN_CIRCLE_SEGMENT_COUNT} segments.`);
 		}
 
-		defineWritableProperties(this, {
-			// @ts-expect-error Object literal may only specify known properties, and '_radius' does not exist in type 'Record<keyof this, unknown>'.
-			_radius: radius,
-			_segments: segments,
-		});
+		this._radius = radius;
+		this._segments = segments;
 
 		this._updateVertices();
 

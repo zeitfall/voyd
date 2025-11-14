@@ -6,6 +6,8 @@ export * from './buffer';
 
 export * from './geometries';
 
+export * from './dom-events';
+
 export * from './controllers';
 
 export * from './utils';
