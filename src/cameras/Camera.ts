@@ -40,7 +40,7 @@ abstract class Camera {
 	declare readonly viewMatrixBuffer: UniformBuffer;
 	declare readonly projectionMatrixBuffer: UniformBuffer;
 
-	constructor(public nearPlane = .1, public farPlane = 128) {
+	constructor(public nearPlane = 0.1, public farPlane = 128) {
 		const position = new Vector3(0, 0, -1);
 		const target = new Vector3();
 		const right = new Vector3();

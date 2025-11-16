@@ -11,9 +11,9 @@ export function lerp(from: number, to: number, fraction: number) {
 }
 
 export function modRange(value: number, min: number, max: number) {
-  const d = max - min;
+	const d = max - min;
 
-  return min + ((value - min) % d + d) % d;
+	return min + ((((value - min) % d) + d) % d);
 }
 
 export function modRadians(value: number, min = 0, max = TWO_PI) {

@@ -70,7 +70,7 @@ class CircleGeometry extends Geometry {
 		return {
 			vertices,
 			normals,
-			uvs
+			uvs,
 		};
 	}
 
@@ -81,7 +81,7 @@ class CircleGeometry extends Geometry {
 
 		for (let i = 1; i <= segments; i++) {
 			const A = i;
-			const B = i % segments + 1;
+			const B = (i % segments) + 1;
 
 			indices.push(0, A, A, B);
 		}
@@ -96,7 +96,7 @@ class CircleGeometry extends Geometry {
 
 		for (let i = 1; i <= segments; i++) {
 			const A = i;
-			const B = i % segments + 1;
+			const B = (i % segments) + 1;
 
 			indices.push(0, A, B);
 		}
@@ -130,7 +130,7 @@ class CircleGeometry extends Geometry {
 
 	set(radius: number, segments: number) {
 		this._radius = radius;
-		this._segments = segments
+		this._segments = segments;
 
 		this._updateVertices();
 

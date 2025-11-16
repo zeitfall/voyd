@@ -5,12 +5,12 @@ import { PointerMoveButton } from '~/enums';
 import type { Camera } from '~/cameras';
 
 class TrackControls extends OrbitControls {
-    constructor(camera: Camera) {
-        super(camera);
+	constructor(targetElement: HTMLElement, camera: Camera) {
+		super(targetElement, camera);
 
-        this._controlBindings.track = PointerMoveButton.LMB;
-        this._controlBindings.orbit = PointerMoveButton.RMB;
-    }
+		this._controlBindings.track = PointerMoveButton.LMB;
+		this._controlBindings.orbit = PointerMoveButton.RMB;
+	}
 }
 
 export default TrackControls;

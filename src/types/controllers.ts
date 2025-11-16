@@ -1,5 +1,5 @@
 export interface ControllerOptions {
-    mode: 'immediate' | 'sync';
+	mode: 'immediate' | 'sync';
 }
 
 export type ControllerCallback<E extends Event> = (event: E) => void;

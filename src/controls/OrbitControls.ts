@@ -11,8 +11,8 @@ import { PI_OVER_TWO } from '~/constants';
 import { PointerMoveButton } from '~/enums';
 
 class OrbitControls extends Controls {
-    declare private readonly _pointerLockController: PointerLockController;
-	
+	declare private readonly _pointerLockController: PointerLockController;
+
 	declare private readonly _trackPosition: Vector3;
 	declare private readonly _trackTarget: Vector3;
 	declare private readonly _trackRight: Vector3;
@@ -45,12 +45,12 @@ class OrbitControls extends Controls {
 			unlocked: () => {
 				window.removeEventListener('pointermove', handlePointerMove, this._eventListenerOptions);
 				window.removeEventListener('wheel', handleWheel, this._eventListenerOptions);
-			}
+			},
 		});
 
 		const _trackPosition = Vector3.clone(camera.position);
 		const _trackTarget = Vector3.clone(camera.target);
-        const _trackRight = Vector3.clone(camera.right)
+		const _trackRight = Vector3.clone(camera.right);
 		const _trackForward = Vector3.clone(camera.forward);
 
 		const _orbitOffset = Vector3.direction(camera.target, camera.position);
@@ -187,7 +187,7 @@ class OrbitControls extends Controls {
 		// TBD: Implement zooming effect for perspective and orthographic cameras.
 		// if (this.camera instanceof PerspectiveCamera) {
 		// 	this.camera.fovy += this.zoomingSpeed * event.deltaY;
-		// }		
+		// }
 	}
 
 	setRadius(radius: number) {
@@ -216,7 +216,7 @@ class OrbitControls extends Controls {
 
 	setMinAzimuthAngle(angle: number) {
 		this.minAzimuthAngle = angle;
-		
+
 		return this;
 	}
 

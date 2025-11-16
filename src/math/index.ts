@@ -10,7 +10,6 @@ import Matrix2 from './Matrix2';
 import Matrix3 from './Matrix3';
 import Matrix4 from './Matrix4';
 
-
 // biome-ignore format: That's my preference to export things at each line separately.
 export {
 	Vector,

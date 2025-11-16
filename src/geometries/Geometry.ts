@@ -93,7 +93,7 @@ abstract class Geometry {
 
 		return null;
 	}
- 
+
 	get hasIndices() {
 		return Boolean(this.indices && this.indices.length);
 	}
@@ -240,7 +240,7 @@ abstract class Geometry {
 
 	setTopology(topology: GPUPrimitiveTopology) {
 		this.topology = topology;
-		
+
 		return this;
 	}
 }
