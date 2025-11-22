@@ -8,7 +8,7 @@ import OrbitBehavior from './OrbitBehavior';
 
 import FlyControls from './FlyControls';
 import FirstPersonControls from './FirstPersonControls';
-import OrbitControls from './OrbitControlts';
+import OrbitControls from './OrbitControls';
 
 export {
     ControlsPipeline,

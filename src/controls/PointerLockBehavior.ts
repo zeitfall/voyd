@@ -16,11 +16,11 @@ class PointerLockBehavior extends ControlBehavior {
     async #requestPointerLock() {
         const targetElement = this.#targetElement;
 
+        if (document.pointerLockElement === targetElement) {
+            return;
+        }
+
 		try {
-            if (document.pointerLockElement === targetElement) {
-                throw new Error('[PointerLockBehavior]: Pointer has already been locked.');
-            }
-    
 			await targetElement.requestPointerLock({ unadjustedMovement: true });
 		} catch (error) {
 			// @ts-expect-error 'error' is of type 'unknown'.

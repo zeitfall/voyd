@@ -122,7 +122,7 @@ abstract class Vector {
 	}
 
 	normalize() {
-		return this.divideByScalar(this.length);
+		return this.divideByScalar(this.length || 1);
 	}
 
 	negate() {

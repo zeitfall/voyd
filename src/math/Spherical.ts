@@ -1,6 +1,6 @@
 import { clamp, lerp, modRadians } from '~/utils';
 
-import { PI_OVER_TWO, THREE_PI_OVER_TWO } from '~/constants';
+import { PI, PI_OVER_TWO, THREE_PI_OVER_TWO } from '~/constants';
 
 import type Vector3 from './Vector3';
 
@@ -99,18 +99,18 @@ class Spherical {
 			this.phi += PI_OVER_TWO;
 			this.phi = modRadians(this.phi);
 
-			if (this.phi > Math.PI) {
-				this.theta += Math.PI;
+			if (this.phi > PI) {
+				this.theta += PI;
 				this.phi = THREE_PI_OVER_TWO - this.phi;
 			} else {
 				this.phi -= PI_OVER_TWO;
 			}
 		}
 
-		if (this.theta > Math.PI) {
-			this.theta += Math.PI;
+		if (this.theta > PI) {
+			this.theta += PI;
 			this.theta = modRadians(this.theta);
-			this.theta -= Math.PI;
+			this.theta -= PI;
 		}
 
 		return this;

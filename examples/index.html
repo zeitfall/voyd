@@ -75,8 +75,8 @@
 
             console.log(camera);
 
-            const controls = new OrbitControls(camera);
-            // const controls = new FlyControls(canvasElement, camera);
+            // const controls = new OrbitControls(camera);
+            const controls = new FlyControls(canvasElement, camera);
 
             console.log(controls);
 
@@ -196,10 +196,15 @@
 
             requestAnimationFrame(loop);
 
-            let t = 0;
+            let t0;
+            let t1;
 
             function loop() {
-                controls.update(1);
+                t1 = performance.now();
+
+                const deltaTime = (t1 - t0) / 1000;
+
+                controls.update(deltaTime);
                 camera.setAspectRatio(canvasElement.aspectRatio);
                 camera.update();
 
@@ -225,7 +230,7 @@
 
                 GPUContext.device.queue.submit([commandEncoder.finish()]);
 
-                t += .01;
+                t0 = t1;
 
                 requestAnimationFrame(loop);
             }

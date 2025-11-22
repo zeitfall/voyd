@@ -3,6 +3,8 @@ import ControlBehavior from './ControlBehavior';
 import { Vector3 } from '~/math';
 import { Camera } from '~/cameras';
 
+import { EPSILON_12 } from '~/constants';
+
 import type { ControlsPipelineContext } from '~/types';
 
 class WalkBehavior extends ControlBehavior {
@@ -13,7 +15,11 @@ class WalkBehavior extends ControlBehavior {
     #right: Vector3;
     #up: Vector3;
     #forward: Vector3;
+    #movement: Vector3;
+    #currentDirection: Vector3;
+    #targetDirection: Vector3;
 
+    dampingFactor: number;
     movementSpeed: number;
 
     constructor() {
@@ -26,8 +32,12 @@ class WalkBehavior extends ControlBehavior {
         this.#right = new Vector3();
         this.#up = new Vector3();
         this.#forward = new Vector3();
+        this.#movement = new Vector3();
+        this.#currentDirection = new Vector3();
+        this.#targetDirection = new Vector3();
 
-        this.movementSpeed = .01;
+        this.dampingFactor = 16;
+        this.movementSpeed = 2;
     }
 
     #handleKeyDown(event: KeyboardEvent) {
@@ -38,27 +48,49 @@ class WalkBehavior extends ControlBehavior {
         this.#keys.delete(event.code);
     }
 
-    #updateDeltas(directionX: number, directionY: number, directionZ: number) {
-        if (this.context) {
-            const { camera, deltaPosition, deltaTarget } = this.context;
+    #updateMovement() {
+        const keys = this.#keys;
+        const movement = this.#movement;
 
-            const right = this.#right;
-            const up = this.#up;
-            const forward = this.#forward;
+        movement.reset();
 
-            forward.copy(camera.forward).projectOnPlane(Camera.DEFAULT_UP).normalize();
-            right.copy(Camera.DEFAULT_UP).cross(forward).normalize();
-            up.copy(forward).cross(right).normalize();
+        keys.forEach((key) => {
+            switch(key) {
+                case 'KeyA':
+                case 'ArrowLeft':
+                    movement.x -= 1; 
 
-            right.scale(this.movementSpeed * directionX);
-            up.scale(this.movementSpeed * directionY);
-            forward.scale(this.movementSpeed * directionZ);
+                    break;
+                
+                case 'KeyD':
+                case 'ArrowRight':
+                    movement.x += 1;
 
-            const deltaDirection = right.add(up).add(forward);
+                    break;
 
-            deltaPosition.add(deltaDirection);
-            deltaTarget.add(deltaDirection);
-        }
+                case 'Space':
+                    movement.y += 1;
+
+                    break;
+
+                case 'ShiftLeft':
+                    movement.y -= 1;
+
+                    break;
+
+                case 'KeyW':
+                case 'ArrowUp':
+                    movement.z += 1;
+
+                    break;
+                
+                case 'KeyS':
+                case 'ArrowDown':
+                    movement.z -= 1;
+
+                    break;
+            }
+        });
     }
 
     override attach(context: ControlsPipelineContext) {
@@ -95,45 +127,50 @@ class WalkBehavior extends ControlBehavior {
         return this;
     }
 
-    update() {
-        this.#keys.forEach((key) => {
-            switch(key) {
-                case 'KeyA':
-                case 'ArrowLeft':
-                    this.#updateDeltas(-1, 0, 0);
+    update(deltaTime: number) {
+        this.#updateMovement();
 
-                    break;
-                
-                case 'KeyD':
-                case 'ArrowRight':
-                    this.#updateDeltas(1, 0, 0);
+        const movement = this.#movement;
+        const currentDirection = this.#currentDirection;
+        const targetDirection = this.#targetDirection;
 
-                    break;
+        const hasInertia = currentDirection.lengthSquared > EPSILON_12;
+        const hasMoved = movement.lengthSquared > EPSILON_12;
 
-                case 'Space':
-                    this.#updateDeltas(0, 1, 0);
+        if (this.context && (hasMoved || hasInertia)) {
+            const { camera, deltaPosition, deltaTarget } = this.context;
 
-                    break;
+            const right = this.#right;
+            const up = this.#up;
+            const forward = this.#forward;
 
-                case 'ShiftLeft':
-                    this.#updateDeltas(0, -1, 0);
+            const lerpFraction = 1 - Math.exp(-this.dampingFactor * deltaTime);
 
-                    break;
+            forward.copy(camera.forward).projectOnPlane(Camera.DEFAULT_UP).normalize();
+            right.copy(Camera.DEFAULT_UP).cross(forward).normalize();
+            up.copy(forward).cross(right).normalize();
 
-                case 'KeyW':
-                case 'ArrowUp':
-                    this.#updateDeltas(0, 0, 1);
+            right.scale(movement.x);
+            up.scale(movement.y);
+            forward.scale(movement.z);
 
-                    break;
-                
-                case 'KeyS':
-                case 'ArrowDown':
-                    this.#updateDeltas(0, 0, -1);
+            targetDirection
+                .add(right)
+                .add(up)
+                .add(forward)
+                .setLength(this.movementSpeed * deltaTime);
 
-                    break;
-            } 
-        });
+            currentDirection.lerp(targetDirection, lerpFraction);
 
+            deltaPosition.add(currentDirection);
+            deltaTarget.add(currentDirection);
+        }
+        else {
+            currentDirection.reset();
+        }
+
+        targetDirection.reset();
+        
         return this;
     }
 }

@@ -1,6 +1,6 @@
 import { clamp, lerp, modRadians } from '~/utils';
 
-import { TWO_PI } from '~/constants';
+import { PI, TWO_PI } from '~/constants';
 
 import type Vector2 from './Vector2';
 
@@ -73,13 +73,13 @@ class Polar {
 
 		if (this.radius < 0) {
 			this.radius = -this.radius;
-			this.theta += Math.PI;
+			this.theta += PI;
 		}
 
 		if (this.theta > TWO_PI) {
-			this.theta += Math.PI;
+			this.theta += PI;
 			this.theta = modRadians(this.theta);
-			this.theta -= Math.PI;
+			this.theta -= PI;
 		}
 
 		return this;

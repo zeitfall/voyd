@@ -4,14 +4,15 @@ import { Vector2, Vector3, Spherical } from '~/math';
 
 import { clamp } from '~/utils';
 
-import { PI_OVER_TWO } from '~/constants';
+import { PI_OVER_TWO, EPSILON_4, EPSILON_12 } from '~/constants';
 
 import type { ControlsPipelineContext } from '~/types';
 
 class LookBehavior extends ControlBehavior {
     #abortController: AbortController | null;
 
-    #movement: Vector2;
+    #currentMovement: Vector2;
+    #targetMovement: Vector2;
     #direction: Vector3;
     #deltaDirection: Vector3;
     #sphericalDirection: Spherical;
@@ -21,6 +22,7 @@ class LookBehavior extends ControlBehavior {
     minYawAngle: number;
     maxYawAngle: number;
 
+    dampingFactor: number;
     sensitivity: number;
 
     constructor() {
@@ -28,25 +30,27 @@ class LookBehavior extends ControlBehavior {
 
         this.#abortController = null;
 
-        this.#movement = new Vector2();
+        this.#currentMovement = new Vector2();
+        this.#targetMovement = new Vector2();
         this.#direction = new Vector3();
         this.#deltaDirection = new Vector3();
         this.#sphericalDirection = new Spherical();
 
         this.minYawAngle = Number.NEGATIVE_INFINITY;
         this.maxYawAngle = Number.POSITIVE_INFINITY;
-        this.minPitchAngle = -PI_OVER_TWO + 1e-4;
-        this.maxPitchAngle = PI_OVER_TWO - 1e-4;;
+        this.minPitchAngle = -PI_OVER_TWO + EPSILON_4;
+        this.maxPitchAngle = PI_OVER_TWO - EPSILON_4;;
 
-        this.sensitivity = .01;
+        this.dampingFactor = 12;
+        this.sensitivity = .005;
     }
 
     #handlePointerMove(event: PointerEvent) {
         if (this.context && this.context.enabled) {
             const { movementX, movementY } = event;
 
-            this.#movement.x += movementX;
-            this.#movement.y += movementY;
+            this.#targetMovement.x += this.sensitivity * movementX;
+            this.#targetMovement.y += this.sensitivity * movementY;
         }
     }
 
@@ -99,35 +103,50 @@ class LookBehavior extends ControlBehavior {
 		return this;
 	}
 
+    setDampingFactor(damping: number) {
+        this.dampingFactor = damping;
+
+        return this;
+    }
+
     setSensitivity(sensitivity: number) {
         this.sensitivity = sensitivity;
 
         return this;
     }
 
-    update() {
-        const movement = this.#movement;
+    update(deltaTime: number) {
+        const currentMovement = this.#currentMovement;
+        const targetMovement = this.#targetMovement;
 
-        if (this.context && movement.lengthSquared > 0) {
+        const hasInertia = currentMovement.lengthSquared > EPSILON_12;
+        const hasMoved = targetMovement.lengthSquared > EPSILON_12;
+
+        if (this.context && (hasInertia || hasMoved)) {
             const { camera, deltaTarget } = this.context;
 
             const direction = this.#direction;
             const deltaDirection = this.#deltaDirection;
             const sphericalDirection = this.#sphericalDirection;
 
-            movement.multiplyByScalar(this.sensitivity);
+            const lerpFraction = 1 - Math.exp(-this.dampingFactor * deltaTime);
+
+            currentMovement.lerp(targetMovement, lerpFraction);
             direction.copy(camera.target).directionFrom(camera.position);
 
             sphericalDirection.setFromVector(direction);
-            sphericalDirection.theta = clamp(sphericalDirection.theta - movement.x, this.minYawAngle, this.maxYawAngle);
-            sphericalDirection.phi = clamp(sphericalDirection.phi + movement.y, this.minPitchAngle, this.maxPitchAngle);
+            sphericalDirection.theta = clamp(sphericalDirection.theta - currentMovement.x, this.minYawAngle, this.maxYawAngle);
+            sphericalDirection.phi = clamp(sphericalDirection.phi + currentMovement.y, this.minPitchAngle, this.maxPitchAngle);
 
             deltaDirection.setFromSpherical(sphericalDirection).subtract(direction);
 
             deltaTarget.add(deltaDirection);
         }
+        else {
+            currentMovement.reset();
+        }
 
-        movement.set(0, 0);
+        targetMovement.reset();
 
         return this;
     }

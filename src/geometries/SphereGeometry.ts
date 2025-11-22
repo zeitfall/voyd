@@ -2,7 +2,7 @@ import Geometry from './Geometry';
 
 import { Vector3 } from '~/math';
 
-import { TWO_PI } from '~/constants';
+import { PI, TWO_PI } from '~/constants';
 
 const MIN_LONGITUDES = 3;
 const MIN_LATITUDES = 2;
@@ -68,7 +68,7 @@ class SphereGeometry extends Geometry {
 		const { radius, longitudes, latitudes } = this;
 
 		const longitudeAngle = TWO_PI / longitudes;
-		const latitudeAngle = Math.PI / latitudes;
+		const latitudeAngle = PI / latitudes;
 
 		const vertices: number[] = [];
 		const normals: number[] = [];

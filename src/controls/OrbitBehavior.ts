@@ -4,14 +4,15 @@ import { Vector2, Vector3, Spherical } from '~/math';
 
 import { clamp } from '~/utils';
 
-import { PI_OVER_TWO } from '~/constants';
+import { PI_OVER_TWO, EPSILON_8, EPSILON_12 } from '~/constants';
 
 import type { ControlsPipelineContext } from '~/types';
 
 class OrbitBehavior extends ControlBehavior {
     #abortController: AbortController | null;
 
-    #movement: Vector2;
+    #currentMovement: Vector2;
+    #targetMovement: Vector2;
     #offset: Vector3;
     #sphericalOffset: Spherical;
     #positionOffset: Vector3;
@@ -21,6 +22,7 @@ class OrbitBehavior extends ControlBehavior {
     minAzimuthAngle: number;
     maxAzimuthAngle: number;
 
+    dampingFactor: number;
     sensitivity: number;
 
     constructor() {
@@ -28,16 +30,18 @@ class OrbitBehavior extends ControlBehavior {
 
         this.#abortController = null;
 
-        this.#movement = new Vector2();
+        this.#currentMovement = new Vector2();
+        this.#targetMovement = new Vector2();
         this.#offset = new Vector3();
         this.#sphericalOffset = new Spherical();
         this.#positionOffset = new Vector3();
 
         this.minAzimuthAngle = Number.NEGATIVE_INFINITY;
         this.maxAzimuthAngle = Number.POSITIVE_INFINITY;
-        this.minPolarAngle = -PI_OVER_TWO + 1e-4;
-        this.maxPolarAngle = PI_OVER_TWO - 1e-4;;
+        this.minPolarAngle = -PI_OVER_TWO + EPSILON_8;
+        this.maxPolarAngle = PI_OVER_TWO - EPSILON_8;
 
+        this.dampingFactor = 8;
         this.sensitivity = .01;
     }
 
@@ -45,8 +49,8 @@ class OrbitBehavior extends ControlBehavior {
         const { buttons, pressure, movementX, movementY } = event;
 
         if (this.context && this.context.enabled && buttons + pressure > 0) {
-            this.#movement.x += movementX;
-            this.#movement.y -= movementY;
+            this.#targetMovement.x += this.sensitivity * movementX;
+            this.#targetMovement.y -= this.sensitivity * movementY;
         }
     }
 
@@ -105,29 +109,37 @@ class OrbitBehavior extends ControlBehavior {
         return this;
     }
 
-    update() {
-        const movement = this.#movement;
+    update(deltaTime: number) {
+        const currentMovement = this.#currentMovement;
+        const targetMovement = this.#targetMovement;
 
-        if (this.context && movement.lengthSquared > 0) {
+        const hasInertia = currentMovement.lengthSquared > EPSILON_12;
+        const hasMoved = targetMovement.lengthSquared > EPSILON_12;
+
+        if (this.context && (hasInertia || hasMoved)) {
             const { camera, deltaPosition } = this.context;
 
             const offset = this.#offset;
             const sphericalOffset = this.#sphericalOffset;
             const positionOffset = this.#positionOffset;
 
-            movement.multiplyByScalar(this.sensitivity);
+            const lerpFraction = 1 - Math.exp(-this.dampingFactor * deltaTime);
+
+            currentMovement.lerp(targetMovement, lerpFraction);
             offset.copy(camera.position).directionFrom(camera.target);
 
             sphericalOffset.setFromVector(offset);
-            sphericalOffset.theta = clamp(sphericalOffset.theta - movement.x, this.minAzimuthAngle, this.maxAzimuthAngle);
-            sphericalOffset.phi = clamp(sphericalOffset.phi + movement.y, this.minPolarAngle, this.maxPolarAngle);
+            sphericalOffset.theta = clamp(sphericalOffset.theta - currentMovement.x, this.minAzimuthAngle, this.maxAzimuthAngle);
+            sphericalOffset.phi = clamp(sphericalOffset.phi + currentMovement.y, this.minPolarAngle, this.maxPolarAngle);
 
             positionOffset.setFromSpherical(sphericalOffset).subtract(offset);
 
             deltaPosition.add(positionOffset);
+        } else {
+            currentMovement.reset();
         }
 
-        movement.set(0, 0);
+        targetMovement.reset();
 
         return this;
     }
