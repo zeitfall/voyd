@@ -47,12 +47,13 @@
                 PlaneGeometry,
                 CircleGeometry,
                 SphereGeometry,
-                Camera,
-                KeyboardController,
-                PointerController,
-                OrbitControls,
-                TrackControls,
+                ControlsPipeline,
+                WalkBehavior,
+                LookBehavior,
+                OrbitBehavior,
+                FlyControls,
                 FirstPersonControls,
+                OrbitControls,
                 Vector3,
             } from 'voyd';
 
@@ -70,11 +71,12 @@
             const camera = new PerspectiveCamera(90);
 
             camera.position.set(0, 1, -1);
+            // camera.target.set(1, -2, 0);
 
             console.log(camera);
 
-            // const controls = new OrbitControls(canvasElement, camera);
-            const controls = new FirstPersonControls(canvasElement, camera);
+            const controls = new OrbitControls(camera);
+            // const controls = new FlyControls(canvasElement, camera);
 
             console.log(controls);
 
@@ -197,7 +199,7 @@
             let t = 0;
 
             function loop() {
-                controls.update();
+                controls.update(1);
                 camera.setAspectRatio(canvasElement.aspectRatio);
                 camera.update();
 

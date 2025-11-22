@@ -14,7 +14,7 @@ class Polar {
 		return new Polar().setFromVector(vector);
 	}
 
-	constructor(public radius = 0, public theta = 0) {}
+	constructor(public radius = 1, public theta = 0) {}
 
 	clone() {
 		return new Polar(...this);
@@ -38,6 +38,10 @@ class Polar {
 
 	set(radius: number, theta: number) {
 		return this.setRadius(radius).setTheta(theta);
+	}
+
+	reset() {
+		return this.set(1, 0);
 	}
 
 	setFromCartesian(x: number, y: number) {

@@ -1,9 +1,23 @@
-import OrbitControls from './OrbitControls';
-import TrackControls from './TrackControls';
+import ControlsPipeline from './ControlsPipeline';
+
+import ControlBehavior from './ControlBehavior';
+import FlyBehavior from './FlyBehavior';
+import WalkBehavior from './WalkBehavior';
+import LookBehavior from './LookBehavior';
+import OrbitBehavior from './OrbitBehavior';
+
+import FlyControls from './FlyControls';
 import FirstPersonControls from './FirstPersonControls';
+import OrbitControls from './OrbitControlts';
 
 export {
-    OrbitControls,
-    TrackControls,
-    FirstPersonControls
+    ControlsPipeline,
+    ControlBehavior,
+    FlyBehavior,
+    WalkBehavior,
+    LookBehavior,
+    OrbitBehavior,
+    FlyControls,
+    FirstPersonControls,
+    OrbitControls
 };

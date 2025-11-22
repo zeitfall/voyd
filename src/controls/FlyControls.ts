@@ -1,21 +1,21 @@
 import ControlsPipeline from './ControlsPipeline';
 
-import WalkBehavior from './WalkBehavior';
+import FlyBehavior from './FlyBehavior';
 import LookBehavior from './LookBehavior';
 import PointerLockBehavior from './PointerLockBehavior';
 
 import type { Camera } from '~/cameras';
 
-class FirstPersonControls extends ControlsPipeline {
+class FlyControls extends ControlsPipeline {
     constructor(targetElement: HTMLElement, camera: Camera) {
         super(camera);
 
-        const walkBehavior = new WalkBehavior();
+        const flyBehavior = new FlyBehavior();
         const lookBehavior = new LookBehavior();
         const pointerLockBehavior = new PointerLockBehavior(targetElement);
 
-        this.add(pointerLockBehavior).add(walkBehavior).add(lookBehavior);
+        this.add(pointerLockBehavior).add(flyBehavior).add(lookBehavior);
     }
 }
 
-export default FirstPersonControls;
+export default FlyControls;

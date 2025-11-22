@@ -18,7 +18,7 @@ class Spherical {
 		return new Spherical().setFromVector(vector);
 	}
 
-    constructor(public radius = 0, public theta = 0, public phi = 0) {}
+    constructor(public radius = 1, public theta = 0, public phi = 0) {}
 
 	clone() {
 		return new Spherical(...this);
@@ -48,6 +48,10 @@ class Spherical {
 
 	set(radius: number, theta: number, phi: number) {
 		return this.setRadius(radius).setTheta(theta).setPhi(phi);
+	}
+
+	reset() {
+		return this.set(1, 0, 0);
 	}
 
 	setFromCartesian(x: number, y: number, z: number) {

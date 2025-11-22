@@ -138,6 +138,10 @@ class Quaternion {
 		return this.setX(x).setY(y).setZ(z).setW(w);
 	}
 
+	reset() {
+		return this.set(0, 0, 0, 1);
+	}
+
 	setFromAxisAngle(axis: Vector3, angle: number) {
 		const alpha = angle / 2;
 		const cosAlpha = Math.cos(alpha);
