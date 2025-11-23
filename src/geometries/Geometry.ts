@@ -135,32 +135,6 @@ abstract class Geometry {
 		return this;
 	}
 
-	protected abstract _generateVertexData(): GeometryVertexData;
-
-	protected abstract _generateLineListIndices(): number[];
-
-	protected abstract _generateTriangleListIndices(): number[];
-
-	protected abstract _generateLineStripIndices(): number[];
-
-	protected abstract _generateTriangleStripIndices(): number[];
-
-	protected _generatePointListIndices() {
-		const positionAttribute = this.getAttribute('position');
-
-		const indices: number[] = [];
-
-		if (positionAttribute) {
-			const { vertexCount } = this;
-
-			for (let i = 0; i < vertexCount; i++) {
-				indices.push(i);
-			}
-		}
-
-		return indices;
-	}
-
 	protected _updateVertices() {
 		const vertexData = this._generateVertexData();
 
@@ -200,6 +174,32 @@ abstract class Geometry {
 
 			this.setAttribute('uv', uvAttribute);
 		}
+	}
+
+	protected abstract _generateVertexData(): GeometryVertexData;
+
+	protected abstract _generateLineListIndices(): number[];
+
+	protected abstract _generateTriangleListIndices(): number[];
+
+	protected abstract _generateLineStripIndices(): number[];
+
+	protected abstract _generateTriangleStripIndices(): number[];
+
+	protected _generatePointListIndices() {
+		const positionAttribute = this.getAttribute('position');
+
+		const indices: number[] = [];
+
+		if (positionAttribute) {
+			const { vertexCount } = this;
+
+			for (let i = 0; i < vertexCount; i++) {
+				indices.push(i);
+			}
+		}
+
+		return indices;
 	}
 
 	#generateIndices(topology: GPUPrimitiveTopology) {

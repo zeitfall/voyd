@@ -55,19 +55,16 @@ class Spherical {
 	}
 
 	setFromCartesian(x: number, y: number, z: number) {
-		this.radius = Math.sqrt(x * x + y * y + z * z);
+		const radius = Math.sqrt(x * x + y * y + z * z);
 
-		if (this.radius === 0) {
-			return this.setTheta(0).setPhi(0);
+		if (radius === 0) {
+			return this.reset();
 		}
 
-		let theta = Math.atan2(z, x);
-		let phi = Math.acos(clamp(y / this.radius, -1, 1));
+		const theta = Math.atan2(x, -z);
+		const phi = Math.asin(clamp(y / this.radius, -1, 1));
 
-		theta += PI_OVER_TWO;
-		phi -= PI_OVER_TWO;
-
-		return this.setTheta(theta).setPhi(phi);
+		return this.set(radius, theta, phi);
 	}
 
 	setFromVector(vector: Vector3) {

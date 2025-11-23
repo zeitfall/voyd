@@ -127,7 +127,7 @@ class OrbitBehavior extends ControlBehavior {
 
             sphericalOffset.setFromVector(offset);
             sphericalOffset.theta = clamp(sphericalOffset.theta - currentMovement.x, this.minAzimuthAngle, this.maxAzimuthAngle);
-            sphericalOffset.phi = clamp(sphericalOffset.phi + currentMovement.y, this.minPolarAngle, this.maxPolarAngle);
+            sphericalOffset.phi = clamp(sphericalOffset.phi - currentMovement.y, this.minPolarAngle, this.maxPolarAngle);
 
             positionOffset.setFromSpherical(sphericalOffset).subtract(offset);
 

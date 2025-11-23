@@ -6,8 +6,6 @@ import type Spherical from './Spherical';
 import type Quaternion from './Quaternion';
 import type Matrix3 from './Matrix3';
 
-import { PI_OVER_TWO } from '~/constants';
-
 class Vector3 extends Vector {
 	static fromSphericalCoordinates(radius: number, theta: number, phi: number) {
 		return new Vector3().setFromSphericalCoordinates(radius, theta, phi);
@@ -64,15 +62,15 @@ class Vector3 extends Vector {
 	}
 
 	setFromSphericalCoordinates(radius: number, theta: number, phi: number) {
-		const sinTheta = Math.sin(theta - PI_OVER_TWO);
-		const cosTheta = Math.cos(theta - PI_OVER_TWO);
-		const sinPhi = Math.sin(phi + PI_OVER_TWO);
-		const cosPhi = Math.cos(phi + PI_OVER_TWO); 
+		const sinTheta = Math.sin(theta);
+		const cosTheta = Math.cos(theta);
+		const cosPhi = Math.cos(phi);
+		const sinPhi = Math.sin(phi);
 
 		return this.set(
-			radius * sinPhi * cosTheta,
-			radius * cosPhi,
-			radius * sinPhi * sinTheta,
+			radius * cosPhi * sinTheta,
+			radius * sinPhi,
+			-radius * cosPhi * cosTheta
 		);
 	}
 

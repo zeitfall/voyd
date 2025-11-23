@@ -127,7 +127,7 @@ class LookBehavior extends ControlBehavior {
 
             sphericalDirection.setFromVector(direction);
             sphericalDirection.theta = clamp(sphericalDirection.theta - currentMovement.x, this.minYawAngle, this.maxYawAngle);
-            sphericalDirection.phi = clamp(sphericalDirection.phi + currentMovement.y, this.minPitchAngle, this.maxPitchAngle);
+            sphericalDirection.phi = clamp(sphericalDirection.phi - currentMovement.y, this.minPitchAngle, this.maxPitchAngle);
 
             deltaDirection.setFromSpherical(sphericalDirection).subtract(direction);
 
