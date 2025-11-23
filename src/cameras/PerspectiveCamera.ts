@@ -39,8 +39,8 @@ class PerspectiveCamera extends Camera {
 		return this.#projectionMatrixBuffer;
 	}
 
-	setAspectRatio(value: number) {
-		this.aspectRatio = value;
+	setAspectRatio(ratio: number) {
+		this.aspectRatio = ratio;
 
 		return this;
 	}
@@ -61,14 +61,14 @@ class PerspectiveCamera extends Camera {
 		const projectionMatrixArray = this.#projectionMatrixArray;
 		const projectionMatrixBuffer = this.#projectionMatrixBuffer;
 
-		const fn = fp - np;
+		const d = fp - np;
 		const it = 1 / Math.tan(toRadians(fovy / 2));
 
 		const A = it / ar;
 		const B = it;
-		const C = fp / fn;
+		const C = fp / d;
 		const D = 1;
-		const E = -(np * fp) / fn;
+		const E = -(np * fp) / d;
 
 		// biome-ignore format: It's easier to distinguish matrix columns.
 		projectionMatrix.set(

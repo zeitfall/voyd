@@ -67,8 +67,8 @@
                 format: GPUContext.preferredFormat,
             });
 
-            // const camera = new OrthographicCamera();
-            const camera = new PerspectiveCamera(90);
+            const camera = new OrthographicCamera();
+            // const camera = new PerspectiveCamera(90);
 
             camera.position.set(0, 0, -2);
             // camera.target.set(1, -2, 0);
@@ -80,7 +80,7 @@
 
             console.log(controls);
 
-            const geometry = new PlaneGeometry(4, 4, 128, 128);
+            const geometry = new PlaneGeometry(1, 1, 128, 128);
             // const geometry = new CircleGeometry(1, 4);
             // const geometry = new SphereGeometry(1, 32, 32);
 

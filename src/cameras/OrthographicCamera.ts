@@ -71,6 +71,14 @@ class OrthographicCamera extends Camera {
 			.setFarPlane(far);
 	}
 
+	setAspectRatio(ratio: number) {
+        const height = Math.abs(this.topPlane - this.bottomPlane);
+        const width = height * ratio;
+        const halfWidth = width / 2;
+
+		return this.setLeftPlane(-halfWidth).setRightPlane(halfWidth);
+    }
+
 	override update() {
 		super.update();
 
@@ -89,23 +97,23 @@ class OrthographicCamera extends Camera {
 		const projectionMatrixArray = this.#projectionMatrixArray;
 		const projectionMatrixBuffer = this.#projectionMatrixBuffer;
 
-		const rl = rp - lp;
-		const tb = tp - bp;
-		const fn = fp - np;
+		const w = rp - lp;
+		const h = tp - bp;
+		const d = fp - np;
 
-		const A = 2 / rl;
-		const B = 2 / tb;
-		const C = 1 / fn;
-		const D = -(rp + lp) / rl;
-		const E = -(tp + bp) / tb;
-		const F = -np / fn;
+		const A = 2 / w;
+		const B = 2 / h;
+		const C = 1 / d;
+		const D = -(rp + lp) / w;
+		const E = -(tp + bp) / h;
+		const F = -np / d;
 		const G = 1;
 
 		// biome-ignore format: It's easier to distinguish matrix columns.
 		projectionMatrix.set(
             A, 0, 0, 0,
             0, B, 0, 0,
-            0, 0, C, D,
+            0, 0, C, 0,
             D, E, F, G,
         );
 

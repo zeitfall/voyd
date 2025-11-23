@@ -113,6 +113,8 @@ abstract class Camera {
 		this.#updateView();
 	}
 
+	abstract setAspectRatio(ratio: number): this;
+
 	#updateView() {
 		const position = this.#position;
 		const target = this.#target;
