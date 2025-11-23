@@ -35,27 +35,17 @@ abstract class Matrix {
 		return matrix.clone().inverse() as T;
 	}
 
-	declare readonly elements: number[];
+	#elements: number[];
 
 	constructor(args: unknown[], elementCount: number, columnCount: number) {
-		this.elements = this._prepareElements(args, elementCount, columnCount);
+		this.#elements = this.#prepareElements(args, elementCount, columnCount);
 	}
 
-	private _prepareElements(args: unknown[], elementCount: number, columnCount: number): number[] {
-		if (isArrayOfNumbers(args) && args.length === elementCount) {
-			return args.slice();
-		}
-
-		if (isArrayOfVectors(args) && args.length === columnCount) {
-			return args.flatMap((vector) => vector.toArray());
-		}
-
-		if (isArray(args[0]) && args.length === 1) {
-			return this._prepareElements(args[0], elementCount, columnCount);
-		}
-
-		throw new Error('[Matrix]: Provided arguments are not valid.');
+	get elements() {
+		return this.#elements;
 	}
+
+	abstract get determinant(): number;
 
 	copy(matrix: Matrix) {
 		return this.set(...matrix);
@@ -77,8 +67,6 @@ abstract class Matrix {
 		yield* this.elements;
 	}
 
-	abstract get determinant(): number;
-
 	abstract clone(): Matrix;
 
 	abstract set(...elements: number[]): this;
@@ -94,6 +82,22 @@ abstract class Matrix {
 	abstract transpose(): this;
 
 	abstract inverse(): this;
+
+	#prepareElements(args: unknown[], elementCount: number, columnCount: number): number[] {
+		if (isArrayOfNumbers(args) && args.length === elementCount) {
+			return args.slice();
+		}
+
+		if (isArrayOfVectors(args) && args.length === columnCount) {
+			return args.flatMap((vector) => vector.toArray());
+		}
+
+		if (isArray(args[0]) && args.length === 1) {
+			return this.#prepareElements(args[0], elementCount, columnCount);
+		}
+
+		throw new Error('[Matrix]: Provided arguments are not valid.');
+	}
 }
 
 export default Matrix;

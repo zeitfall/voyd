@@ -13,33 +13,6 @@ class PointerLockBehavior extends ControlBehavior {
         this.#targetElement = targetElement;
     }
 
-    async #requestPointerLock() {
-        const targetElement = this.#targetElement;
-
-        if (document.pointerLockElement === targetElement) {
-            return;
-        }
-
-		try {
-			await targetElement.requestPointerLock({ unadjustedMovement: true });
-		} catch (error) {
-			// @ts-expect-error 'error' is of type 'unknown'.
-			if (error.name === 'NotSupportedError') {
-				await targetElement.requestPointerLock();
-
-				return;
-			}
-
-			throw error;
-		}
-	}
-
-    #handlePointerLockChange() {
-        if (this.context) {
-            this.context.enabled = document.pointerLockElement === this.#targetElement;
-        }
-    }
-
     override attach(context: ControlsPipelineContext) {
         super.attach(context);
 
@@ -75,6 +48,33 @@ class PointerLockBehavior extends ControlBehavior {
 
     update() {
         return this;
+    }
+
+    async #requestPointerLock() {
+        const targetElement = this.#targetElement;
+
+		try {
+            if (document.pointerLockElement === targetElement) {
+                return;
+            }
+
+			await targetElement.requestPointerLock({ unadjustedMovement: true });
+		} catch (error) {
+			// @ts-expect-error 'error' is of type 'unknown'.
+			if (error.name === 'NotSupportedError') {
+				await targetElement.requestPointerLock();
+
+				return;
+			}
+
+			throw error;
+		}
+	}
+
+    #handlePointerLockChange() {
+        if (this.context) {
+            this.context.enabled = document.pointerLockElement === this.#targetElement;
+        }
     }
 }
 

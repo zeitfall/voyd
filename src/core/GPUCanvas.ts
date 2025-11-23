@@ -1,28 +1,39 @@
-import { defineReadOnlyProperties } from '~/utils';
-
 class GPUCanvas extends HTMLCanvasElement {
-	declare private readonly _resizeObserver: ResizeObserver;
-	declare private readonly _resizeEvent: UIEvent;
+	#resizeObserver: ResizeObserver;
+	#resizeEvent: UIEvent;
 
 	constructor() {
 		super();
 
-		const _resizeObserver = new ResizeObserver(this._handleResize.bind(this));
-		const _resizeEvent = new UIEvent('resize');
-
-		// @ts-expect-error Object literal may only specify known properties, and 'resizeObserver' does not exist in type 'Record<keyof this, unknown>'.
-		defineReadOnlyProperties(this, { _resizeObserver, _resizeEvent });
+		this.#resizeObserver = new ResizeObserver(this.#handleResize.bind(this));
+		this.#resizeEvent = new UIEvent('resize');
 	}
 
 	get aspectRatio() {
 		return this.width / this.height;
 	}
 
-	private _handleContextMenu(event: PointerEvent) {
+	connectedCallback() {
+		this.style.width = '100%';
+		this.style.height = '100%';
+		this.style.touchAction = 'none';
+
+		this.addEventListener('contextmenu', this.#handleContextMenu);
+
+		this.#resizeObserver.observe(this);
+	}
+
+	disconnectedCallback() {
+		this.removeEventListener('contextmenu', this.#handleContextMenu);
+
+		this.#resizeObserver.disconnect();
+	}
+
+	#handleContextMenu(event: PointerEvent) {
 		event.preventDefault();
 	}
 
-	private _handleResize(entries: ResizeObserverEntry[]) {
+	#handleResize(entries: ResizeObserverEntry[]) {
 		const { contentBoxSize, devicePixelContentBoxSize } = entries[0];
 
 		let width: number;
@@ -43,23 +54,7 @@ class GPUCanvas extends HTMLCanvasElement {
 		this.width = width;
 		this.height = height;
 
-		this.dispatchEvent(this._resizeEvent);
-	}
-
-	connectedCallback() {
-		this.style.width = '100%';
-		this.style.height = '100%';
-		this.style.touchAction = 'none';
-
-		this.addEventListener('contextmenu', this._handleContextMenu);
-
-		this._resizeObserver.observe(this);
-	}
-
-	disconnectedCallback() {
-		this.removeEventListener('contextmenu', this._handleContextMenu);
-
-		this._resizeObserver.disconnect();
+		this.dispatchEvent(this.#resizeEvent);
 	}
 }
 

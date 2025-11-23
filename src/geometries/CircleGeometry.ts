@@ -5,8 +5,8 @@ import { TWO_PI } from '~/constants';
 const MIN_CIRCLE_SEGMENT_COUNT = 3;
 
 class CircleGeometry extends Geometry {
-	declare private _radius: number;
-	declare private _segments: number;
+	#radius: number;
+	#segments: number;
 
 	constructor(radius = 1, segments = 8) {
 		super();
@@ -15,8 +15,8 @@ class CircleGeometry extends Geometry {
 			throw new Error(`[CircleGeometry]: Circle geometry must have at least ${MIN_CIRCLE_SEGMENT_COUNT} segments.`);
 		}
 
-		this._radius = radius;
-		this._segments = segments;
+		this.#radius = radius;
+		this.#segments = segments;
 
 		this._updateVertices();
 
@@ -24,23 +24,44 @@ class CircleGeometry extends Geometry {
 	}
 
 	get radius() {
-		return this._radius;
-	}
-
-	get segments() {
-		return this._segments;
+		return this.#radius;
 	}
 
 	set radius(value: number) {
-		this._radius = value;
+		this.#radius = value;
 
 		this._updateVertices();
 	}
 
+	get segments() {
+		return this.#segments;
+	}
+
 	set segments(value: number) {
-		this._segments = value;
+		this.#segments = value;
 
 		this._updateVertices();
+	}
+
+	setRadius(value: number) {
+		this.radius = value;
+
+		return this;
+	}
+
+	setSegments(value: number) {
+		this.segments = value;
+
+		return this;
+	}
+
+	set(radius: number, segments: number) {
+		this.#radius = radius;
+		this.#segments = segments;
+
+		this._updateVertices();
+
+		return this;
 	}
 
 	protected _generateVertexData() {
@@ -114,27 +135,6 @@ class CircleGeometry extends Geometry {
 		const indices: number[] = [];
 
 		return indices;
-	}
-
-	setRadius(value: number) {
-		this.radius = value;
-
-		return this;
-	}
-
-	setSegments(value: number) {
-		this.segments = value;
-
-		return this;
-	}
-
-	set(radius: number, segments: number) {
-		this._radius = radius;
-		this._segments = segments;
-
-		this._updateVertices();
-
-		return this;
 	}
 }
 

@@ -4,10 +4,10 @@ const MIN_SEGMENTS_X = 1;
 const MIN_SEGMENTS_Y = 1;
 
 class PlaneGeometry extends Geometry {
-	declare private _width: number;
-	declare private _height: number;
-	declare private _segmentsX: number;
-	declare private _segmentsY: number;
+	#width: number;
+	#height: number;
+	#segmentsX: number;
+	#segmentsY: number;
 
 	constructor(width = 1, height = 1, segmentsX = 1, segmentsY = 1) {
 		super();
@@ -20,10 +20,10 @@ class PlaneGeometry extends Geometry {
 			throw new Error(`[PlaneGeometry]: Plane geometry must have at least ${MIN_SEGMENTS_Y} segments per column.`);
 		}
 
-		this._width = width;
-		this._height = height;
-		this._segmentsX = segmentsX;
-		this._segmentsY = segmentsY;
+		this.#width = width;
+		this.#height = height;
+		this.#segmentsX = segmentsX;
+		this.#segmentsY = segmentsY;
 
 		this._updateVertices();
 
@@ -31,43 +31,85 @@ class PlaneGeometry extends Geometry {
 	}
 
 	get width() {
-		return this._width;
-	}
-
-	get height() {
-		return this._height;
-	}
-
-	get segmentsX() {
-		return this._segmentsX;
-	}
-
-	get segmentsY() {
-		return this._segmentsY;
+		return this.#width;
 	}
 
 	set width(value: number) {
-		this._width = value;
+		this.#width = value;
 
 		this._updateVertices();
+	}
+
+	get height() {
+		return this.#height;
 	}
 
 	set height(value: number) {
-		this._height = value;
+		this.#height = value;
 
 		this._updateVertices();
+	}
+
+	get segmentsX() {
+		return this.#segmentsX;
 	}
 
 	set segmentsX(value: number) {
-		this._segmentsX = value;
+		this.#segmentsX = value;
 
 		this._updateVertices();
 	}
 
+	get segmentsY() {
+		return this.#segmentsY;
+	}
+
 	set segmentsY(value: number) {
-		this._segmentsY = value;
+		this.#segmentsY = value;
 
 		this._updateVertices();
+	}
+
+	setWidth(value: number) {
+		this.width = value;
+
+		return this;
+	}
+
+	setHeight(value: number) {
+		this.height = value;
+
+		return this;
+	}
+
+	setSize(width: number, height: number) {
+		this.#width = width;
+		this.#height = height;
+
+		this._updateVertices();
+
+		return this;
+	}
+
+	setSegmentsX(value: number) {
+		this.segmentsX = value;
+
+		return this;
+	}
+
+	setSegmentsY(value: number) {
+		this.segmentsY = value;
+
+		return this;
+	}
+
+	setSegments(x: number, y: number) {
+		this.#segmentsX = x;
+		this.#segmentsY = y;
+
+		this._updateVertices();
+
+		return this;
 	}
 
 	protected _generateVertexData() {
@@ -95,7 +137,7 @@ class PlaneGeometry extends Geometry {
 
 				x -= halfWidth;
 
-				vertices.push(x, -y, 0);
+				vertices.push(x, -y, .125 * Math.random());
 				normals.push(0, 0, -1);
 				uvs.push(u, v);
 			}
@@ -179,48 +221,6 @@ class PlaneGeometry extends Geometry {
 		const indices: number[] = [];
 
 		return indices;
-	}
-
-	setWidth(value: number) {
-		this.width = value;
-
-		return this;
-	}
-
-	setHeight(value: number) {
-		this.height = value;
-
-		return this;
-	}
-
-	setSize(width: number, height: number) {
-		this._width = width;
-		this._height = height;
-
-		this._updateVertices();
-
-		return this;
-	}
-
-	setSegmentsX(value: number) {
-		this.segmentsX = value;
-
-		return this;
-	}
-
-	setSegmentsY(value: number) {
-		this.segmentsY = value;
-
-		return this;
-	}
-
-	setSegments(x: number, y: number) {
-		this.segmentsX = x;
-		this.segmentsY = y;
-
-		this._updateVertices();
-
-		return this;
 	}
 }
 

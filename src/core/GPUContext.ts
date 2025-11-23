@@ -1,14 +1,28 @@
 import GPUCanvas from './GPUCanvas';
 
-import { defineReadOnlyProperties } from '~/utils';
-
 import type { GPUContextConfig } from '~/types';
 
 class GPUContext {
-	declare static readonly gpu: GPU;
-	declare static readonly adapter: GPUAdapter;
-	declare static readonly device: GPUDevice;
-	declare static readonly preferredFormat: GPUTextureFormat;
+	static #gpu: GPU;
+	static #adapter: GPUAdapter;
+	static #device: GPUDevice;
+	static #preferredFormat: GPUTextureFormat;
+
+	static get gpu() {
+		return GPUContext.#gpu;
+	}
+
+	static get adapter() {
+		return GPUContext.#adapter;
+	}
+
+	static get device() {
+		return GPUContext.#device;
+	}
+
+	static get preferredFormat() {
+		return GPUContext.#preferredFormat;
+	}
 
 	static get limits() {
 		return GPUContext.device.limits;
@@ -16,20 +30,6 @@ class GPUContext {
 
 	static get features() {
 		return GPUContext.device.features;
-	}
-
-	private static async _handleDeviceLost() {
-		const { device } = GPUContext;
-
-		if (device) {
-			const { reason, message } = await device.lost;
-
-			const needsLocationReload = confirm(`[GPUContext]: GPU device is lost.\nReason: ${reason}\nMessage: ${message}`);
-
-			if (needsLocationReload) {
-				location.reload();
-			}
-		}
 	}
 
 	static async init(config?: Partial<GPUContextConfig>) {
@@ -45,14 +45,12 @@ class GPUContext {
 				const device = await adapter.requestDevice(config?.device);
 				const preferredFormat = gpu.getPreferredCanvasFormat();
 
-				defineReadOnlyProperties(GPUContext, {
-					gpu,
-					adapter,
-					device,
-					preferredFormat,
-				});
+				this.#gpu = gpu;
+				this.#adapter = adapter;
+				this.#device = device;
+				this.#preferredFormat = preferredFormat;
 
-				GPUContext._handleDeviceLost();
+				GPUContext.#handleDeviceLost();
 
 				customElements.define('gpu-canvas', GPUCanvas, { extends: 'canvas' });
 			}
@@ -63,6 +61,20 @@ class GPUContext {
 
 	static hasFeature(name: GPUFeatureName) {
 		return GPUContext.features.has(name);
+	}
+
+	static async #handleDeviceLost() {
+		const { device } = GPUContext;
+
+		if (device) {
+			const { reason, message } = await device.lost;
+
+			const needsLocationReload = confirm(`[GPUContext]: GPU device is lost.\nReason: ${reason}\nMessage: ${message}`);
+
+			if (needsLocationReload) {
+				location.reload();
+			}
+		}
 	}
 
 	private constructor() {

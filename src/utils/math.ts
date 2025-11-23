@@ -4,10 +4,20 @@ export function clamp(value: number, min: number, max: number) {
 	return Math.max(min, Math.min(value, max));
 }
 
-export function lerp(from: number, to: number, fraction: number) {
+export function lerp(min: number, max: number, fraction: number) {
 	const t = clamp(fraction, 0, 1);
 
-	return (1 - t) * from + t * to;
+	return (1 - t) * min + t * max;
+}
+
+export function inverseLerp(min: number, max: number, value: number) {
+	return clamp((min - value) / (min - max), 0, 1);
+}
+
+export function remap(value: number, oldMin: number, oldMax: number, newMin: number, newMax: number) {
+	const fraction = inverseLerp(oldMin, oldMax, value);
+
+	return lerp(newMin, newMax, fraction);
 }
 
 export function modRange(value: number, min: number, max: number) {

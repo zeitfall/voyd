@@ -1,15 +1,22 @@
-import { defineReadOnlyProperties } from '~/utils';
-
 import { VERTEX_ATTRIBUTE_COMPONENT_COUNT_MAP, VERTEX_ATTRIBUTE_FORMAT_BYTE_SIZE_MAP } from '~/constants';
 
 import type { TypedArray } from '~/types';
 
 class VertexAttribute<T extends TypedArray = TypedArray> {
-	declare readonly array: T;
-	declare readonly format: GPUVertexFormat;
+	#array: T;
+	#format: GPUVertexFormat;
 
 	constructor(array: T, format: GPUVertexFormat) {
-		defineReadOnlyProperties(this, { array, format });
+		this.#array = array;
+		this.#format = format;
+	}
+
+	get array() {
+		return this.#array;
+	}
+
+	get format() {
+		return this.#format;
 	}
 
 	get length() {

@@ -1,24 +1,59 @@
 import { VertexAttribute } from '~/buffers';
 
-import { defineReadOnlyProperty } from '~/utils';
-
 import { MAX_16_BIT_VALUE } from '~/constants';
 
 import type { GeometryAttributeNames, GeometryVertexData } from '~/types';
 
 abstract class Geometry {
-	declare private _topology: GPUPrimitiveTopology;
-	declare private _indices: Uint16Array | Uint32Array | null;
+	#attributes: Map<GeometryAttributeNames, VertexAttribute>;
 
-	declare readonly attributes: Map<GeometryAttributeNames, VertexAttribute>;
+	#indices: Uint16Array | Uint32Array | null;
+	#topology: GPUPrimitiveTopology;
 
 	constructor() {
-		this._topology = 'triangle-list';
-		this._indices = null;
+		this.#attributes = new Map();
+		this.#indices = null;
+		this.#topology = 'triangle-list';
+	}
 
-		const attributes = new Map();
+	get attributes() {
+		return this.#attributes;
+	}
+	
+	get indices() {
+		return this.#indices;
+	}
 
-		defineReadOnlyProperty(this, 'attributes', attributes);
+	set indices(value: Uint16Array | Uint32Array | null) {
+		this.#indices = value;
+	}
+
+	get hasIndices() {
+		return Boolean(this.indices && this.indices.length);
+	}
+
+	get indexFormat(): GPUIndexFormat | null {
+		const indices = this.indices;
+
+		if (indices instanceof Uint16Array) {
+			return 'uint16';
+		}
+
+		if (indices instanceof Uint32Array) {
+			return 'uint32';
+		}
+
+		return null;
+	}
+
+	get topology() {
+		return this.#topology;
+	}
+
+	set topology(value: GPUPrimitiveTopology) {
+		this.#topology = value;
+
+		this.#updateIndices(value);
 	}
 
 	get length() {
@@ -74,39 +109,41 @@ abstract class Geometry {
 		return stride;
 	}
 
-	get topology() {
-		return this._topology;
+	setAttribute(name: GeometryAttributeNames, attribute: VertexAttribute) {
+		this.attributes.set(name, attribute);
+
+		return this;
 	}
 
-	get indices() {
-		return this._indices;
+	getAttribute(name: GeometryAttributeNames) {
+		return this.attributes.get(name);
 	}
 
-	get indexFormat(): GPUIndexFormat | null {
-		if (this.indices instanceof Uint16Array) {
-			return 'uint16';
-		}
-
-		if (this.indices instanceof Uint32Array) {
-			return 'uint32';
-		}
-
-		return null;
+	hasAttribute(name: GeometryAttributeNames) {
+		return this.attributes.has(name);
 	}
 
-	get hasIndices() {
-		return Boolean(this.indices && this.indices.length);
+	setIndices(indices: Uint16Array | Uint32Array) {
+		this.indices = indices;
+
+		return this;
 	}
 
-	set topology(value: GPUPrimitiveTopology) {
-		this._topology = value;
+	setTopology(topology: GPUPrimitiveTopology) {
+		this.topology = topology;
 
-		this._updateIndices(value);
+		return this;
 	}
 
-	set indices(value: Uint16Array | Uint32Array | null) {
-		this._indices = value;
-	}
+	protected abstract _generateVertexData(): GeometryVertexData;
+
+	protected abstract _generateLineListIndices(): number[];
+
+	protected abstract _generateTriangleListIndices(): number[];
+
+	protected abstract _generateLineStripIndices(): number[];
+
+	protected abstract _generateTriangleStripIndices(): number[];
 
 	protected _generatePointListIndices() {
 		const positionAttribute = this.getAttribute('position');
@@ -119,42 +156,6 @@ abstract class Geometry {
 			for (let i = 0; i < vertexCount; i++) {
 				indices.push(i);
 			}
-		}
-
-		return indices;
-	}
-
-	private _generateIndices(topology: GPUPrimitiveTopology) {
-		let indices: number[];
-
-		switch (topology) {
-			case 'point-list':
-				indices = this._generatePointListIndices();
-
-				break;
-
-			case 'line-list':
-				indices = this._generateLineListIndices();
-
-				break;
-
-			case 'line-strip':
-				indices = this._generateLineStripIndices();
-
-				break;
-
-			case 'triangle-list':
-				indices = this._generateTriangleListIndices();
-
-				break;
-
-			case 'triangle-strip':
-				indices = this._generateTriangleStripIndices();
-
-				break;
-
-			default:
-				throw new Error(`[Geometry]: Unsupported topology "${topology}"`);
 		}
 
 		return indices;
@@ -201,47 +202,47 @@ abstract class Geometry {
 		}
 	}
 
-	private _updateIndices(topology: GPUPrimitiveTopology) {
-		const indices = this._generateIndices(topology);
+	#generateIndices(topology: GPUPrimitiveTopology) {
+		let indices: number[];
+
+		switch (topology) {
+			case 'point-list':
+				indices = this._generatePointListIndices();
+
+				break;
+
+			case 'line-list':
+				indices = this._generateLineListIndices();
+
+				break;
+
+			case 'line-strip':
+				indices = this._generateLineStripIndices();
+
+				break;
+
+			case 'triangle-list':
+				indices = this._generateTriangleListIndices();
+
+				break;
+
+			case 'triangle-strip':
+				indices = this._generateTriangleStripIndices();
+
+				break;
+
+			default:
+				throw new Error(`[Geometry]: Unsupported topology "${topology}"`);
+		}
+
+		return indices;
+	}
+
+	#updateIndices(topology: GPUPrimitiveTopology) {
+		const indices = this.#generateIndices(topology);
 		const indicesArray = this.length <= MAX_16_BIT_VALUE ? new Uint16Array(indices) : new Uint32Array(indices);
 
 		this.setIndices(indicesArray);
-	}
-
-	protected abstract _generateVertexData(): GeometryVertexData;
-
-	protected abstract _generateLineListIndices(): number[];
-
-	protected abstract _generateTriangleListIndices(): number[];
-
-	protected abstract _generateLineStripIndices(): number[];
-
-	protected abstract _generateTriangleStripIndices(): number[];
-
-	setAttribute(name: GeometryAttributeNames, attribute: VertexAttribute) {
-		this.attributes.set(name, attribute);
-
-		return this;
-	}
-
-	getAttribute(name: GeometryAttributeNames) {
-		return this.attributes.get(name);
-	}
-
-	hasAttribute(name: GeometryAttributeNames) {
-		return this.attributes.has(name);
-	}
-
-	setIndices(indices: Uint16Array | Uint32Array) {
-		this.indices = indices;
-
-		return this;
-	}
-
-	setTopology(topology: GPUPrimitiveTopology) {
-		this.topology = topology;
-
-		return this;
 	}
 }
 

@@ -14,8 +14,6 @@ class Matrix4 extends Matrix {
 		return new Matrix4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 	}
 
-	declare readonly elements: Matrix4Elements;
-
 	constructor(elements: Matrix4Elements);
 	constructor(columns: Matrix4Columns);
 	constructor(...element: Matrix4Elements);
@@ -53,7 +51,7 @@ class Matrix4 extends Matrix {
 	}
 
 	clone() {
-		return new Matrix4(this.elements);
+		return new Matrix4(this.elements as Matrix4Elements);
 	}
 
 	set(...elements: Matrix4Elements) {
@@ -282,12 +280,15 @@ class Matrix4 extends Matrix {
 		const c44 = e11 * (e22 * e33 - e23 * e32) - e12 * (e21 * e33 - e23 * e31) + e13 * (e21 * e32 - e22 * e31);
 
 		// biome-ignore format: It's easier to distinguish matrix columns.
-		return this.set(
-			c11, c21, c31, c41,
-			c12, c22, c32, c42,
-			c13, c23, c33, c43,
-			c14, c24, c34, c44
-		).transpose().divideByScalar(det);
+		return this
+			.set(
+				c11, c21, c31, c41,
+				c12, c22, c32, c42,
+				c13, c23, c33, c43,
+				c14, c24, c34, c44
+			)
+			.transpose()
+			.divideByScalar(det);
 	}
 }
 

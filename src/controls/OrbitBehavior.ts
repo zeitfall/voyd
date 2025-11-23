@@ -45,40 +45,6 @@ class OrbitBehavior extends ControlBehavior {
         this.sensitivity = .01;
     }
 
-    #handlePointerMove(event: PointerEvent) {
-        const { buttons, pressure, movementX, movementY } = event;
-
-        if (this.context && this.context.enabled && buttons + pressure > 0) {
-            this.#targetMovement.x += this.sensitivity * movementX;
-            this.#targetMovement.y -= this.sensitivity * movementY;
-        }
-    }
-
-    override attach(context: ControlsPipelineContext) {
-        super.attach(context);
-
-        const abortController = new AbortController();
-        const eventListenerOptions = { signal: abortController.signal };
-
-        this.#abortController = abortController;
-
-        window.addEventListener('pointermove', this.#handlePointerMove.bind(this), eventListenerOptions);
-
-        return this;
-    }
-
-    override detach() {
-        super.detach();
-
-        const abortController = this.#abortController;
-
-        if (abortController) {
-            abortController.abort();
-        }
-
-        return this;
-    }
-
     setMinAzimuthAngle(angle: number) {
 		this.minAzimuthAngle = angle;
 
@@ -103,8 +69,39 @@ class OrbitBehavior extends ControlBehavior {
 		return this;
 	}
 
+    setDampingFactor(damping: number) {
+        this.dampingFactor = damping;
+
+        return this;
+    }
+
     setSensitivity(sensitivity: number) {
         this.sensitivity = sensitivity;
+
+        return this;
+    }
+
+    override attach(context: ControlsPipelineContext) {
+        super.attach(context);
+
+        const abortController = new AbortController();
+        const eventListenerOptions = { signal: abortController.signal };
+
+        this.#abortController = abortController;
+
+        window.addEventListener('pointermove', this.#handlePointerMove.bind(this), eventListenerOptions);
+
+        return this;
+    }
+
+    override detach() {
+        super.detach();
+
+        const abortController = this.#abortController;
+
+        if (abortController) {
+            abortController.abort();
+        }
 
         return this;
     }
@@ -142,6 +139,15 @@ class OrbitBehavior extends ControlBehavior {
         targetMovement.reset();
 
         return this;
+    }
+
+    #handlePointerMove(event: PointerEvent) {
+        const { buttons, pressure, movementX, movementY } = event;
+
+        if (this.context && this.context.enabled && buttons + pressure > 0) {
+            this.#targetMovement.x += this.sensitivity * movementX;
+            this.#targetMovement.y -= this.sensitivity * movementY;
+        }
     }
 }
 

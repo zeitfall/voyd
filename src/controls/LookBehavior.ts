@@ -45,40 +45,6 @@ class LookBehavior extends ControlBehavior {
         this.sensitivity = .005;
     }
 
-    #handlePointerMove(event: PointerEvent) {
-        if (this.context && this.context.enabled) {
-            const { movementX, movementY } = event;
-
-            this.#targetMovement.x += this.sensitivity * movementX;
-            this.#targetMovement.y += this.sensitivity * movementY;
-        }
-    }
-
-    override attach(context: ControlsPipelineContext) {
-        super.attach(context);
-
-        const abortController = new AbortController();
-        const eventListenerOptions = { signal: abortController.signal };
-
-        this.#abortController = abortController;
-
-        window.addEventListener('pointermove', this.#handlePointerMove.bind(this), eventListenerOptions);
-
-        return this;
-    }
-
-    override detach() {
-        super.detach();
-
-        const abortController = this.#abortController;
-
-        if (abortController) {
-            abortController.abort();
-        }
-
-        return this;
-    }
-
     setMinYawAngle(angle: number) {
 		this.minYawAngle = angle;
 
@@ -111,6 +77,31 @@ class LookBehavior extends ControlBehavior {
 
     setSensitivity(sensitivity: number) {
         this.sensitivity = sensitivity;
+
+        return this;
+    }
+
+    override attach(context: ControlsPipelineContext) {
+        super.attach(context);
+
+        const abortController = new AbortController();
+        const eventListenerOptions = { signal: abortController.signal };
+
+        this.#abortController = abortController;
+
+        window.addEventListener('pointermove', this.#handlePointerMove.bind(this), eventListenerOptions);
+
+        return this;
+    }
+
+    override detach() {
+        super.detach();
+
+        const abortController = this.#abortController;
+
+        if (abortController) {
+            abortController.abort();
+        }
 
         return this;
     }
@@ -149,6 +140,15 @@ class LookBehavior extends ControlBehavior {
         targetMovement.reset();
 
         return this;
+    }
+
+    #handlePointerMove(event: PointerEvent) {
+        if (this.context && this.context.enabled) {
+            const { movementX, movementY } = event;
+
+            this.#targetMovement.x += this.sensitivity * movementX;
+            this.#targetMovement.y += this.sensitivity * movementY;
+        }
     }
 }
 

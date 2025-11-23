@@ -70,7 +70,7 @@
             // const camera = new OrthographicCamera();
             const camera = new PerspectiveCamera(90);
 
-            camera.position.set(0, 1, -1);
+            camera.position.set(0, 0, -2);
             // camera.target.set(1, -2, 0);
 
             console.log(camera);
@@ -80,11 +80,11 @@
 
             console.log(controls);
 
-            // const geometry = new PlaneGeometry(1, 1, 16, 16);
+            const geometry = new PlaneGeometry(4, 4, 128, 128);
             // const geometry = new CircleGeometry(1, 4);
-            const geometry = new SphereGeometry(1, 32, 32);
+            // const geometry = new SphereGeometry(1, 32, 32);
 
-            geometry.setTopology('line-list');
+            geometry.setTopology('triangle-list');
 
             console.log(geometry);
 
@@ -125,8 +125,8 @@
 
                     @fragment
                     fn fs(input: VertexOutput) -> @location(0) vec4f {
-                        // var vertex_color = 1 - smoothstep(0, 1, 4 * input.vertex.z);
-                        var vertex_color = 1f;
+                        var vertex_color = 1 - smoothstep(0, 1, 4 * input.vertex.z);
+                        // var vertex_color = 1f;
 
                         return vec4f(vec3f(vertex_color), 1);
                     }
@@ -194,10 +194,20 @@
                 }
             });
 
-            requestAnimationFrame(loop);
+            const renderBundleEncoder = GPUContext.device.createRenderBundleEncoder({ colorFormats: [GPUContext.preferredFormat] });
+
+            renderBundleEncoder.setPipeline(renderPipeline);
+            renderBundleEncoder.setBindGroup(0, bindGroup);
+            renderBundleEncoder.setVertexBuffer(0, vertexBuffer.instance);
+            renderBundleEncoder.setIndexBuffer(indexBuffer.instance, geometry.indexFormat);
+            renderBundleEncoder.drawIndexed(geometry.indices.length);
+
+            const renderBundle = renderBundleEncoder.finish();
 
             let t0;
             let t1;
+
+            requestAnimationFrame(loop);
 
             function loop() {
                 t1 = performance.now();
@@ -221,11 +231,7 @@
                     ]
                 });
 
-                renderPass.setPipeline(renderPipeline);
-                renderPass.setBindGroup(0, bindGroup);
-                renderPass.setVertexBuffer(0, vertexBuffer.instance);
-                renderPass.setIndexBuffer(indexBuffer.instance, geometry.indexFormat);
-                renderPass.drawIndexed(geometry.indices.length);
+                renderPass.executeBundles([renderBundle]);
                 renderPass.end();
 
                 GPUContext.device.queue.submit([commandEncoder.finish()]);

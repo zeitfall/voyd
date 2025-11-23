@@ -10,9 +10,9 @@ const MIN_LATITUDES = 2;
 const _vertexNormal = new Vector3();
 
 class SphereGeometry extends Geometry {
-	declare private _radius: number;
-	declare private _longitudes: number;
-	declare private _latitudes: number;
+	#radius: number;
+	#longitudes: number;
+	#latitudes: number;
 
 	constructor(radius = 1, longitudes = 8, latitudes = 8) {
 		super();
@@ -25,9 +25,9 @@ class SphereGeometry extends Geometry {
 			throw new Error(`[SphereGeometry]: Sphere geometry must have at least ${MIN_LATITUDES} latitudes.`);
 		}
 
-		this._radius = radius;
-		this._longitudes = longitudes;
-		this._latitudes = latitudes;
+		this.#radius = radius;
+		this.#longitudes = longitudes;
+		this.#latitudes = latitudes;
 
 		this._updateVertices();
 
@@ -35,33 +35,61 @@ class SphereGeometry extends Geometry {
 	}
 
 	get radius() {
-		return this._radius;
-	}
-
-	get longitudes() {
-		return this._longitudes;
-	}
-
-	get latitudes() {
-		return this._latitudes;
+		return this.#radius;
 	}
 
 	set radius(value: number) {
-		this._radius = value;
+		this.#radius = value;
 
 		this._updateVertices();
+	}
+
+	get longitudes() {
+		return this.#longitudes;
 	}
 
 	set longitudes(value) {
-		this._longitudes = value;
+		this.#longitudes = value;
 
 		this._updateVertices();
 	}
 
+	get latitudes() {
+		return this.#latitudes;
+	}
+
 	set latitudes(value: number) {
-		this._latitudes = value;
+		this.#latitudes = value;
 
 		this._updateVertices();
+	}
+
+	setRadius(radius: number) {
+		this.radius = radius;
+
+		return this;
+	}
+
+	setLongitudes(longitudes: number) {
+		this.longitudes = longitudes;
+
+		return this;
+	}
+
+	setLatitudes(latitudes: number) {
+		this.latitudes = latitudes;
+
+		return this;
+	}
+
+	set(radius: number, longitudes: number, latitudes: number) {
+		this.#radius = radius;
+		this.#longitudes = longitudes;
+		this.#latitudes = latitudes;
+
+		this._updateVertices();
+
+		return this;
 	}
 
 	protected _generateVertexData() {
@@ -220,34 +248,6 @@ class SphereGeometry extends Geometry {
 		const indices: number[] = [];
 
 		return indices;
-	}
-
-	setRadius(radius: number) {
-		this.radius = radius;
-
-		return this;
-	}
-
-	setLongitudes(longitudes: number) {
-		this.longitudes = longitudes;
-
-		return this;
-	}
-
-	setLatitudes(latitudes: number) {
-		this.latitudes = latitudes;
-
-		return this;
-	}
-
-	set(radius: number, longitudes: number, latitudes: number) {
-		this._radius = radius;
-		this._longitudes = longitudes;
-		this._latitudes = latitudes;
-
-		this._updateVertices();
-
-		return this;
 	}
 }
 

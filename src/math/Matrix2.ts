@@ -14,8 +14,6 @@ class Matrix2 extends Matrix {
 		return new Matrix2(1, 0, 0, 1);
 	}
 
-	declare readonly elements: Matrix2Elements;
-
 	constructor(elements: Matrix2Elements);
 	constructor(columns: Matrix2Columns);
 	constructor(...element: Matrix2Elements);
@@ -36,7 +34,7 @@ class Matrix2 extends Matrix {
 	}
 
 	clone() {
-		return new Matrix2(this.elements);
+		return new Matrix2(this.elements as Matrix2Elements);
 	}
 
 	set(...elements: Matrix2Elements) {

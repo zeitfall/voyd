@@ -1,7 +1,6 @@
 import { clamp } from '~/utils';
 
 import type Matrix from './Matrix';
-
 import type { Constructor } from '~/types';
 
 abstract class Vector {
