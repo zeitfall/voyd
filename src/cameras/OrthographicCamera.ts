@@ -86,27 +86,27 @@ class OrthographicCamera extends Camera {
 	}
 
 	#updateProjection() {
-		const lp = this.leftPlane;
-		const rp = this.rightPlane;
-		const tp = this.topPlane;
-		const bp = this.bottomPlane;
-		const np = this.nearPlane;
-		const fp = this.farPlane;
+		const leftPlane = this.leftPlane;
+		const rightPlane = this.rightPlane;
+		const topPlane = this.topPlane;
+		const bottomPlane = this.bottomPlane;
+		const nearPlane = this.nearPlane;
+		const farPlane = this.farPlane;
 
 		const projectionMatrix = this.#projectionMatrix;
 		const projectionMatrixArray = this.#projectionMatrixArray;
 		const projectionMatrixBuffer = this.#projectionMatrixBuffer;
 
-		const w = rp - lp;
-		const h = tp - bp;
-		const d = fp - np;
+		const width = rightPlane - leftPlane;
+		const height = topPlane - bottomPlane;
+		const depth = farPlane - nearPlane;
 
-		const A = 2 / w;
-		const B = 2 / h;
-		const C = 1 / d;
-		const D = -(rp + lp) / w;
-		const E = -(tp + bp) / h;
-		const F = -np / d;
+		const A = 2 / width;
+		const B = 2 / height;
+		const C = 1 / depth;
+		const D = -(rightPlane + leftPlane) / width;
+		const E = -(topPlane + bottomPlane) / height;
+		const F = -nearPlane / depth;
 		const G = 1;
 
 		// biome-ignore format: It's easier to distinguish matrix columns.

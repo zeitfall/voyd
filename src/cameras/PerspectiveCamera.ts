@@ -53,22 +53,22 @@ class PerspectiveCamera extends Camera {
 
 	#updateProjection() {
 		const fovy = this.fovy;
-		const ar = this.aspectRatio;
-		const np = this.nearPlane;
-		const fp = this.farPlane;
+		const aspectRatio = this.aspectRatio;
+		const nearPlane = this.nearPlane;
+		const farPlane = this.farPlane;
 
 		const projectionMatrix = this.#projectionMatrix;
 		const projectionMatrixArray = this.#projectionMatrixArray;
 		const projectionMatrixBuffer = this.#projectionMatrixBuffer;
 
-		const d = fp - np;
-		const it = 1 / Math.tan(toRadians(fovy / 2));
+		const depth = farPlane - nearPlane;
+		const inverseTan = 1 / Math.tan(toRadians(fovy / 2));
 
-		const A = it / ar;
-		const B = it;
-		const C = fp / d;
+		const A = inverseTan / aspectRatio;
+		const B = inverseTan;
+		const C = farPlane / depth;
 		const D = 1;
-		const E = -(np * fp) / d;
+		const E = -(nearPlane * farPlane) / depth;
 
 		// biome-ignore format: It's easier to distinguish matrix columns.
 		projectionMatrix.set(
