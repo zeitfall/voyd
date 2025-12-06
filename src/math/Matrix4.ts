@@ -1,5 +1,8 @@
 import Matrix from './Matrix';
 
+import type Vector3 from './Vector3';
+import type Quaternion from './Quaternion';
+
 import type Vector4 from './Vector4';
 import type { ArrayOf } from '~/types';
 
@@ -80,6 +83,50 @@ class Matrix4 extends Matrix<Matrix4Elements> {
 			vectorB.x, vectorB.y, vectorB.z, vectorB.w,
 			vectorC.x, vectorC.y, vectorC.z, vectorC.w,
 			vectorD.x, vectorD.y, vectorD.z, vectorD.w,
+		);
+	}
+
+	setFromTRS(translation: Vector3, rotation: Quaternion, scale: Vector3) {
+		const tx = translation.x;
+		const ty = translation.y;
+		const tz = translation.z;
+
+		const rx = rotation.x;
+		const ry = rotation.y;
+		const rz = rotation.z;
+		const rw = rotation.w;
+
+		const rx2 = rx * rx;
+		const ry2 = ry * ry;
+		const rz2 = rz * rz;
+
+		const rxy = rx * ry;
+		const rxz = rx * rz;
+		const rxw = rx * rw;
+		const ryz = ry * rz;
+		const ryw = ry * rw;
+		const rzw = rz * rw;
+	
+		const sx = scale.x;
+		const sy = scale.y;
+		const sz = scale.z;
+
+		// NOTE: It has been taken from Matrix3.prototype.setFromQuaternion.
+		const r11 = 1 - 2 * (ry2 + rz2);
+		const r12 = 2 * (rxy - rzw);
+		const r13 = 2 * (ryw + rxz);
+		const r21 = 2 * (rxy + rzw);
+		const r22 = 1 - 2 * (rx2 + rz2);
+		const r23 = 2 * (ryz - rxw);
+		const r31 = 2 * (rxz - ryw);
+		const r32 = 2 * (rxw + ryz);
+		const r33 = 1 - 2 * (rx2 + ry2);
+
+		return this.set(
+			sx * r11, sx * r21, sx * r31, 0,
+			sy * r12, sy * r22, sy * r32, 0,
+			sz * r13, sz * r23, sz * r33, 0,
+			tx, ty, tz, 1
 		);
 	}
 
