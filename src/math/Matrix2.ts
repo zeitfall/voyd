@@ -1,25 +1,21 @@
 import Matrix from './Matrix';
 
-import type { ArrayOf } from '~/types';
 import type Vector2 from './Vector2';
+import type { ArrayOf } from '~/types';
 
-const ELEMENT_COUNT = 4;
-const COLUMN_COUNT = 2;
+type Matrix2Elements = ArrayOf<number, 4>;
 
-type Matrix2Elements = ArrayOf<number, typeof ELEMENT_COUNT>;
-type Matrix2Columns = ArrayOf<Vector2, typeof COLUMN_COUNT>;
-
-class Matrix2 extends Matrix {
-	static identity() {
-		return new Matrix2(1, 0, 0, 1);
+class Matrix2 extends Matrix<Matrix2Elements> {
+	static fromArray(array: Matrix2Elements) {
+		return new Matrix2().setFromArray(array);
 	}
 
-	constructor(elements: Matrix2Elements);
-	constructor(columns: Matrix2Columns);
-	constructor(...element: Matrix2Elements);
-	constructor(...column: Matrix2Columns);
-	constructor(...args: unknown[]) {
-		super(args, ELEMENT_COUNT, COLUMN_COUNT);
+	static fromVectors(vectorA: Vector2, vectorB: Vector2) {
+		return new Matrix2().setFromVectors(vectorA, vectorB);
+	}
+
+	constructor() {
+		super();
 	}
 
 	get determinant() {
@@ -34,7 +30,7 @@ class Matrix2 extends Matrix {
 	}
 
 	clone() {
-		return new Matrix2(this.elements as Matrix2Elements);
+		return new Matrix2().set(...this.elements);
 	}
 
 	set(...elements: Matrix2Elements) {
@@ -47,6 +43,14 @@ class Matrix2 extends Matrix {
 		a[3] = b[3];
 
 		return this;
+	}
+
+	setFromVectors(vectorA: Vector2, vectorB: Vector2) {
+		return this.set(vectorA.x, vectorA.y, vectorB.x, vectorB.y);
+	}
+
+	identity() {
+		return this.set(1, 0, 0, 1);
 	}
 
 	add(matrix: Matrix2) {

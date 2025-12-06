@@ -19,7 +19,7 @@ class OrthographicCamera extends Camera {
 	) {
 		super(nearPlane, farPlane);
 
-		const projectionMatrix = Matrix4.identity();
+		const projectionMatrix = new Matrix4()
 		const projectionMatrixArray = new Float32Array(projectionMatrix.elements);
 		const projectionMatrixBuffer = new UniformBuffer(projectionMatrixArray, GPUBufferUsage.COPY_DST);
 

@@ -1,25 +1,21 @@
 import Matrix from './Matrix';
 
-import type { ArrayOf } from '~/types';
 import type Vector4 from './Vector4';
+import type { ArrayOf } from '~/types';
 
-const ELEMENT_COUNT = 16;
-const COLUMN_COUNT = 4;
+type Matrix4Elements = ArrayOf<number, 16>;
 
-type Matrix4Elements = ArrayOf<number, typeof ELEMENT_COUNT>;
-type Matrix4Columns = ArrayOf<Vector4, typeof COLUMN_COUNT>;
-
-class Matrix4 extends Matrix {
-	static identity() {
-		return new Matrix4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+class Matrix4 extends Matrix<Matrix4Elements> {
+	static fromArray(array: Matrix4Elements) {
+		return new Matrix4().setFromArray(array);
 	}
 
-	constructor(elements: Matrix4Elements);
-	constructor(columns: Matrix4Columns);
-	constructor(...element: Matrix4Elements);
-	constructor(...column: Matrix4Columns);
-	constructor(...args: unknown[]) {
-		super(args, ELEMENT_COUNT, COLUMN_COUNT);
+	static fromVectors(vectorA: Vector4, vectorB: Vector4, vectorC: Vector4, vectorD: Vector4) {
+		return new Matrix4().setFromVectors(vectorA, vectorB, vectorC, vectorD);
+	}
+
+	constructor() {
+		super();
 	}
 
 	get determinant() {
@@ -51,7 +47,7 @@ class Matrix4 extends Matrix {
 	}
 
 	clone() {
-		return new Matrix4(this.elements as Matrix4Elements);
+		return new Matrix4().set(...this.elements);
 	}
 
 	set(...elements: Matrix4Elements) {
@@ -76,6 +72,24 @@ class Matrix4 extends Matrix {
 		a[15] = b[15];
 
 		return this;
+	}
+
+	setFromVectors(vectorA: Vector4, vectorB: Vector4, vectorC: Vector4, vectorD: Vector4) {
+		return this.set(
+			vectorA.x, vectorA.y, vectorA.z, vectorA.w,
+			vectorB.x, vectorB.y, vectorB.z, vectorB.w,
+			vectorC.x, vectorC.y, vectorC.z, vectorC.w,
+			vectorD.x, vectorD.y, vectorD.z, vectorD.w,
+		);
+	}
+
+	identity() {
+		return this.set(
+			1, 0, 0, 0,
+			0, 1, 0, 0,
+			0, 0, 1, 0,
+			0, 0, 0, 1
+		);
 	}
 
 	add(matrix: Matrix4) {

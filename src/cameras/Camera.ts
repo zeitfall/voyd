@@ -50,7 +50,7 @@ abstract class Camera {
 		const up = new Vector3();
 		const forward = new Vector3();
 
-		const viewMatrix = Matrix4.identity();
+		const viewMatrix = new Matrix4();
 		const viewMatrixArray = new Float32Array(viewMatrix.elements);
 		const viewMatrixBuffer = new UniformBuffer(viewMatrixArray, GPUBufferUsage.COPY_DST);
 
@@ -125,7 +125,7 @@ abstract class Camera {
 		const viewMatrix = this.#viewMatrix;
 		const viewMatrixArray = this.#viewMatrixArray;
 
-		forward.copy(target).directionFrom(position).normalize();
+		forward.copy(target).displacementFrom(position);
 		right.copy(Camera.DEFAULT_UP).cross(forward).normalize();
 		up.copy(forward).cross(right).normalize();
 

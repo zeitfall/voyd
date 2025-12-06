@@ -1,8 +1,7 @@
-import { isArray, isArrayOfNumbers, isArrayOfVectors } from '~/assertions';
-
+import type Vector from './Vector';
 import type { Constructor } from '~/types';
 
-abstract class Matrix {
+abstract class Matrix<E extends number[] = number[]> {
 	static determinant<T extends Matrix>(this: Constructor<T>, matrix: T) {
 		return matrix.determinant;
 	}
@@ -35,10 +34,12 @@ abstract class Matrix {
 		return matrix.clone().inverse() as T;
 	}
 
-	#elements: number[];
+	#elements: E;
 
-	constructor(args: unknown[], elementCount: number, columnCount: number) {
-		this.#elements = this.#prepareElements(args, elementCount, columnCount);
+	constructor() {
+		this.#elements = [] as unknown as E;
+
+		this.identity();
 	}
 
 	get elements() {
@@ -49,6 +50,10 @@ abstract class Matrix {
 
 	copy(matrix: Matrix) {
 		return this.set(...matrix);
+	}
+
+	setFromArray(array: E) {
+		return this.set(...array);
 	}
 
 	premultiply(matrix: Matrix) {
@@ -71,6 +76,10 @@ abstract class Matrix {
 
 	abstract set(...elements: number[]): this;
 
+	abstract setFromVectors(...vectors: Vector[]): this;
+
+	abstract identity(): this;
+
 	abstract add(matrix: Matrix): this;
 
 	abstract subtract(matrix: Matrix): this;
@@ -82,22 +91,6 @@ abstract class Matrix {
 	abstract transpose(): this;
 
 	abstract inverse(): this;
-
-	#prepareElements(args: unknown[], elementCount: number, columnCount: number): number[] {
-		if (isArrayOfNumbers(args) && args.length === elementCount) {
-			return args.slice();
-		}
-
-		if (isArrayOfVectors(args) && args.length === columnCount) {
-			return args.flatMap((vector) => vector.toArray());
-		}
-
-		if (isArray(args[0]) && args.length === 1) {
-			return this.#prepareElements(args[0], elementCount, columnCount);
-		}
-
-		throw new Error('[Matrix]: Provided arguments are not valid.');
-	}
 }
 
 export default Matrix;

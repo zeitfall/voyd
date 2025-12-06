@@ -1,25 +1,26 @@
 import Matrix from './Matrix';
 
-import type { ArrayOf } from '~/types';
 import type Vector3 from './Vector3';
+import type Quaternion from './Quaternion';
+import type { ArrayOf } from '~/types';
 
-const ELEMENT_COUNT = 9;
-const COLUMN_COUNT = 3;
+type Matrix3Elements = ArrayOf<number, 9>;
 
-type Matrix3Elements = ArrayOf<number, typeof ELEMENT_COUNT>;
-type Matrix3Columns = ArrayOf<Vector3, typeof COLUMN_COUNT>;
-
-class Matrix3 extends Matrix {
-	static identity() {
-		return new Matrix3(1, 0, 0, 0, 1, 0, 0, 0, 1);
+class Matrix3 extends Matrix<Matrix3Elements> {
+	static fromArray(array: Matrix3Elements) {
+		return new Matrix3().setFromArray(array);
 	}
 
-	constructor(elements: Matrix3Elements);
-	constructor(columns: Matrix3Columns);
-	constructor(...element: Matrix3Elements);
-	constructor(...column: Matrix3Columns);
-	constructor(...args: unknown[]) {
-		super(args, ELEMENT_COUNT, COLUMN_COUNT);
+	static fromVectors(vectorA: Vector3, vectorB: Vector3, vectorC: Vector3) {
+		return new Matrix3().setFromVectors(vectorA, vectorB, vectorC);
+	}
+
+	static fromQuaternion(quaternion: Quaternion) {
+		return new Matrix3().setFromQuaternion(quaternion);
+	}
+
+	constructor() {
+		super();
 	}
 
 	get determinant() {
@@ -39,7 +40,7 @@ class Matrix3 extends Matrix {
 	}
 
 	clone() {
-		return new Matrix3(this.elements as Matrix3Elements);
+		return new Matrix3().set(...this.elements)
 	}
 
 	set(...elements: Matrix3Elements) {
@@ -57,6 +58,46 @@ class Matrix3 extends Matrix {
 		a[8] = b[8];
 
 		return this;
+	}
+
+	setFromVectors(vectorA: Vector3, vectorB: Vector3, vectorC: Vector3) {
+		return this.set(
+			vectorA.x, vectorA.y, vectorA.z,
+			vectorB.x, vectorB.y, vectorB.z,
+			vectorC.x, vectorC.y, vectorC.z
+		);
+	}
+
+	setFromQuaternion(quaternion: Quaternion) {
+		const x = quaternion.x;
+		const y = quaternion.y;
+		const z = quaternion.z;
+		const w = quaternion.w;
+
+		const x2 = x * x;
+		const y2 = y * y;
+		const z2 = z * z;
+
+		const xy = x * y;
+		const xz = x * z;
+		const xw = x * w;
+		const yz = y * z;
+		const yw = y * w;
+		const zw = z * w;
+
+		return this.set(
+			1 - 2 * (y2 + z2), 2 * (xy + zw), 2 * (xz - yw),
+			2 * (xy - zw), 1 - 2 * (x2 + z2), 2 * (xw + yz),
+			2 * (yw + xz), 2 * (yz - xw), 1 - 2 * (x2 + y2)
+		);
+	}
+
+	identity() {
+		return this.set(
+			1, 0, 0,
+			0, 1, 0,
+			0, 0, 1
+		);
 	}
 
 	add(matrix: Matrix3) {

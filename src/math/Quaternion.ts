@@ -1,6 +1,7 @@
 import { clamp } from '~/utils';
 
 import type Vector3 from './Vector3';
+import type Matrix3 from './Matrix3';
 
 class Quaternion {
 	static clone(vector: Quaternion) {
@@ -13,6 +14,10 @@ class Quaternion {
 
 	static fromDifference(quaternion: Quaternion) {
 		return new Quaternion().setFromDifference(quaternion);
+	}
+
+	static fromMatrix(matrix: Matrix3) {
+		return new Quaternion().setFromMatrix(matrix);
 	}
 
 	static multiply(quaternionA: Quaternion, quaternionB: Quaternion) {
@@ -138,10 +143,6 @@ class Quaternion {
 		return this.setX(x).setY(y).setZ(z).setW(w);
 	}
 
-	reset() {
-		return this.set(0, 0, 0, 1);
-	}
-
 	setFromAxisAngle(axis: Vector3, angle: number) {
 		const alpha = angle / 2;
 		const cosAlpha = Math.cos(alpha);
@@ -152,6 +153,67 @@ class Quaternion {
 
 	setFromDifference(quaternion: Quaternion) {
 		return this.invert().premultiply(quaternion);
+	}
+
+	setFromMatrix(matrix: Matrix3) {
+		const a = matrix.elements;
+
+		const m11 = a[0];
+		const m12 = a[3];
+		const m13 = a[6];
+		const m21 = a[1];
+		const m22 = a[4];
+		const m23 = a[7];
+		const m31 = a[2];
+		const m32 = a[5];
+		const m33 = a[8];
+
+		let x;
+		let y;
+		let z;
+		let w;
+
+		let tr = m11 + m22 + m33;
+
+		if (tr > 0) {
+
+			const s = 0.5 / Math.sqrt(tr + 1);
+
+			w = 0.25 / s;
+			x = (m32 - m23) * s;
+			y = (m13 - m31) * s;
+			z = (m21 - m12) * s;
+		}
+		else if (m11 > m22 && m11 > m33) {
+			const s = 0.5 / Math.sqrt(1 + m11 - m22 - m33);
+
+			w = (m32 - m23) * s;
+			x = 0.25 / s;
+			y = (m12 + m21) * s;
+			z = (m13 + m31) * s;
+		}
+		else if (m22 > m33) {
+			const s = 0.5 / Math.sqrt(1 + m22 - m11 - m33);
+
+			w = (m13 - m31) * s;
+			x = (m12 + m21) * s;
+			y = 0.25 / s;
+			z = (m23 + m32) * s;
+
+		} else {
+			const s = 0.5 / Math.sqrt(1 + m33 - m11 - m22);
+
+			w = (m21 - m12) * s;
+			x = (m13 + m31) * s;
+			y = (m23 + m32) * s;
+			z = 0.25 / s;
+		}
+
+		return this.set(x, y, z, w);
+	}
+
+	reset() {
+		return this.set(0, 0, 0, 1);
 	}
 
 	multiply(quaternion: Quaternion, premultiply = false) {

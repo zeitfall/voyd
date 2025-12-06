@@ -16,6 +16,10 @@ abstract class Vector {
 		return vectorA.clone().subtract(vectorB) as T;
 	}
 
+	static displacement<T extends Vector>(this: Constructor<T>, vectorA: T, vectorB: T) {
+		return vectorB.clone().displacementFrom(vectorA) as T;
+	} 
+
 	static direction<T extends Vector>(this: Constructor<T>, vectorA: T, vectorB: T) {
 		return vectorB.clone().directionFrom(vectorA) as T;
 	}
@@ -104,8 +108,12 @@ abstract class Vector {
 		return this.reset();
 	}
 
-	directionFrom(vector: Vector) {
+	displacementFrom(vector: Vector) {
 		return this.subtract(vector);
+	}
+
+	directionFrom(vector: Vector) {
+		return this.displacementFrom(vector).normalize();
 	}
 
 	multiplyByScalar(scalar: number) {
@@ -117,7 +125,7 @@ abstract class Vector {
 			throw new Error('[Vector]: Division by zero.');
 		}
 
-		return this.scale(1 / scalar);
+		return this.multiplyByScalar(1 / scalar);
 	}
 
 	normalize() {

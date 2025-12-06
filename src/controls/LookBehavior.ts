@@ -13,8 +13,8 @@ class LookBehavior extends ControlBehavior {
 
     #currentMovement: Vector2;
     #targetMovement: Vector2;
-    #direction: Vector3;
-    #deltaDirection: Vector3;
+    #offset: Vector3;
+    #deltaOffset: Vector3;
     #sphericalDirection: Spherical;
 
     minPitchAngle: number;
@@ -32,8 +32,8 @@ class LookBehavior extends ControlBehavior {
 
         this.#currentMovement = new Vector2();
         this.#targetMovement = new Vector2();
-        this.#direction = new Vector3();
-        this.#deltaDirection = new Vector3();
+        this.#offset = new Vector3();
+        this.#deltaOffset = new Vector3();
         this.#sphericalDirection = new Spherical();
 
         this.minYawAngle = Number.NEGATIVE_INFINITY;
@@ -116,22 +116,22 @@ class LookBehavior extends ControlBehavior {
         if (this.context && (hasInertia || hasMoved)) {
             const { camera, deltaTarget } = this.context;
 
-            const direction = this.#direction;
-            const deltaDirection = this.#deltaDirection;
+            const offset = this.#offset;
+            const deltaOffset = this.#deltaOffset;
             const sphericalDirection = this.#sphericalDirection;
 
             const lerpFraction = 1 - Math.exp(-this.dampingFactor * deltaTime);
 
             currentMovement.lerp(targetMovement, lerpFraction);
-            direction.copy(camera.target).directionFrom(camera.position);
+            offset.copy(camera.target).displacementFrom(camera.position);
 
-            sphericalDirection.setFromVector(direction);
+            sphericalDirection.setFromVector(offset);
             sphericalDirection.theta = clamp(sphericalDirection.theta - currentMovement.x, this.minYawAngle, this.maxYawAngle);
             sphericalDirection.phi = clamp(sphericalDirection.phi - currentMovement.y, this.minPitchAngle, this.maxPitchAngle);
 
-            deltaDirection.setFromSpherical(sphericalDirection).subtract(direction);
+            deltaOffset.setFromSpherical(sphericalDirection).subtract(offset);
 
-            deltaTarget.add(deltaDirection);
+            deltaTarget.add(deltaOffset);
         }
         else {
             currentMovement.reset();

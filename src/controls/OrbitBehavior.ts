@@ -123,7 +123,7 @@ class OrbitBehavior extends ControlBehavior {
             const lerpFraction = 1 - Math.exp(-this.dampingFactor * deltaTime);
 
             currentMovement.lerp(targetMovement, lerpFraction);
-            offset.copy(camera.position).directionFrom(camera.target);
+            offset.copy(camera.position).displacementFrom(camera.target);
 
             sphericalOffset.setFromVector(offset);
             sphericalOffset.theta = clamp(sphericalOffset.theta - currentMovement.x, this.minAzimuthAngle, this.maxAzimuthAngle);
