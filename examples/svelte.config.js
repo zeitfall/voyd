@@ -5,10 +5,7 @@ import adapter from '@sveltejs/adapter-static';
 const config = {
 	preprocess: vitePreprocess({ script: true }),
 	kit: {
-		adapter: adapter({
-			pages: 'dist',
-			assets: 'dist'
-		}),
+		adapter: adapter(),
 		paths: {
 			base: process.env.BASE_PATH
 		}

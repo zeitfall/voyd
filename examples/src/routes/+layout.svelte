@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { GPUContext } from 'voyd';
 	
-    import Header from '$lib/components/Header.svelte';
+    import { Header } from '$lib/components';
 
 	const { children } = $props();
 </script>

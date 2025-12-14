@@ -1,7 +1,6 @@
 <script lang="ts">
     import {
         GPUContext,
-        GPUCanvas,
         VertexBuffer,
         VertexBufferLayout,
         IndexBuffer,
@@ -13,8 +12,11 @@
         ControlsPipeline,
     } from 'voyd';
 
-    let canvasElement: GPUCanvas;
+    import { CanvasResizer } from '$lib/services';
+
+    let canvasElement: HTMLCanvasElement;
     let canvasContext: GPUCanvasContext;
+    let canvasResizer: CanvasResizer;
 
     // const camera = new OrthographicCamera();
     const camera = new PerspectiveCamera(90);
@@ -160,7 +162,7 @@
         const deltaTime = (t1 - t0) / 1000;
 
         controls.update(deltaTime);
-        camera.setAspectRatio(canvasElement.aspectRatio);
+        camera.setAspectRatio(canvasElement.width / canvasElement.height);
         camera.update();
 
         const commandEncoder = GPUContext.device.createCommandEncoder();
@@ -194,8 +196,10 @@
             format: GPUContext.preferredFormat,
         });
 
-        controls = new OrbitControls(camera);
-        // controls = new FlyControls(canvasElement, camera);
+        canvasResizer = new CanvasResizer(canvasElement);
+
+        // controls = new OrbitControls(camera);
+        controls = new FlyControls(canvasElement, camera);
 
         rafId = requestAnimationFrame(loop);
 
@@ -203,5 +207,4 @@
     });
 </script>
 
-<!-- svelte-ignore attribute_avoid_is -->
-<canvas is="gpu-canvas" bind:this={canvasElement as GPUCanvas}></canvas>
+<canvas bind:this={canvasElement}></canvas>
