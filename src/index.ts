@@ -19,3 +19,5 @@ export * from './utils';
 export * from './assertions';
 
 export * from './constants';
+
+export type * from './types';

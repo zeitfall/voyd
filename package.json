@@ -4,12 +4,12 @@
 	"version": "0.0.1",
 	"description": "Voyd is a comprehensive JavaScript 3D library based on WebGPU API. It provides high-performance rendering and powerful tools for creating interactive graphics, game engines, games and real-time visualizations directly in the browser.",
 	"license": "MIT",
-	"types": "./dist/index.d.ts",
+	"types": "./dist/voyd.d.ts",
 	"module": "./dist/voyd.js",
 	"main": "./dist/voyd.umd.cjs",
 	"exports": {
 		".": {
-			"types": "./dist/index.d.ts",
+			"types": "./dist/voyd.d.ts",
 			"import": "./dist/voyd.js",
 			"require": "./dist/voyd.umd.cjs"
 		}
@@ -21,9 +21,8 @@
 		"biome:lint:write": "biome lint --write",
 		"biome:format:write": "biome format --write",
 		"biome:pretify:write": "npm run biome:lint:write && npm run biome:format:write",
-		"vite:build": "vite build -c vite.config.build.js",
-		"vite:build:watch": "vite build -w -c vite.config.build.js",
-		"vite:serve": "vite serve -c vite.config.serve.js"
+		"vite:build": "vite build",
+		"vite:build:watch": "NODE_ENV=dev vite build -w"
 	},
 	"engines": {
 		"node": ">=22.19.0"
@@ -42,8 +41,8 @@
 	"devDependencies": {
 		"@biomejs/biome": "2.2.5",
 		"prettier": "^3.6.2",
-		"typescript": "^5.9.2",
-		"vite": "^7.1.6",
+		"typescript": "^5.9.3",
+		"vite": "^7.2.6",
 		"vite-plugin-dts": "^4.5.4"
 	}
 }

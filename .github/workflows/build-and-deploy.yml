@@ -1,0 +1,61 @@
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: 'main'
+
+jobs:
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+
+    steps:
+      - name: Fetch Repository
+        uses: actions/checkout@v6
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: package.json
+
+      - name: Build Library
+        run: |
+          npm ci
+          npm run vite:build
+
+      - name: Build Examples
+        working-directory: ./examples
+        env: 
+          BASE_PATH: '/${{ github.event.repository.name }}'
+          PUBLIC_REPOSITORY_URL: '${{ github.event.repository.html_url }}'
+        run: |
+          npm ci
+          npm run svelte-kit:check
+          npm run vite:build
+
+      - name: Upload Artifacts
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: './examples/dist/'
+
+  deploy:
+    name: Deploy
+    needs: build
+    runs-on: ubuntu-latest
+
+    permissions:
+      pages: write
+      id-token: write
+
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy
+        id: deployment
+        uses: actions/deploy-pages@v4
