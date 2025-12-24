@@ -2,9 +2,6 @@
 	"editor.formatOnSave": false,
 	"editor.indentSize": "tabSize",
 	"editor.tabSize": 4,
-	"[javascript][typescript]": {
-		"editor.defaultFormatter": "biomejs.biome"
-	},
 	"javascript.preferences.quoteStyle": "single",
 	"typescript.preferences.quoteStyle": "single"
 }

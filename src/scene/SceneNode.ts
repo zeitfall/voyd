@@ -69,7 +69,7 @@ class SceneNode {
         return this.#children.has(child);
     }
 
-    update() {
+    update(updateChildren = true) {
         const transform = this.#transform;
         const parent = this.#parent;
         const children = this.#children;
@@ -78,9 +78,11 @@ class SceneNode {
 
         transform.update(parentWorldMatrix);
 
-        children.forEach((child) => {
-            child.update();
-        });
+        if (updateChildren) {
+            children.forEach((child) => {
+                child.update();
+            });
+        }
     }
 }
 

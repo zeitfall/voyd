@@ -1,5 +1,9 @@
 import { PI, TWO_PI } from '~/constants';
 
+export function randomFromRange(min = 0, max = 1) {
+	return Math.random() * (max - min) + min;
+}
+
 export function clamp(value: number, min: number, max: number) {
 	return Math.max(min, Math.min(value, max));
 }

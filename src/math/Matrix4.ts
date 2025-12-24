@@ -1,9 +1,8 @@
 import Matrix from './Matrix';
 
 import type Vector3 from './Vector3';
-import type Quaternion from './Quaternion';
-
 import type Vector4 from './Vector4';
+import type Quaternion from './Quaternion';
 import type { ArrayOf } from '~/types';
 
 type Matrix4Elements = ArrayOf<number, 16>;

@@ -125,7 +125,7 @@ abstract class Camera {
 		const viewMatrix = this.#viewMatrix;
 		const viewMatrixArray = this.#viewMatrixArray;
 
-		forward.copy(target).displacementFrom(position);
+		forward.copy(target).directionFrom(position);
 		right.copy(Camera.DEFAULT_UP).cross(forward).normalize();
 		up.copy(forward).cross(right).normalize();
 

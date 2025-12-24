@@ -1,10 +1,11 @@
 import type { Geometry } from '~/geometries';
+import type { Material } from '~/materials';
 
-class Model {
+class Mesh {
     #geometry: Geometry;
-    #material: unknown;
+    #material: Material;
 
-    constructor(geometry: Geometry, material: unknown) {
+    constructor(geometry: Geometry, material: Material) {
         this.#geometry = geometry;
         this.#material = material;
     }
@@ -18,4 +19,4 @@ class Model {
     }
 }
 
-export default Model;
+export default Mesh;

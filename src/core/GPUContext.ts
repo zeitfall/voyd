@@ -50,8 +50,11 @@ class GPUContext {
 
 				GPUContext.#handleDeviceLost();
 			}
-		} catch (error) {
+		}
+		catch (error) {
 			console.error(error);
+
+			throw error;
 		}
 	}
 

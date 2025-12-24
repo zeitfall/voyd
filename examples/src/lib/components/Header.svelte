@@ -61,13 +61,27 @@
     import { PUBLIC_REPOSITORY_URL } from '$env/static/public';
     import { resolve } from '$app/paths';
 
-    enum Routes {
+    enum Route {
         Home = '/',
-        Debug = '/debug'
+        Debug = '/debug',
+        SceneNodes = '/scene-nodes'
     };
+
+    const NAVIGATION_ITEM_LABEL_BY_ROUTE = {
+        [Route.Home]: 'Home',
+        [Route.Debug]: 'Debug',
+        [Route.SceneNodes]: 'Scene Nodes',
+    } as const;
+
+    const routePaths = $derived(Object.values(Route));
 
     let detailsElementRef = $state<HTMLElement>();
     let isDetailsElementOpened = $state(false);
+
+    function getNavigationItemLabel(routePath: string) {
+        // @ts-expect-error No index signature with a parameter of type 'string' was found on type 'typeof NAVIGATION_ITEM_LABEL_BY_ROUTE'.
+        return NAVIGATION_ITEM_LABEL_BY_ROUTE[routePath];
+    }
 
     function handleWindowClick(event: MouseEvent) {
         const eventTarget = event.target as Node;
@@ -90,8 +104,8 @@
     >
         <summary>Examples</summary>
         <nav>
-            {#each Object.entries(Routes) as [label, href]}
-                <a href={resolve(href)}>{label}</a>
+            {#each routePaths as path}
+                <a href={resolve(path)}>{getNavigationItemLabel(path)}</a>
             {/each}
         </nav>
     </details>
