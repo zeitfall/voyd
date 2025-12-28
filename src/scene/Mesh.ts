@@ -1,6 +1,7 @@
 import type { Geometry } from '~/geometries';
 import type { Material } from '~/materials';
 
+// https://docs.unity3d.com/6000.3/Documentation/ScriptReference/Mesh.html
 class Mesh {
     #geometry: Geometry;
     #material: Material;
