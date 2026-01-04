@@ -1,15 +1,17 @@
 <script lang="ts">
+    import { onMount,onDestroy } from 'svelte';
+
     import {
         GPUContext,
         VertexBuffer,
         VertexBufferLayout,
         IndexBuffer,
+        RenderBundle,
+        Vector3,
+        Quaternion,
         PlaneGeometry,
-        SphereGeometry,
         PerspectiveCamera,
-        FlyControls,
-        OrbitControls,
-        ControlsPipeline,
+        SceneNode,
     } from 'voyd';
 
     import { CanvasResizer } from '$lib/services';
@@ -18,68 +20,16 @@
     let canvasContext: GPUCanvasContext;
     let canvasResizer: CanvasResizer;
 
-    // const camera = new OrthographicCamera();
-    const camera = new PerspectiveCamera(90);
+    const camera = new PerspectiveCamera();
 
-    camera.position.set(0, 0, -2);
-    // camera.target.set(1, -2, 0);
-
-    console.log(camera);
-
-    let controls: ControlsPipeline;
-
-    const geometry = new PlaneGeometry(4, 4, 64, 64);
-    // const geometry = new CircleGeometry(1, 4);
-    // const geometry = new SphereGeometry(1, 32, 32);
-
-    geometry.setTopology('triangle-list');
-
-    console.log(geometry);
+    const geometry = new PlaneGeometry(1, 1, 32, 32);
 
     const vertexBuffer = VertexBuffer.fromGeometry(geometry, 0, true);
     const vertexBufferLayout = VertexBufferLayout.fromGeometry(geometry);
 
     const indexBuffer = new IndexBuffer(geometry.indices, 0, true);
 
-    const renderShader = GPUContext.device.createShaderModule({
-        code: `
-            struct VertexInput {
-                @location(0) position: vec3f,
-                @location(1) normal: vec3f,
-                @location(2) uv: vec2f
-            }
-
-            struct VertexOutput {
-                @builtin(position) position: vec4f,
-                @location(0) vertex: vec3f,
-                @location(1) normal: vec3f,
-                @location(2) uv: vec2f
-            }
-
-            @group(0) @binding(0) var<uniform> projection_matrix: mat4x4f;
-            @group(0) @binding(1) var<uniform> view_matrix: mat4x4f;
-
-            @vertex
-            fn vs(input: VertexInput) -> VertexOutput {
-                var output: VertexOutput;
-
-                output.position = projection_matrix * view_matrix * vec4f(input.position, 1);
-                output.vertex = input.position;
-                output.normal = input.normal;
-                output.uv = input.uv;
-
-                return output;
-            }
-
-            @fragment
-            fn fs(input: VertexOutput) -> @location(0) vec4f {
-                var vertex_color = 1 - smoothstep(0, 1, 4 * input.vertex.z);
-                // var vertex_color = 1f;
-
-                return vec4f(vec3f(vertex_color), 1);
-            }
-        `,
-    });
+    let depthTexture: GPUTexture;
 
     const bindGroupLayout = GPUContext.device.createBindGroupLayout({
         entries: [
@@ -96,7 +46,7 @@
                 buffer: {
                     type: 'uniform'
                 }
-            },
+            }
         ]
     });
 
@@ -106,16 +56,56 @@
             {
                 binding: 0,
                 resource: {
-                    buffer: camera.projectionMatrixBuffer.instance,
+                    buffer: camera.viewMatrixBuffer.instance,
                 }
             },
             {
                 binding: 1,
                 resource: {
-                    buffer: camera.viewMatrixBuffer.instance
+                    buffer: camera.projectionMatrixBuffer.instance
                 }
             }
         ]
+    });
+
+    const renderShader = GPUContext.device.createShaderModule({
+        code: `
+            struct VSIn {
+                @location(0) position: vec3f,
+                @location(1) normal: vec3f,
+                @location(2) uv: vec2f
+            }
+
+            struct VSOut {
+                @builtin(position) position: vec4f,
+                @location(0) vertex: vec3f,
+                @location(1) normal: vec3f,
+                @location(2) uv: vec2f
+            }
+
+            @group(0) @binding(0) var<uniform> view_matrix: mat4x4f;
+            @group(0) @binding(1) var<uniform> projection_matrix: mat4x4f;
+
+            @vertex
+            fn vs(input: VSIn) -> VSOut {
+                var out: VSOut;
+
+                out.position = projection_matrix * view_matrix * vec4f(input.position, 1);
+                out.vertex = input.position;
+                out.normal = input.normal;
+                out.uv = input.uv;
+
+                return out;
+            }
+
+            @fragment
+            fn fs(input: VSOut) -> @location(0) vec4f {
+                var vertex_color = 1 - smoothstep(0, 1, 4 * input.vertex.z);
+                // var vertex_color = 1f;
+
+                return vec4f(vec3f(vertex_color), 1);
+            }
+        `,
     });
 
     const renderPipelineLayout = GPUContext.device.createPipelineLayout({ bindGroupLayouts: [bindGroupLayout] });
@@ -136,75 +126,189 @@
                 }
             ]
         },
+        depthStencil: {
+            depthWriteEnabled: true,
+            depthCompare: 'less',
+            format: 'depth24plus'
+        },
         primitive: {
-            topology: geometry.topology,
-            // stripIndexFormat: geometry.indexFormat
+            topology: geometry.topology
         }
     });
 
-    const renderBundleEncoder = GPUContext.device.createRenderBundleEncoder({ colorFormats: [GPUContext.preferredFormat] });
+    const renderBundle = new RenderBundle(
+        (encoder) => {
+            encoder.setPipeline(renderPipeline);
+            encoder.setBindGroup(0, bindGroup);
+            encoder.setVertexBuffer(0, vertexBuffer.instance);
+            encoder.setIndexBuffer(indexBuffer.instance, 'uint16');
+            encoder.drawIndexed(geometry.indices.length);
+        },
+        {
+            colorFormats: [GPUContext.preferredFormat],
+            depthStencilFormat: 'depth24plus'
+        }
+    );
 
-    renderBundleEncoder.setPipeline(renderPipeline);
-    renderBundleEncoder.setBindGroup(0, bindGroup);
-    renderBundleEncoder.setVertexBuffer(0, vertexBuffer.instance);
-    renderBundleEncoder.setIndexBuffer(indexBuffer.instance, geometry.indexFormat);
-    renderBundleEncoder.drawIndexed(geometry.indices.length);
+    const renderPassDescriptor: GPURenderPassDescriptor = {
+        colorAttachments: [
+            {
+                view: undefined,
+                clearValue: [0, 0, 0, 1],
+                loadOp: 'clear',
+                storeOp: 'store'
+            }
+        ],
+        depthStencilAttachment: {
+            view: undefined,
+            depthClearValue: 1,
+            depthLoadOp: 'clear',
+            depthStoreOp: 'store'
+        }
+    };
 
-    const renderBundle = renderBundleEncoder.finish();
+    const rootNode = new SceneNode();
+    const cameraNode = new SceneNode();
 
+    cameraNode.addComponent(camera);
+    cameraNode.attachTo(rootNode);
+    cameraNode.transform.position.set(0, 0, -1);
+    cameraNode.transform.lookAt(new Vector3(0, 0, 0));
+
+    const _targetQuat = Quaternion.clone(cameraNode.transform.rotation);
+    const _targetPos = Vector3.clone(cameraNode.transform.position);
+
+    const _pan = new Quaternion();
+    const _tilt = new Quaternion();
+
+    function handlerPointerMove(event: PointerEvent) {
+        const {
+            pressure,
+            buttons,
+            movementX,
+            movementY
+        } = event;
+
+        if (pressure + buttons <= 0) {
+            return;
+        }
+
+        _pan.setFromAxisAngle(Vector3.UP, movementX / 100);
+        _targetQuat.premultiply(_pan);
+
+        _tilt.setFromAxisAngle(Vector3.RIGHT, movementY / 100);
+        _targetQuat.multiply(_tilt);
+
+        _targetQuat.normalize();
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+        switch (event.code) {
+            case 'KeyW': {
+                _targetPos.z += .1;
+
+                break;
+            }
+
+            case 'KeyS': {
+                _targetPos.z -= .1;
+
+                break;
+            }
+
+            case 'KeyA': {
+                _targetPos.x -= .1;
+
+                break;
+            }
+
+            case 'KeyD': {
+                _targetPos.x += .1;
+
+                break;
+            }
+        }
+    }
+
+    function handleCanvasResize() {
+        if (depthTexture) {
+            depthTexture.destroy();
+        }
+
+        depthTexture = GPUContext.device.createTexture({
+            size: [canvasElement.width, canvasElement.height],
+            format: 'depth24plus',
+            usage: GPUTextureUsage.RENDER_ATTACHMENT
+        });
+    }
+
+    let rafId: number;
     let t0 = 0;
     let t1 = 0;
-    let rafId = 0;
 
     function loop() {
+        // Very silly
+        if (!depthTexture) {
+            rafId = requestAnimationFrame(loop);
+
+            return;
+        }
+
         t1 = performance.now();
 
         const deltaTime = (t1 - t0) / 1000;
+        const smoothFactor = 1 - Math.exp(-12 * deltaTime);
 
-        controls.update(deltaTime);
         camera.setAspectRatio(canvasElement.width / canvasElement.height);
-        camera.update();
+
+        cameraNode.transform.position.lerp(_targetPos, smoothFactor);
+        cameraNode.transform.rotation.slerp(_targetQuat, smoothFactor);
+
+        rootNode.update();
 
         const commandEncoder = GPUContext.device.createCommandEncoder();
 
-        const renderPass = commandEncoder.beginRenderPass({
-            colorAttachments: [
-                {
-                    loadOp: 'clear',
-                    storeOp: 'store',
-                    clearValue: [0, 0, 0, 1],
-                    view: canvasContext.getCurrentTexture().createView()
-                }
-            ]
-        });
+        // @ts-expect-error Property '0' does not exist on type 'Iterable<GPURenderPassColorAttachment>'.
+        renderPassDescriptor.colorAttachments[0].view = canvasContext.getCurrentTexture().createView();
+        renderPassDescriptor.depthStencilAttachment.view = depthTexture.createView();
 
-        renderPass.executeBundles([renderBundle]);
+        const renderPass = commandEncoder.beginRenderPass(renderPassDescriptor);
+
+        renderPass.executeBundles([renderBundle.instance]);
         renderPass.end();
 
-        GPUContext.device.queue.submit([commandEncoder.finish()]);
+        const commandBuffer = commandEncoder.finish();
 
-        t0 = t1;
+        GPUContext.device.queue.submit([commandBuffer]);
 
         rafId = requestAnimationFrame(loop);
+
+        t0 = t1;
     }
 
-    $effect(() => {
+    onMount(() => {
+        canvasElement.addEventListener('resize', handleCanvasResize);
+        canvasElement.addEventListener('pointermove', handlerPointerMove);
+        window.addEventListener('keydown', handleKeyDown);
+
         canvasContext = canvasElement.getContext('webgpu');
+        canvasResizer = new CanvasResizer(canvasElement);
 
         canvasContext.configure({
             device: GPUContext.device,
             format: GPUContext.preferredFormat,
         });
 
-        canvasResizer = new CanvasResizer(canvasElement);
-
-        // controls = new OrbitControls(camera);
-        controls = new FlyControls(canvasElement, camera);
-
         rafId = requestAnimationFrame(loop);
-
-        return () => cancelAnimationFrame(rafId);
     });
+
+    onDestroy(() => {
+        canvasElement.removeEventListener('resize', handleCanvasResize);
+        canvasElement.removeEventListener('pointermove', handlerPointerMove);
+        window.removeEventListener('keydown', handleKeyDown);
+
+        cancelAnimationFrame(rafId)}
+    );
 </script>
 
 <canvas bind:this={canvasElement}></canvas>

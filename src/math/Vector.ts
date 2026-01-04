@@ -32,7 +32,7 @@ abstract class Vector {
 		return vectorA.clone().lerp(vectorB, fraction) as T;
 	}
 
-	static multiplyByMatrix<T extends Vector>(this: Constructor<T>, matrix: Matrix, vector: T) {
+	static multiplyByMatrix<T extends Vector>(this: Constructor<T>, vector: T, matrix: Matrix) {
 		return vector.clone().multiplyByMatrix(matrix) as T;
 	}
 
@@ -97,10 +97,10 @@ abstract class Vector {
 	}
 
 	projectOnVector(vector: Vector) {
-		const vectorLengthSquared = vector.lengthSquared;
+		const vLSq = vector.lengthSquared;
 
-		if (vectorLengthSquared > 0) {
-			const scalarPart = this.dot(vector) / vectorLengthSquared;
+		if (vLSq > 0) {
+			const scalarPart = this.dot(vector) / vLSq;
 
 			return this.copy(vector).multiplyByScalar(scalarPart);
 		}
@@ -129,7 +129,7 @@ abstract class Vector {
 	}
 
 	normalize() {
-		return this.divideByScalar(this.length || 1);
+		return this.divideByScalar(this.length);
 	}
 
 	negate() {

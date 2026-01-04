@@ -48,14 +48,11 @@ class PerspectiveCamera extends Camera {
 	override update() {
 		super.update();
 
-		this.#updateProjection();
+		this.#updateProjectionMatrix();
 	}
 
-	#updateProjection() {
-		const fovy = this.fovy;
-		const aspectRatio = this.aspectRatio;
-		const nearPlane = this.nearPlane;
-		const farPlane = this.farPlane;
+	#updateProjectionMatrix() {
+		const { fovy, aspectRatio, nearPlane, farPlane } = this;
 
 		const projectionMatrix = this.#projectionMatrix;
 		const projectionMatrixArray = this.#projectionMatrixArray;
@@ -70,7 +67,6 @@ class PerspectiveCamera extends Camera {
 		const D = 1;
 		const E = -(nearPlane * farPlane) / depth;
 
-		// biome-ignore format: It's easier to distinguish matrix columns.
 		projectionMatrix.set(
             A, 0, 0, 0,
             0, B, 0, 0,

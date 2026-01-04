@@ -1,89 +1,24 @@
 import { GPUContext } from '~/core';
 import { UniformBuffer } from '~/buffers';
-import { Matrix4, Vector3 } from '~/math';
+import { Matrix4 } from '~/math';
+import { SceneComponent } from '~/scene';
 
-abstract class Camera {
-	static #DEFAULT_RIGHT: Readonly<Vector3>;
-	static #DEFAULT_UP: Readonly<Vector3>;
-	static #DEFAULT_FORWARD: Readonly<Vector3>;
+abstract class Camera extends SceneComponent {
+    #viewMatrix: Matrix4;
+    #viewMatrixArray: Float32Array;
+    #viewMatrixBuffer: UniformBuffer;
 
-	static {
-		const right = new Vector3(1, 0, 0);
-		const up = new Vector3(0, 1, 0);
-		const forward = new Vector3(0, 0, 1);
+    constructor(public nearPlane = 0.1, public farPlane = 128) {
+        super();
 
-		Object.freeze(right);
-		Object.freeze(up);
-		Object.freeze(forward);
-
-		this.#DEFAULT_RIGHT = right;
-		this.#DEFAULT_UP = up;
-		this.#DEFAULT_FORWARD = forward;
-	}
-
-	static get DEFAULT_RIGHT() {
-		return this.#DEFAULT_RIGHT;
-	}
-
-	static get DEFAULT_UP() {
-		return this.#DEFAULT_UP;
-	}
-
-	static get DEFAULT_FORWARD() {
-		return this.#DEFAULT_FORWARD;
-	}
-
-	#position: Vector3;
-	#target: Vector3;
-	#right: Vector3;
-	#up: Vector3;
-	#forward: Vector3;
-
-	#viewMatrix: Matrix4;
-	#viewMatrixArray: Float32Array;
-	#viewMatrixBuffer: UniformBuffer;
-
-	constructor(public nearPlane = 0.1, public farPlane = 128) {
-		const position = new Vector3(0, 0, -1);
-		const target = new Vector3();
-		const right = new Vector3();
-		const up = new Vector3();
-		const forward = new Vector3();
-
-		const viewMatrix = new Matrix4();
-		const viewMatrixArray = new Float32Array(viewMatrix.elements);
-		const viewMatrixBuffer = new UniformBuffer(viewMatrixArray, GPUBufferUsage.COPY_DST);
-
-		this.#position = position;
-		this.#target = target;
-		this.#right = right;
-		this.#up = up;
-		this.#forward = forward;
+        const viewMatrix = new Matrix4();
+        const viewMatrixArray = new Float32Array(viewMatrix.elements);
+        const viewMatrixBuffer = new UniformBuffer(viewMatrixArray, GPUBufferUsage.COPY_DST);
 
 		this.#viewMatrix = viewMatrix;
 		this.#viewMatrixArray = viewMatrixArray;
 		this.#viewMatrixBuffer = viewMatrixBuffer;
-	}
-
-	get position() {
-		return this.#position;
-	}
-
-	get target() {
-		return this.#target;
-	}
-
-	get right() {
-		return this.#right;
-	}
-
-	get up() {
-		return this.#up;
-	}
-
-	get forward() {
-		return this.#forward;
-	}
+    }
 
 	get viewMatrix() {
 		return this.#viewMatrix;
@@ -109,42 +44,30 @@ abstract class Camera {
 		return this;
 	}
 
-	update() {
-		this.#updateView();
-	}
+    update() {
+        this.#updateViewMatrix();
+    }
 
 	abstract setAspectRatio(ratio: number): this;
 
-	#updateView() {
-		const position = this.#position;
-		const target = this.#target;
-		const right = this.#right;
-		const up = this.#up;
-		const forward = this.#forward;
+    #updateViewMatrix() {
+        const node = this.node;
 
-		const viewMatrix = this.#viewMatrix;
-		const viewMatrixArray = this.#viewMatrixArray;
+        const viewMatrix = this.#viewMatrix;
+        const viewMatrixArray = this.#viewMatrixArray;
+        const viewMatrixBuffer = this.#viewMatrixBuffer;
 
-		forward.copy(target).directionFrom(position);
-		right.copy(Camera.DEFAULT_UP).cross(forward).normalize();
-		up.copy(forward).cross(right).normalize();
+        if (node) {
+            viewMatrix.copy(node.transform.worldMatrix).inverse();
+        }
+        else {
+            viewMatrix.identity();
+        }
 
-		const translateX = -position.dot(right);
-		const translateY = -position.dot(up);
-		const translateZ = -position.dot(forward);
+        viewMatrixArray.set(viewMatrix.elements);
 
-		// biome-ignore format: It's easier to distinguish matrix columns.
-		viewMatrix.set(
-            right.x, up.x, forward.x, 0,
-            right.y, up.y, forward.y, 0,
-            right.z, up.z, forward.z, 0,
-            translateX, translateY, translateZ, 1
-        );
-
-		viewMatrixArray.set(viewMatrix.elements);
-
-		GPUContext.device.queue.writeBuffer(this.viewMatrixBuffer.instance, 0, viewMatrixArray.buffer, 0);
-	}
+        GPUContext.device.queue.writeBuffer(viewMatrixBuffer.instance, 0, viewMatrixArray.buffer, 0);
+    }
 }
 
 export default Camera;

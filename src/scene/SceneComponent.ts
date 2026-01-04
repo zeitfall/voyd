@@ -1,7 +1,7 @@
 import SceneNode from './SceneNode';
 
 // https://docs.unity3d.com/ScriptReference/Component.html
-class SceneComponent {
+abstract class SceneComponent {
     #node: SceneNode | null;
 
     constructor() {
@@ -37,6 +37,8 @@ class SceneComponent {
 
         return this;
     }
+
+    abstract update(): void;
 }
 
 export default SceneComponent;

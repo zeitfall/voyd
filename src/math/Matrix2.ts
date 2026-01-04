@@ -81,7 +81,6 @@ class Matrix2 extends Matrix<Matrix2Elements> {
 		const b21 = b[1];
 		const b22 = b[3];
 
-		// biome-ignore format: It's easier to distinguish matrix columns.
 		return this.set(
 			a11 * b11 + a12 * b21, a21 * b11 + a22 * b21,
 			a11 * b12 + a12 * b22, a21 * b12 + a22 * b22,
@@ -91,7 +90,6 @@ class Matrix2 extends Matrix<Matrix2Elements> {
 	multiplyByScalar(scalar: number) {
 		const a = this.elements;
 
-		// biome-ignore format: It's easier to distinguish matrix columns.
 		return this.set(
 			scalar * a[0],
 			scalar * a[1],

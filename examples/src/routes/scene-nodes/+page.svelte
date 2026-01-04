@@ -9,7 +9,6 @@
         Vector3,
         Quaternion,
         PerspectiveCamera,
-        FlyControls,
         SphereGeometry,
         SceneNode,
     } from 'voyd';
@@ -20,10 +19,11 @@
     let canvasResizer: CanvasResizer;
 
     const camera = new PerspectiveCamera(90);
-    let cameraControls: FlyControls;
+    const cameraNode = new SceneNode();
 
     camera.setFarPlane(512);
-    camera.position.set(0, 0, -4);
+    camera.attachTo(cameraNode);
+    cameraNode.transform.position.set(0, 0, -4);
 
     const geometry = new SphereGeometry(1, 32, 32);
 
@@ -35,6 +35,8 @@
     const indexBuffer = new IndexBuffer(geometry.indices, 0, true);
 
     const solarSystem = new SceneNode();
+
+    solarSystem.addChild(cameraNode);
 
     const planetCount = 9;
     const planetOrbits: SceneNode[] = [];
@@ -244,9 +246,7 @@
 
         const deltaTime = (t1 - t0) / 1000;
 
-        cameraControls.update(deltaTime);
         camera.setAspectRatio(canvasElement.width / canvasElement.height);
-        camera.update();
 
         for (let i = 0; i < planetCount; i++) {
             const planetOrbitTransform = planetOrbits[i].transform;
@@ -301,8 +301,6 @@
         });
 
         canvasResizer = new CanvasResizer(canvasElement);
-
-        cameraControls = new FlyControls(canvasElement, camera);
 
         rafId = requestAnimationFrame(loop);
 

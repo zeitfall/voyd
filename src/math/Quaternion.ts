@@ -1,6 +1,9 @@
+import Vector3 from './Vector3';
+
 import { clamp } from '~/utils';
 
-import type Vector3 from './Vector3';
+import { EPSILON_4 } from '~/constants';
+
 import type Matrix3 from './Matrix3';
 
 class Quaternion {
@@ -14,6 +17,14 @@ class Quaternion {
 
 	static fromDifference(quaternion: Quaternion) {
 		return new Quaternion().setFromDifference(quaternion);
+	}
+
+	static fromVectors(vectorA: Vector3, vectorB: Vector3) {
+		return new Quaternion().setFromVectors(vectorA, vectorB);
+	}
+
+	static fromDirector(direction: Vector3, up?: Vector3) {
+		return new Quaternion().setFromDirection(direction, up);
 	}
 
 	static fromMatrix(matrix: Matrix3) {
@@ -155,6 +166,139 @@ class Quaternion {
 		return this.invert().premultiply(quaternion);
 	}
 
+	// https://stackoverflow.com/a/11741520
+	// https://www.euclideanspace.com/maths/algebra/realNormedAlgebra/quaternions/transforms/minorlogic.htm
+	setFromVectors(vectorA: Vector3, vectorB: Vector3) {
+		const ax = vectorA.x;
+		const ay = vectorA.y;
+		const az = vectorA.z;
+		const aLSq = vectorA.lengthSquared;
+
+		const bx = vectorB.x;
+		const by = vectorB.y;
+		const bz = vectorB.z;
+		const bLSq = vectorB.lengthSquared;
+
+		const dot = Vector3.dot(vectorA, vectorB);
+		const sqrt = Math.sqrt(aLSq * bLSq);
+
+		let cx = 0;
+		let cy = 1;
+		let cz = 0;
+		let cw = dot + sqrt;
+
+		if (cw > EPSILON_4) {
+			cx = ay * bz - az * by;
+			cy = az * bx - ax * bz;
+			cz = ax * by - ay * bx;
+		}
+		else {
+			cw = 0;
+
+			if (Math.abs(ax) > Math.abs(az)) {
+				cx = -ay;
+				cy = ax;
+				cz = 0;
+			} else {
+				cx = 0;
+				cy = -az;
+				cz = ay;
+        	}
+		}
+
+		return this.set(cx, cy, cz, cw).normalize();
+	}
+
+	setFromDirection(direction: Vector3, up = Vector3.UP) {
+		let ux = up.x;
+		let uy = up.y;
+		let uz = up.z;
+
+		const absDot = Math.abs(Vector3.dot(direction, up));
+
+		if (1 - absDot < EPSILON_4) {
+			ux = 0;
+			uy = 0;
+			uz = 1;
+		}
+
+		let fx = direction.x;
+		let fy = direction.y;
+		let fz = direction.z;
+		const fl = Math.sqrt(fx * fx + fy * fy + fz * fz);
+
+		if (fl > 0) {
+			fx /= fl;
+			fy /= fl;
+			fz /= fl;
+		}
+
+		let rx = uy * fz - uz * fy;
+		let ry = uz * fx - ux * fz;
+		let rz = ux * fy - uy * fx;
+		const rl = Math.sqrt(rx * rx + ry * ry + rz * rz);
+
+		if (rl > 0) {
+			rx /= rl;
+			ry /= rl;
+			rz /= rl;
+		}
+
+		ux = fy * rz - fz * ry;
+		uy = fz * rx - fx * rz;
+		uz = fx * ry - fy * rx;
+		const ul = Math.sqrt(ux * ux + uy * uy + uz * uz);
+
+		if (ul > 0) {
+			ux /= ul;
+			uy /= ul;
+			uz /= ul;
+		}
+
+		let x;
+		let y;
+		let z;
+		let w;
+
+		let tr = rx + uy + fz;
+
+		if (tr > 0) {
+			const s = 0.5 / Math.sqrt(tr + 1);
+
+			w = 0.25 / s;
+			x = (uz - fy) * s;
+			y = (fx - rz) * s;
+			z = (ry - ux) * s;
+		}
+		else if (rx > uy && rx > fz) {
+			const s = 0.5 / Math.sqrt(1 + rx - uy - fz);
+
+			w = (uz - fy) * s;
+			x = 0.25 / s;
+			y = (ux + ry) * s;
+			z = (fx + rz) * s;
+		}
+		else if (uy > fz) {
+			const s = 0.5 / Math.sqrt(1 + uy - rx - fz);
+
+			w = (fx - rz) * s;
+			x = (ux + ry) * s;
+			y = 0.25 / s;
+			z = (fy + uz) * s;
+
+		}
+		else {
+			const s = 0.5 / Math.sqrt(1 + fz - rx - uy);
+
+			w = (ry - ux) * s;
+			x = (fx + rz) * s;
+			y = (fy + uz) * s;
+			z = 0.25 / s;
+		}
+
+		return this.set(x, y, z, w);
+	}
+
 	setFromMatrix(matrix: Matrix3) {
 		const a = matrix.elements;
 
@@ -176,7 +320,6 @@ class Quaternion {
 		let tr = m11 + m22 + m33;
 
 		if (tr > 0) {
-
 			const s = 0.5 / Math.sqrt(tr + 1);
 
 			w = 0.25 / s;
@@ -200,7 +343,8 @@ class Quaternion {
 			y = 0.25 / s;
 			z = (m23 + m32) * s;
 
-		} else {
+		}
+		else {
 			const s = 0.5 / Math.sqrt(1 + m33 - m11 - m22);
 
 			w = (m21 - m12) * s;

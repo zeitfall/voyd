@@ -158,7 +158,6 @@ class Matrix3 extends Matrix<Matrix3Elements> {
 		const b32 = b[5];
 		const b33 = b[8];
 
-		// biome-ignore format: It's easier to distinguish matrix columns.
 		return this.set(
 			a11 * b11 + a12 * b21 + a13 * b31, a21 * b11 + a22 * b21 + a23 * b31, a31 * b11 + a32 * b21 + a33 * b31,
 			a11 * b12 + a12 * b22 + a13 * b32, a21 * b12 + a22 * b22 + a23 * b32, a31 * b12 + a32 * b22 + a33 * b32,
@@ -227,7 +226,6 @@ class Matrix3 extends Matrix<Matrix3Elements> {
 		const c32 = -(e11 * e23 - e13 * e21);
 		const c33 = e11 * e22 - e12 * e21;
 
-		// biome-ignore format: It's easier to distinguish matrix columns.
 		return this
 			.set(
 				c11, c21, c31,

@@ -6,8 +6,6 @@ export * from './math';
 
 export * from './cameras';
 
-export * from './controls';
-
 export * from './geometries';
 
 export * from './scene';

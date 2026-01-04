@@ -19,7 +19,7 @@ class OrthographicCamera extends Camera {
 	) {
 		super(nearPlane, farPlane);
 
-		const projectionMatrix = new Matrix4()
+		const projectionMatrix = new Matrix4();
 		const projectionMatrixArray = new Float32Array(projectionMatrix.elements);
 		const projectionMatrixBuffer = new UniformBuffer(projectionMatrixArray, GPUBufferUsage.COPY_DST);
 
@@ -82,16 +82,18 @@ class OrthographicCamera extends Camera {
 	override update() {
 		super.update();
 
-		this.#updateProjection();
+		this.#updateProjectionMatrix();
 	}
 
-	#updateProjection() {
-		const leftPlane = this.leftPlane;
-		const rightPlane = this.rightPlane;
-		const topPlane = this.topPlane;
-		const bottomPlane = this.bottomPlane;
-		const nearPlane = this.nearPlane;
-		const farPlane = this.farPlane;
+	#updateProjectionMatrix() {
+		const {
+			leftPlane,
+			rightPlane,
+			topPlane,
+			bottomPlane,
+			nearPlane,
+			farPlane
+		} = this;
 
 		const projectionMatrix = this.#projectionMatrix;
 		const projectionMatrixArray = this.#projectionMatrixArray;
@@ -109,7 +111,6 @@ class OrthographicCamera extends Camera {
 		const F = -nearPlane / depth;
 		const G = 1;
 
-		// biome-ignore format: It's easier to distinguish matrix columns.
 		projectionMatrix.set(
             A, 0, 0, 0,
             0, B, 0, 0,

@@ -37,6 +37,23 @@ class Transform {
         return this.#worldMatrix;
     }
 
+    lookAt(target: Vector3) {
+        const position = this.#position;
+        const rotation = this.#rotation;
+
+        const tx = target.x;
+        const ty = target.y;
+        const tz = target.z;
+
+        const direction = target.directionFrom(position);
+
+        rotation.setFromDirection(direction);
+
+        target.set(tx, ty, tz);
+
+        return this;
+    }
+
     update(parentWorldMatrix: Matrix4 | null = null) {
         return this.updateLocalMatrix().updateWorldMatrix(parentWorldMatrix);
     }

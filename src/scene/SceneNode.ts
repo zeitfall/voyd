@@ -112,20 +112,23 @@ class SceneNode {
         return this.#components.has(component);
     }
 
-    update(updateChildren = true) {
+    update() {
         const transform = this.#transform;
         const parent = this.#parent;
         const children = this.#children;
+        const components = this.#components;
 
         const parentWorldMatrix = parent ? parent.transform.worldMatrix : null;
 
         transform.update(parentWorldMatrix);
 
-        if (updateChildren) {
-            children.forEach((child) => {
-                child.update();
-            });
-        }
+        children.forEach((child) => {
+            child.update();
+        });
+
+        components.forEach((component) => {
+            component.update();
+        });
     }
 }
 

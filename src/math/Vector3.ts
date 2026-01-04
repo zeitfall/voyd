@@ -1,12 +1,28 @@
 import Vector from './Vector';
 
-import { clamp, lerp } from '~/utils';
+import { defineReadOnlyProperties, clamp, lerp } from '~/utils';
 
 import type Spherical from './Spherical';
 import type Quaternion from './Quaternion';
 import type Matrix3 from './Matrix3';
 
 class Vector3 extends Vector {
+	declare static RIGHT: Vector3;
+	declare static UP: Vector3;
+	declare static FORWARD: Vector3;
+
+	static {
+		const RIGHT = new Vector3(1, 0, 0);
+		const UP = new Vector3(0, 1, 0);
+		const FORWARD = new Vector3(0, 0, 1);
+
+		Object.freeze(RIGHT);
+		Object.freeze(UP);
+		Object.freeze(FORWARD)
+
+		defineReadOnlyProperties(Vector3, { RIGHT, UP, FORWARD });
+	}
+	
 	static fromSphericalCoordinates(radius: number, theta: number, phi: number) {
 		return new Vector3().setFromSphericalCoordinates(radius, theta, phi);
 	}
@@ -15,10 +31,14 @@ class Vector3 extends Vector {
 		return new Vector3().setFromSpherical(spherical);
 	}
 
+	static multiplyByQuaternion(vector: Vector3, quaternion: Quaternion) {
+		return vector.clone().multiplyByQuaternion(quaternion);
+	}
+
 	static cross(vectorA: Vector3, vectorB: Vector3) {
 		return vectorA.clone().cross(vectorB);
 	}
-
+	
 	static projectOnPlane(vector: Vector3, planeNormal: Vector3) {
 		return vector.clone().projectOnPlane(planeNormal);
 	}
@@ -121,7 +141,6 @@ class Vector3 extends Vector {
 		const y = this.y;
 		const z = this.z;
 
-		// biome-ignore format: It's easier to distinguish vector columns.
 		return this.set(
 			x * e11 + y * e12 + z * e13,
 			x * e21 + y * e22 + z * e23,
@@ -131,10 +150,10 @@ class Vector3 extends Vector {
 
 	// https://blog.molecular-matters.com/2013/05/24/a-faster-quaternion-vector-multiplication/
 	multiplyByQuaternion(quaternion: Quaternion) {
-		const quaternionLength = quaternion.length;
+		const qL = quaternion.length;
 
-		if (Math.abs(quaternionLength - 1) > Number.EPSILON) {
-			throw new Error(`[Vector3]: Quaternion must be normalized, length=${quaternionLength} is given.`);
+		if (Math.abs(qL - 1) > Number.EPSILON) {
+			throw new Error(`[Vector3]: Quaternion must be normalized, length=${qL} is given.`);
 		}
 
 		const vx = this.x;
@@ -150,7 +169,6 @@ class Vector3 extends Vector {
 		const cy = 2 * (qz * vx - qx * vz);
 		const cz = 2 * (qx * vy - qy * vx);
 
-		// biome-ignore format: It's easier to distinguish vector columns.
 		return this.set(
 			vx + qw * cx + qy * cz - qz * cy,
 			vy + qw * cy + qz * cx - qx * cz,
@@ -167,9 +185,25 @@ class Vector3 extends Vector {
 	}
 
 	projectOnPlane(planeNormal: Vector3) {
-		_vector.copy(this).projectOnVector(planeNormal);
+		const vx = this.x;
+		const vy = this.y;
+		const vz = this.z;
 
-		return this.subtract(_vector);
+		let nx = 0;
+		let ny = 0;
+		let nz = 0;
+		const nLSq = planeNormal.lengthSquared;
+
+		// NOTE: It has been taken from Vector.prototype.projectOnVector.
+		if (nLSq > 0) {
+			const normFactor = this.dot(planeNormal) / nLSq;
+
+			nx = planeNormal.x * normFactor;
+			ny = planeNormal.y * normFactor;
+			nz = planeNormal.z * normFactor;
+		}
+
+		return this.set(vx - nx, vy - ny, vz - nz);
 	}
 
 	scale(scaleX: number, scaleY?: number, scaleZ?: number) {
@@ -210,7 +244,5 @@ class Vector3 extends Vector {
 		yield this.z;
 	}
 }
-
-const _vector = new Vector3();
 
 export default Vector3;

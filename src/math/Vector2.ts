@@ -1,11 +1,24 @@
 import Vector from './Vector';
 
-import { clamp, lerp } from '~/utils';
+import { defineReadOnlyProperties, clamp, lerp } from '~/utils';
 
 import type Polar from './Polar';
 import type Matrix2 from './Matrix2';
 
 class Vector2 extends Vector {
+	declare static RIGHT: Vector2;
+	declare static UP: Vector2;
+
+	static {
+		const RIGHT = new Vector2(1, 0);
+		const UP = new Vector2(0, 1);
+
+		Object.freeze(RIGHT);
+		Object.freeze(UP);
+
+		defineReadOnlyProperties(Vector2, { RIGHT, UP });
+	}
+
 	static fromPolarCoordinates(radius: number, theta: number) {
 		return new Vector2().setFromPolarCoordinates(radius, theta);
 	}
@@ -75,6 +88,7 @@ class Vector2 extends Vector {
 	multiplyByMatrix(matrix: Matrix2) {
 		const x = this.x;
 		const y = this.y;
+
 		const a = matrix.elements;
 
 		const e11 = a[0];

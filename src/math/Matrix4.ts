@@ -110,7 +110,7 @@ class Matrix4 extends Matrix<Matrix4Elements> {
 		const sy = scale.y;
 		const sz = scale.z;
 
-		// NOTE: It has been taken from Matrix3.prototype.setFromQuaternion.
+		// The algorithm has been taken from Matrix3.prototype.setFromQuaternion.
 		const r11 = 1 - 2 * (ry2 + rz2);
 		const r12 = 2 * (rxy - rzw);
 		const r13 = 2 * (ryw + rxz);
@@ -339,7 +339,6 @@ class Matrix4 extends Matrix<Matrix4Elements> {
 		const c43 = -(e11 * (e22 * e34 - e24 * e32) - e12 * (e21 * e34 - e24 * e31) + e14 * (e21 * e32 - e22 * e31));
 		const c44 = e11 * (e22 * e33 - e23 * e32) - e12 * (e21 * e33 - e23 * e31) + e13 * (e21 * e32 - e22 * e31);
 
-		// biome-ignore format: It's easier to distinguish matrix columns.
 		return this
 			.set(
 				c11, c21, c31, c41,
