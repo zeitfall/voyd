@@ -5,7 +5,7 @@
         display: flex;
         width: min(16em, 100%);
         margin-inline: auto;
-        background-color: rgba(255, 255, 255, .75);
+        background-color: rgba(255, 255, 255, .8);
         backdrop-filter: blur(1em);
         font-size: .75em;
     }
@@ -55,11 +55,19 @@
         padding-inline: .5em;
         line-height: 1.5;
     }
+
+    details nav a[aria-current="true"] {
+        background-color: rgba(0, 0, 0, .1);
+    }
+
+    details nav a:hover {
+        background-color: rgba(0, 0, 0, .2);
+    }
 </style>
 
 <script lang="ts">
-    import { PUBLIC_REPOSITORY_URL } from '$env/static/public';
     import { resolve } from '$app/paths';
+    import { page } from '$app/state';
 
     enum Route {
         Home = '/',
@@ -67,20 +75,29 @@
         SceneNodes = '/scene-nodes'
     };
 
-    const NAVIGATION_ITEM_LABEL_BY_ROUTE = {
-        [Route.Home]: 'Home',
+    const ROUTE_LABELS_MAP = {
+        [Route.Home]: 'Voyd',
         [Route.Debug]: 'Debug',
         [Route.SceneNodes]: 'Scene Nodes',
     } as const;
 
-    const routePaths = $derived(Object.values(Route));
+    const navigationRoutePaths = $derived(Object.values(Route).filter((route) => route !== Route.Home));
+    const currentRoutePath = $derived(page.route.id);
 
     let detailsElementRef = $state<HTMLElement>();
     let isDetailsElementOpened = $state(false);
+    
+    const detailsSummary = $derived.by(() => {
+        if (currentRoutePath === Route.Home) {
+            return 'Examples';
+        }
 
-    function getNavigationItemLabel(routePath: string) {
+        return getRouteLabel(currentRoutePath);
+    });
+
+    function getRouteLabel(routePath: string) {
         // @ts-expect-error No index signature with a parameter of type 'string' was found on type 'typeof NAVIGATION_ITEM_LABEL_BY_ROUTE'.
-        return NAVIGATION_ITEM_LABEL_BY_ROUTE[routePath];
+        return ROUTE_LABELS_MAP[routePath];
     }
 
     function handleWindowClick(event: MouseEvent) {
@@ -92,20 +109,26 @@
     }
 </script>
 
-<svelte:window on:click={handleWindowClick}></svelte:window>
+<svelte:window onclick={handleWindowClick}></svelte:window>
 
 <header>
-    <a href={PUBLIC_REPOSITORY_URL} target="_blank">Voyd</a>
+    <a href={resolve(Route.Home)}>{getRouteLabel(Route.Home)}</a>
 
     <details
         role="navigation"
         bind:this={detailsElementRef}
         bind:open={isDetailsElementOpened}
     >
-        <summary>Examples</summary>
+        <summary>{detailsSummary}</summary>
         <nav>
-            {#each routePaths as path}
-                <a href={resolve(path)}>{getNavigationItemLabel(path)}</a>
+            {#each navigationRoutePaths as path}
+                <a
+                    href={resolve(path)}
+                    aria-current={path === currentRoutePath}
+                    onclick={() => isDetailsElementOpened = false}
+                >
+                    {getRouteLabel(path)}
+                </a>
             {/each}
         </nav>
     </details>
