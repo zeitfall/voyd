@@ -255,6 +255,7 @@ class Quaternion {
 			uz /= ul;
 		}
 
+		// The algorithm below has been taken from Quaternion.prototype.setFromMatrix.
 		let x;
 		let y;
 		let z;

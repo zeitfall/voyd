@@ -4,6 +4,7 @@ class Transform {
     #position: Vector3;
     #rotation: Quaternion;
     #scale: Vector3;
+    #directionToTarget: Vector3;
 
     #localMatrix: Matrix4;
     #worldMatrix: Matrix4;
@@ -12,6 +13,7 @@ class Transform {
         this.#position = new Vector3();
         this.#rotation = new Quaternion();
         this.#scale = new Vector3(1, 1, 1);
+        this.#directionToTarget = new Vector3();
 
         this.#localMatrix = new Matrix4();
         this.#worldMatrix = new Matrix4();
@@ -40,16 +42,10 @@ class Transform {
     lookAt(target: Vector3) {
         const position = this.#position;
         const rotation = this.#rotation;
+        const directionToTarget = this.#directionToTarget;
 
-        const tx = target.x;
-        const ty = target.y;
-        const tz = target.z;
-
-        const direction = target.directionFrom(position);
-
-        rotation.setFromDirection(direction);
-
-        target.set(tx, ty, tz);
+        directionToTarget.copy(target).directionFrom(position);
+        rotation.setFromDirection(directionToTarget);
 
         return this;
     }
