@@ -10,8 +10,9 @@
         Vector3,
         Quaternion,
         PlaneGeometry,
-        PerspectiveCamera,
         SceneNode,
+        PerspectiveCamera,
+        TransformController,
     } from 'voyd';
 
     import { CanvasResizer } from '$lib/services';
@@ -21,6 +22,7 @@
     let canvasResizer: CanvasResizer;
 
     const camera = new PerspectiveCamera();
+    let cameraController: TransformController;
 
     const geometry = new PlaneGeometry(1, 1, 32, 32);
 
@@ -170,7 +172,7 @@
     const rootNode = new SceneNode();
     const cameraNode = new SceneNode();
 
-    cameraNode.addComponent(camera);
+    cameraNode.addComponent(camera)
     cameraNode.attachTo(rootNode);
     cameraNode.transform.position.set(0, 0, -1);
     cameraNode.transform.lookAt(new Vector3(0, 0, 0));
@@ -257,14 +259,14 @@
         t1 = performance.now();
 
         const deltaTime = (t1 - t0) / 1000;
-        const smoothFactor = 1 - Math.exp(-12 * deltaTime);
+        // const smoothFactor = 1 - Math.exp(-12 * deltaTime);
 
         camera.setAspectRatio(canvasElement.width / canvasElement.height);
 
-        cameraNode.transform.position.lerp(_targetPos, smoothFactor);
-        cameraNode.transform.rotation.slerp(_targetQuat, smoothFactor);
+        // cameraNode.transform.position.lerp(_targetPos, smoothFactor);
+        // cameraNode.transform.rotation.slerp(_targetQuat, smoothFactor);
 
-        rootNode.update();
+        rootNode.update(deltaTime);
 
         const commandEncoder = GPUContext.device.createCommandEncoder();
 
@@ -288,8 +290,8 @@
 
     onMount(() => {
         canvasElement.addEventListener('resize', handleCanvasResize);
-        canvasElement.addEventListener('pointermove', handlerPointerMove);
-        window.addEventListener('keydown', handleKeyDown);
+        // canvasElement.addEventListener('pointermove', handlerPointerMove);
+        // window.addEventListener('keydown', handleKeyDown);
 
         canvasContext = canvasElement.getContext('webgpu');
         canvasResizer = new CanvasResizer(canvasElement);
@@ -298,6 +300,9 @@
             device: GPUContext.device,
             format: GPUContext.preferredFormat,
         });
+
+        cameraController = new TransformController();
+        cameraController.attachTo(cameraNode);
 
         rafId = requestAnimationFrame(loop);
     });

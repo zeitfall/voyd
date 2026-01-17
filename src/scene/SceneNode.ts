@@ -77,8 +77,6 @@ class SceneNode {
         if (parent) {
             parent.removeChild(this);
         }
-
-        return this;
     }
 
     addComponent(component: SceneComponent) {
@@ -90,8 +88,6 @@ class SceneNode {
         else {
             this.#components.add(component);
         }
-
-        return this;
     }
 
     removeComponent(component: SceneComponent) {
@@ -104,15 +100,13 @@ class SceneNode {
         if (this.hasComponent(component)) {
             this.#components.delete(component);
         }
-
-        return this;
     }
 
     hasComponent(component: SceneComponent) {
         return this.#components.has(component);
     }
 
-    update() {
+    update(deltaTime: number) {
         const transform = this.#transform;
         const parent = this.#parent;
         const children = this.#children;
@@ -123,11 +117,11 @@ class SceneNode {
         transform.update(parentWorldMatrix);
 
         children.forEach((child) => {
-            child.update();
+            child.update(deltaTime);
         });
 
         components.forEach((component) => {
-            component.update();
+            component.update(deltaTime);
         });
     }
 }

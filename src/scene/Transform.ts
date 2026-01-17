@@ -51,7 +51,7 @@ class Transform {
     }
 
     update(parentWorldMatrix: Matrix4 | null = null) {
-        return this.updateLocalMatrix().updateWorldMatrix(parentWorldMatrix);
+        this.updateLocalMatrix().updateWorldMatrix(parentWorldMatrix);
     }
 
     updateLocalMatrix() {

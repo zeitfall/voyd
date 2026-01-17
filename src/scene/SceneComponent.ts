@@ -34,11 +34,9 @@ abstract class SceneComponent {
 
             node.removeComponent(this);
         }
-
-        return this;
     }
 
-    abstract update(): void;
+    abstract update(deltaTime: number): void;
 }
 
 export default SceneComponent;

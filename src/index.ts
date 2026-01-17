@@ -4,11 +4,15 @@ export * from './buffers';
 
 export * from './math';
 
-export * from './cameras';
-
 export * from './geometries';
 
 export * from './scene';
+
+export * from './cameras';
+
+export * from './behaviors';
+
+export * from './controllers';;
 
 export * from './utils';
 

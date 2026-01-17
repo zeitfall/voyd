@@ -209,6 +209,7 @@ class Quaternion {
 		return this.set(cx, cy, cz, cw).normalize();
 	}
 
+	// https://stackoverflow.com/a/52551983
 	setFromDirection(direction: Vector3, up = Vector3.UP) {
 		let ux = up.x;
 		let uy = up.y;
