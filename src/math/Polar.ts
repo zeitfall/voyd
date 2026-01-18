@@ -62,8 +62,8 @@ class Polar {
 		return this.set(clamp(this.radius, min.radius, max.radius), clamp(this.theta, min.theta, max.theta));
 	}
 
-	lerp(polar: Polar, fraction: number) {
-		return this.set(lerp(this.radius, polar.radius, fraction), lerp(this.theta, polar.theta, fraction));
+	lerp(polar: Polar, factor: number) {
+		return this.set(lerp(this.radius, polar.radius, factor), lerp(this.theta, polar.theta, factor));
 	}
 
 	toCanonical() {

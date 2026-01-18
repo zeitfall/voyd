@@ -263,7 +263,7 @@
             planetTransform.rotation.multiply(_rotationQuaternion);  
         }
 
-        solarSystem.update();
+        solarSystem.update(deltaTime);
 
         for (let i = 0; i < planetCount; i++) {
             const planet = planets[i];

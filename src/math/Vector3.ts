@@ -1,6 +1,6 @@
 import Vector from './Vector';
 
-import { defineReadOnlyProperties, clamp, lerp } from '~/utils';
+import { defineReadOnlyProperties, clamp, lerp, damp } from '~/utils';
 
 import type Spherical from './Spherical';
 import type Quaternion from './Quaternion';
@@ -90,7 +90,7 @@ class Vector3 extends Vector {
 		return this.set(
 			radius * cosPhi * sinTheta,
 			radius * sinPhi,
-			-radius * cosPhi * cosTheta
+			radius * cosPhi * cosTheta
 		);
 	}
 
@@ -116,11 +116,19 @@ class Vector3 extends Vector {
 		);
 	}
 
-	lerp(vector: Vector3, fraction: number) {
+	lerp(vector: Vector3, factor: number) {
 		return this.set(
-			lerp(this.x, vector.x, fraction),
-			lerp(this.y, vector.y, fraction),
-			lerp(this.z, vector.z, fraction)
+			lerp(this.x, vector.x, factor),
+			lerp(this.y, vector.y, factor),
+			lerp(this.z, vector.z, factor)
+		);
+	}
+
+	damp(vector: Vector3, lambda: number, deltaTime: number) {
+		return this.set(
+			damp(this.x, vector.x, lambda, deltaTime),
+			damp(this.y, vector.y, lambda, deltaTime),
+			damp(this.z, vector.z, lambda, deltaTime),
 		);
 	}
 
@@ -206,12 +214,30 @@ class Vector3 extends Vector {
 		return this.set(vx - nx, vy - ny, vz - nz);
 	}
 
-	scale(scaleX: number, scaleY?: number, scaleZ?: number) {
-		const sx = scaleX;
-		const sy = scaleY ?? scaleX;
-		const sz = scaleZ ?? scaleY ?? scaleX;
+	scaleX(scalar: number) {
+		this.x *= scalar;
 
-		return this.set(sx * this.x, sy * this.y, sz * this.z);
+		return this;
+	}
+
+	scaleY(scalar: number) {
+		this.y *= scalar;
+
+		return this;
+	}
+
+	scaleZ(scalar: number) {
+		this.z *= scalar;
+
+		return this;
+	}
+
+	scale(scalarX: number, scalarY?: number, scalarZ?: number) {
+		const sx = scalarX;
+		const sy = scalarY ?? scalarX;
+		const sz = scalarZ ?? scalarY ?? scalarX;
+	
+		return this.scaleX(sx).scaleY(sy).scaleZ(sz);
 	}
 
 	dot(vector: Vector3) {

@@ -1,6 +1,6 @@
 import Vector from './Vector';
 
-import { clamp, lerp } from '~/utils';
+import { clamp, damp, lerp } from '~/utils';
 
 import type Matrix4 from './Matrix4';
 
@@ -66,12 +66,21 @@ class Vector4 extends Vector {
 		);
 	}
 
-	lerp(vector: Vector4, fraction: number) {
+	lerp(vector: Vector4, factor: number) {
 		return this.set(
-			lerp(this.x, vector.x, fraction),
-			lerp(this.y, vector.y, fraction),
-			lerp(this.z, vector.z, fraction),
-			lerp(this.w, vector.w, fraction)
+			lerp(this.x, vector.x, factor),
+			lerp(this.y, vector.y, factor),
+			lerp(this.z, vector.z, factor),
+			lerp(this.w, vector.w, factor)
+		);
+	}
+
+	damp(vector: Vector4, lambda: number, deltaTime: number) {
+		return this.set(
+			damp(this.x, vector.x, lambda, deltaTime),
+			damp(this.y, vector.y, lambda, deltaTime),
+			damp(this.z, vector.z, lambda, deltaTime),
+			damp(this.w, vector.w, lambda, deltaTime)
 		);
 	}
 
@@ -108,13 +117,37 @@ class Vector4 extends Vector {
 		);
 	}
 
-	scale(scaleX: number, scaleY?: number, scaleZ?: number, scaleW?: number) {
-		const sx = scaleX;
-		const sy = scaleY ?? scaleX;
-		const sz = scaleZ ?? scaleY ?? scaleX;
-		const sw = scaleW ?? scaleZ ?? scaleY ?? scaleX;
+	scaleX(scalar: number) {
+		this.x *= scalar;
 
-		return this.set(sx * this.x, sy * this.y, sz * this.z, sw * this.w);
+		return this;
+	}
+
+	scaleY(scalar: number) {
+		this.y *= scalar;
+
+		return this;
+	}
+
+	scaleZ(scalar: number) {
+		this.z *= scalar;
+
+		return this;
+	}
+
+	scaleW(scalar: number) {
+		this.w *= scalar;
+
+		return this;
+	}
+
+	scale(scalarX: number, scalarY?: number, scalarZ?: number, scalarW?: number) {
+		const sx = scalarX;
+		const sy = scalarY ?? scalarX;
+		const sz = scalarZ ?? scalarY ?? scalarX;
+		const sw = scalarW ?? scalarZ ?? scalarY ?? scalarX;
+	
+		return this.scaleX(sx).scaleY(sy).scaleZ(sz).scaleW(sw);
 	}
 
 	dot(vector: Vector4) {

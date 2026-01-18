@@ -8,10 +8,14 @@ export function clamp(value: number, min: number, max: number) {
 	return Math.max(min, Math.min(value, max));
 }
 
-export function lerp(min: number, max: number, fraction: number) {
-	const t = clamp(fraction, 0, 1);
+export function lerp(from: number, to: number, factor: number) {
+	const t = clamp(factor, 0, 1);
 
-	return (1 - t) * min + t * max;
+	return (1 - t) * from + t * to;
+}
+
+export function damp(from: number, to: number, lambda: number, deltaTime: number) {
+	return lerp(from, to, 1 - Math.exp(-lambda * deltaTime));
 }
 
 export function inverseLerp(min: number, max: number, value: number) {
@@ -19,9 +23,9 @@ export function inverseLerp(min: number, max: number, value: number) {
 }
 
 export function remap(value: number, oldMin: number, oldMax: number, newMin: number, newMax: number) {
-	const fraction = inverseLerp(oldMin, oldMax, value);
+	const factor = inverseLerp(oldMin, oldMax, value);
 
-	return lerp(newMin, newMax, fraction);
+	return lerp(newMin, newMax, factor);
 }
 
 export function modRange(value: number, min: number, max: number) {

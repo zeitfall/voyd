@@ -39,6 +39,36 @@ class Transform {
         return this.#worldMatrix;
     }
 
+    extractRight(right: Vector3) {
+        const matrixElements = this.#worldMatrix.elements;
+
+        const rx = matrixElements[0];
+        const ry = matrixElements[1];
+        const rz = matrixElements[2];
+
+        right.set(rx, ry, rz).normalize();
+    }
+
+    extractUp(up: Vector3) {
+        const matrixElements = this.#worldMatrix.elements;
+
+        const ux = matrixElements[4];
+        const uy = matrixElements[5];
+        const uz = matrixElements[6];
+
+        up.set(ux, uy, uz).normalize();
+    }
+
+    extractForward(forward: Vector3) {
+        const matrixElements = this.#worldMatrix.elements;
+
+        const fx = matrixElements[8];
+        const fy = matrixElements[9];
+        const fz = matrixElements[10];
+
+        forward.set(fx, fy, fz).normalize();
+    }
+
     lookAt(target: Vector3) {
         const position = this.#position;
         const rotation = this.#rotation;

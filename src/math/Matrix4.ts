@@ -121,6 +121,10 @@ class Matrix4 extends Matrix<Matrix4Elements> {
 		const r32 = 2 * (rxw + ryz);
 		const r33 = 1 - 2 * (rx2 + ry2);
 
+		// rx ry rz 0 <- "right" basis vector
+		// ux uy uz 0 <- "up" basis vector
+		// fx fy fz 0 <- "forward" basis vector
+		// tx ty tz 1
 		return this.set(
 			sx * r11, sx * r21, sx * r31, 0,
 			sy * r12, sy * r22, sy * r32, 0,

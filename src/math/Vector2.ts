@@ -1,6 +1,6 @@
 import Vector from './Vector';
 
-import { defineReadOnlyProperties, clamp, lerp } from '~/utils';
+import { defineReadOnlyProperties, clamp, lerp, damp } from '~/utils';
 
 import type Polar from './Polar';
 import type Matrix2 from './Matrix2';
@@ -81,8 +81,12 @@ class Vector2 extends Vector {
 		return this.set(clamp(this.x, min.x, max.x), clamp(this.y, min.y, max.y));
 	}
 
-	lerp(vector: Vector2, fraction: number) {
-		return this.set(lerp(this.x, vector.x, fraction), lerp(this.y, vector.y, fraction));
+	lerp(vector: Vector2, factor: number) {
+		return this.set(lerp(this.x, vector.x, factor), lerp(this.y, vector.y, factor));
+	}
+
+	damp(vector: Vector2, lambda: number, deltaTime: number) {
+		return this.set(damp(this.x, vector.x, lambda, deltaTime), damp(this.y, vector.y, lambda, deltaTime));
 	}
 
 	multiplyByMatrix(matrix: Matrix2) {
@@ -99,11 +103,23 @@ class Vector2 extends Vector {
 		return this.set(x * e11 + y * e12, x * e21 + y * e22);
 	}
 
-	scale(scaleX: number, scaleY?: number) {
-		const sx = scaleX;
-		const sy = scaleY ?? scaleX;
+	scaleX(scalar: number) {
+		this.x *= scalar;
 
-		return this.set(sx * this.x, sy * this.y);
+		return this;
+	}
+
+	scaleY(scalar: number) {
+		this.y *= scalar;
+
+		return this;
+	}
+
+	scale(scalarX: number, scalarY?: number) {
+		const sx = scalarX;
+		const sy = scalarY ?? scalarX;
+	
+		return this.scaleX(sx).scaleY(sy);
 	}
 
 	dot(vector: Vector2) {

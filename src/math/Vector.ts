@@ -28,8 +28,8 @@ abstract class Vector {
 		return vector.clone().clamp(min, max) as T;
 	}
 
-	static lerp<T extends Vector>(this: Constructor<T>, vectorA: T, vectorB: T, fraction: number) {
-		return vectorA.clone().lerp(vectorB, fraction) as T;
+	static lerp<T extends Vector>(this: Constructor<T>, vectorA: T, vectorB: T, factor: number) {
+		return vectorA.clone().lerp(vectorB, factor) as T;
 	}
 
 	static multiplyByMatrix<T extends Vector>(this: Constructor<T>, vector: T, matrix: Matrix) {
@@ -169,7 +169,9 @@ abstract class Vector {
 
 	abstract clamp(min: Vector, max: Vector): this;
 
-	abstract lerp(vector: Vector, fraction: number): this;
+	abstract lerp(vector: Vector, factor: number): this;
+
+	abstract damp(vector: Vector, lambda: number, deltaTime: number): this;
 
 	abstract multiplyByMatrix(matrix: Matrix): this;
 

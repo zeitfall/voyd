@@ -13,6 +13,8 @@
         SceneNode,
         PerspectiveCamera,
         TransformController,
+        FlyBehavior,
+        LookBehavior
     } from 'voyd';
 
     import { CanvasResizer } from '$lib/services';
@@ -174,63 +176,9 @@
 
     cameraNode.addComponent(camera)
     cameraNode.attachTo(rootNode);
-    cameraNode.transform.position.set(0, 0, -1);
+    cameraNode.transform.position.set(0, 1, -1);
     cameraNode.transform.lookAt(new Vector3(0, 0, 0));
-
-    const _targetQuat = Quaternion.clone(cameraNode.transform.rotation);
-    const _targetPos = Vector3.clone(cameraNode.transform.position);
-
-    const _pan = new Quaternion();
-    const _tilt = new Quaternion();
-
-    function handlerPointerMove(event: PointerEvent) {
-        const {
-            pressure,
-            buttons,
-            movementX,
-            movementY
-        } = event;
-
-        if (pressure + buttons <= 0) {
-            return;
-        }
-
-        _pan.setFromAxisAngle(Vector3.UP, movementX / 100);
-        _targetQuat.premultiply(_pan);
-
-        _tilt.setFromAxisAngle(Vector3.RIGHT, movementY / 100);
-        _targetQuat.multiply(_tilt);
-
-        _targetQuat.normalize();
-    }
-
-    function handleKeyDown(event: KeyboardEvent) {
-        switch (event.code) {
-            case 'KeyW': {
-                _targetPos.z += .1;
-
-                break;
-            }
-
-            case 'KeyS': {
-                _targetPos.z -= .1;
-
-                break;
-            }
-
-            case 'KeyA': {
-                _targetPos.x -= .1;
-
-                break;
-            }
-
-            case 'KeyD': {
-                _targetPos.x += .1;
-
-                break;
-            }
-        }
-    }
+    cameraNode.transform.update();
 
     function handleCanvasResize() {
         if (depthTexture) {
@@ -259,12 +207,8 @@
         t1 = performance.now();
 
         const deltaTime = (t1 - t0) / 1000;
-        // const smoothFactor = 1 - Math.exp(-12 * deltaTime);
 
         camera.setAspectRatio(canvasElement.width / canvasElement.height);
-
-        // cameraNode.transform.position.lerp(_targetPos, smoothFactor);
-        // cameraNode.transform.rotation.slerp(_targetQuat, smoothFactor);
 
         rootNode.update(deltaTime);
 
@@ -301,16 +245,23 @@
             format: GPUContext.preferredFormat,
         });
 
+        const flyBehavior = new FlyBehavior(canvasElement);
+        const lookBehavior = new LookBehavior(canvasElement);
+
         cameraController = new TransformController();
-        cameraController.attachTo(cameraNode);
+
+        cameraController
+            .attachTo(cameraNode)
+            .addBehavior(flyBehavior)
+            .addBehavior(lookBehavior);
+        
+        console.log(lookBehavior);
 
         rafId = requestAnimationFrame(loop);
     });
 
     onDestroy(() => {
         canvasElement.removeEventListener('resize', handleCanvasResize);
-        canvasElement.removeEventListener('pointermove', handlerPointerMove);
-        window.removeEventListener('keydown', handleKeyDown);
 
         cancelAnimationFrame(rafId)}
     );

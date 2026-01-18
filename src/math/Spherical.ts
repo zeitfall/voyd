@@ -61,7 +61,7 @@ class Spherical {
 			return this.reset();
 		}
 
-		const theta = Math.atan2(x, -z);
+		const theta = Math.atan2(x, z);
 		const phi = Math.asin(clamp(y / this.radius, -1, 1));
 
 		return this.set(radius, theta, phi);
@@ -79,11 +79,11 @@ class Spherical {
 		);
 	}
 
-	lerp(spherical: Spherical, fraction: number) {
+	lerp(spherical: Spherical, factor: number) {
 		return this.set(
-			lerp(this.radius, spherical.radius, fraction),
-			lerp(this.theta, spherical.theta, fraction),
-			lerp(this.phi, spherical.phi, fraction),
+			lerp(this.radius, spherical.radius, factor),
+			lerp(this.theta, spherical.theta, factor),
+			lerp(this.phi, spherical.phi, factor),
 		);
 	}
 

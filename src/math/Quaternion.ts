@@ -39,8 +39,8 @@ class Quaternion {
 		return quaternionA.clone().premultiply(quaternionB);
 	}
 
-	static slerp(quaternionA: Quaternion, quaternionB: Quaternion, fraction: number) {
-		return quaternionA.clone().slerp(quaternionB, fraction);
+	static slerp(quaternionA: Quaternion, quaternionB: Quaternion, factor: number) {
+		return quaternionA.clone().slerp(quaternionB, factor);
 	}
 
 	static normalize(quaternion: Quaternion) {
@@ -388,8 +388,8 @@ class Quaternion {
 		return this.multiply(quaternion, true);
 	}
 
-	slerp(quaternion: Quaternion, fraction: number) {
-		const t = clamp(fraction, 0, 1);
+	slerp(quaternion: Quaternion, factor: number) {
+		const t = clamp(factor, 0, 1);
 
 		const q0x = this.x;
 		const q0y = this.y;
