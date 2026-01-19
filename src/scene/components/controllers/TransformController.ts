@@ -1,7 +1,7 @@
 import { Vector3, Quaternion } from '~/math';
 import { SceneComponent, SceneNode } from '~/scene';
 
-import type { TransformBehavior } from '~/behaviors';
+import type { TransformBehavior } from './behaviors';
 
 interface TransformControllerContext {
     targetPosition: Vector3;

@@ -1,25 +1,11 @@
-import Vector from './Vector';
-import Vector2 from './Vector2';
-import Vector3 from './Vector3';
-import Vector4 from './Vector4';
-import Polar from './Polar';
-import Spherical from './Spherical';
-import Quaternion from './Quaternion';
-import Matrix from './Matrix';
-import Matrix2 from './Matrix2';
-import Matrix3 from './Matrix3';
-import Matrix4 from './Matrix4';
-
-export {
-	Vector,
-	Vector2,
-	Vector3,
-	Vector4,
-	Polar,
-	Spherical,
-	Quaternion,
-	Matrix,
-	Matrix2,
-	Matrix3,
-	Matrix4
-};
+export { default as Vector } from './Vector';
+export { default as Vector2 } from './Vector2';
+export { default as Vector3 } from './Vector3';
+export { default as Vector4 } from './Vector4';
+export { default as Polar } from './Polar';
+export { default as Spherical } from './Spherical';
+export { default as Quaternion } from './Quaternion';
+export { default as Matrix } from './Matrix';
+export { default as Matrix2 } from './Matrix2';
+export { default as Matrix3 } from './Matrix3';
+export { default as Matrix4 } from './Matrix4';

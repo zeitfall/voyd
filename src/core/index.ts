@@ -1,9 +1,3 @@
-import GPUContext from './GPUContext';
-import Instance from './Instance';
-import RenderBundle from './RenderBundle';
-
-export {
-    GPUContext,
-    Instance,
-    RenderBundle
-};
+export { default as GPUContext } from './GPUContext';
+export { default as Instance } from './Instance';
+export { default as RenderBundle } from './RenderBundle';

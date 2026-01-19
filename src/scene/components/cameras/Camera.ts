@@ -1,7 +1,8 @@
+import SceneComponent from '../SceneComponent';
+
 import { GPUContext } from '~/core';
 import { UniformBuffer } from '~/buffers';
 import { Matrix4 } from '~/math';
-import { SceneComponent } from '~/scene';
 
 abstract class Camera extends SceneComponent {
     #viewMatrix: Matrix4;

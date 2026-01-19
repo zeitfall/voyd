@@ -1,8 +1,8 @@
 import TransformBehavior from './TransformBehavior';
 
-import { Vector2, Vector3 } from '~/math';
+import { Vector3 } from '~/math';
 
-import type { TransformController } from '~/controllers';
+import type TransformController from '../TransformController';
 
 class FlyBehavior extends TransformBehavior {
     #abortController: AbortController | null;
@@ -64,7 +64,7 @@ class FlyBehavior extends TransformBehavior {
             inputMovement
                 .scaleX(-1)
                 .multiplyByQuaternion(targetRotation)
-                .setLength(8 * deltaTime)
+                .setLength(4 * deltaTime)
                 .setY(0);
 
             desiredPosition.add(inputMovement);

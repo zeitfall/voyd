@@ -6,8 +6,7 @@ import { PI_OVER_TWO } from '~/constants';
 
 import { clamp, damp } from '~/utils';
 
-import type { TransformController } from '~/controllers';
-
+import type TransformController from '../TransformController';
 
 class LookBehavior extends TransformBehavior {
     #abortController: AbortController | null;

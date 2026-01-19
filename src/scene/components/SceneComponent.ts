@@ -1,4 +1,4 @@
-import SceneNode from './SceneNode';
+import SceneNode from '../SceneNode';
 
 // https://docs.unity3d.com/ScriptReference/Component.html
 abstract class SceneComponent {

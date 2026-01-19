@@ -1,5 +1,1 @@
-import Material from './Material';
-
-export {
-    Material
-};
+export { default as Material } from './Material';

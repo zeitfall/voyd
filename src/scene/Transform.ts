@@ -1,4 +1,4 @@
-import { Matrix4, Quaternion, Vector3 } from '~/math';
+import { Vector3, Quaternion, Matrix4 } from '~/math';
 
 class Transform {
     #position: Vector3;

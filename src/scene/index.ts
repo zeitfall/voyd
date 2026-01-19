@@ -1,11 +1,5 @@
-import Transform from './Transform';
-import SceneNode from './SceneNode';
-import SceneComponent from './SceneComponent';
-import Mesh from './Mesh';
+export { default as Transform } from './Transform';
+export { default as SceneNode } from './SceneNode';
+export { default as Mesh } from './Mesh';
 
-export {
-    Transform,
-    SceneNode,
-    SceneComponent,
-    Mesh
-};
+export * from './components';

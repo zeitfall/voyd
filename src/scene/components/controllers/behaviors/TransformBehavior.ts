@@ -1,4 +1,4 @@
-import type { TransformController } from '~/controllers';
+import type TransformController from '../TransformController';
 
 abstract class TransformBehavior {
     #controller: TransformController | null;

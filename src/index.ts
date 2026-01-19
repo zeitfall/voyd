@@ -8,12 +8,6 @@ export * from './geometries';
 
 export * from './scene';
 
-export * from './cameras';
-
-export * from './behaviors';
-
-export * from './controllers';;
-
 export * from './utils';
 
 export * from './assertions';

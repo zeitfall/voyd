@@ -255,8 +255,6 @@
             .addBehavior(flyBehavior)
             .addBehavior(lookBehavior);
         
-        console.log(lookBehavior);
-
         rafId = requestAnimationFrame(loop);
     });
 
