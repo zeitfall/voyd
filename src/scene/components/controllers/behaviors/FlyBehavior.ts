@@ -2,7 +2,10 @@ import TransformBehavior from './TransformBehavior';
 
 import { Vector3 } from '~/math';
 
+import { EPSILON_4 } from '~/constants';
+
 import type TransformController from '../TransformController';
+import type { TransformControllerBinding } from '~/enums';
 
 class FlyBehavior extends TransformBehavior {
     #abortController: AbortController | null;
@@ -27,8 +30,8 @@ class FlyBehavior extends TransformBehavior {
         return this.#pointerIds.size;
     }
 
-    override attachTo(controller: TransformController) {
-        super.attachTo(controller);
+    override attachTo(binding: TransformControllerBinding, controller: TransformController) {
+        super.attachTo(binding, controller);
 
         this.#desiredPosition.copy(controller.context.targetPosition);
         this.#initEventListeners();
@@ -48,11 +51,11 @@ class FlyBehavior extends TransformBehavior {
         }
     }
 
-    update(deltaTime: number) {
+    update(deltaTime: number, active: boolean) {
         const controller = this.controller;
 
         if (!controller) {
-            return;
+            return true;
         }
 
         const { targetPosition, targetRotation } = controller.context;
@@ -60,7 +63,7 @@ class FlyBehavior extends TransformBehavior {
         const inputMovement = this.#inputMovement;
         const desiredPosition = this.#desiredPosition;
 
-        if (inputMovement.lengthSquared > 0) {
+        if (active && inputMovement.lengthSquared > 0) {
             inputMovement
                 .scaleX(-1)
                 .multiplyByQuaternion(targetRotation)
@@ -73,6 +76,14 @@ class FlyBehavior extends TransformBehavior {
         }
 
         targetPosition.damp(desiredPosition, 8, deltaTime);
+
+        const hasPositionReached = targetPosition.equals(desiredPosition, EPSILON_4);
+
+        if (!active && hasPositionReached) {
+            return true;
+        }
+
+        return false
     }
 
     #initEventListeners() {

@@ -2,11 +2,12 @@ import TransformBehavior from './TransformBehavior';
 
 import { Vector2, Vector3, Spherical, Quaternion } from '~/math';
 
-import { PI_OVER_TWO } from '~/constants';
-
 import { clamp, damp } from '~/utils';
 
+import { PI_OVER_TWO, EPSILON_4 } from '~/constants';
+
 import type TransformController from '../TransformController';
+import type { TransformControllerBinding } from '~/enums';
 
 class LookBehavior extends TransformBehavior {
     #abortController: AbortController | null;
@@ -49,7 +50,7 @@ class LookBehavior extends TransformBehavior {
         this.minPitchAngle = -PI_OVER_TWO + Number.EPSILON;
         this.maxPitchAngle = PI_OVER_TWO - Number.EPSILON;
 
-        this.lookSensitivity = 8;
+        this.lookSensitivity = 4;
         this.lookSharpness = 16;
     }
 
@@ -117,8 +118,8 @@ class LookBehavior extends TransformBehavior {
         return this;
     }
 
-    override attachTo(controller: TransformController) {
-        super.attachTo(controller);
+    override attachTo(binding: TransformControllerBinding, controller: TransformController) {
+        super.attachTo(binding, controller);
 
         const controllerNode = controller.node;
 
@@ -152,11 +153,11 @@ class LookBehavior extends TransformBehavior {
         }
     }
 
-    update(deltaTime: number) {
+    update(deltaTime: number, active: boolean) {
         const controller = this.controller;
 
         if (!controller) {
-            return;
+            return true;
         }
 
         const { targetRotation } = controller.context;
@@ -165,7 +166,7 @@ class LookBehavior extends TransformBehavior {
         const yawQuaternion = this.#yawQuaternion;
         const pitchQuaternion = this.#pitchQuaternion;
 
-        if (inputMovement.lengthSquared > 0) {
+        if (active && inputMovement.lengthSquared > 0) {
             inputMovement.setLength(this.lookSensitivity * deltaTime);
 
             this.yawAngle += inputMovement.x;
@@ -190,6 +191,15 @@ class LookBehavior extends TransformBehavior {
             .copy(this.#yawQuaternion)
             .multiply(this.#pitchQuaternion)
             .normalize();
+        
+        const hasRotationReached = Math.abs(this.#currentYawAngle - this.#targetYawAngle) <= EPSILON_4
+            && Math.abs(this.#currentPitchAngle - this.#targetPitchAngle) <= EPSILON_4;
+
+        if (!active && hasRotationReached) {
+            return true;
+        }
+
+        return false;
     }
 
     #initEventListeners() {

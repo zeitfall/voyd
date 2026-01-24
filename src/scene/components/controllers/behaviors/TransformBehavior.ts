@@ -1,4 +1,5 @@
 import type TransformController from '../TransformController';
+import type { TransformControllerBinding } from '~/enums';
 
 abstract class TransformBehavior {
     #controller: TransformController | null;
@@ -11,7 +12,7 @@ abstract class TransformBehavior {
         return this.#controller;
     }
 
-    attachTo(controller: TransformController) {
+    attachTo(binding: TransformControllerBinding, controller: TransformController) {
         const currentController = this.#controller;
 
         if (currentController && currentController !== controller) {
@@ -20,7 +21,7 @@ abstract class TransformBehavior {
 
         this.#controller = controller;
 
-        controller.addBehavior(this);
+        controller.addBehavior(binding, this);
 
         return this;
     }
@@ -35,7 +36,7 @@ abstract class TransformBehavior {
         }
     }
 
-    abstract update(deltaTime: number): void;
+    abstract update(deltaTime: number, active: boolean): boolean;
 }
 
 export default TransformBehavior;

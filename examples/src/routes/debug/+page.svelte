@@ -14,7 +14,8 @@
         PerspectiveCamera,
         TransformController,
         FlyBehavior,
-        LookBehavior
+        LookBehavior,
+        TransformControllerBinding
     } from 'voyd';
 
     import { CanvasResizer } from '$lib/services';
@@ -234,8 +235,7 @@
 
     onMount(() => {
         canvasElement.addEventListener('resize', handleCanvasResize);
-        // canvasElement.addEventListener('pointermove', handlerPointerMove);
-        // window.addEventListener('keydown', handleKeyDown);
+        canvasElement.addEventListener('contextmenu', (event) => event.preventDefault());
 
         canvasContext = canvasElement.getContext('webgpu');
         canvasResizer = new CanvasResizer(canvasElement);
@@ -248,12 +248,24 @@
         const flyBehavior = new FlyBehavior(canvasElement);
         const lookBehavior = new LookBehavior(canvasElement);
 
-        cameraController = new TransformController();
+        cameraController = new TransformController(canvasElement);
 
         cameraController
             .attachTo(cameraNode)
-            .addBehavior(flyBehavior)
-            .addBehavior(lookBehavior);
+            .addBehavior(
+                // TransformControllerBinding.POINTER_LMB
+                TransformControllerBinding.POINTER_MOVE
+                | TransformControllerBinding.TOUCHES_1,
+                flyBehavior
+            )
+            .addBehavior(
+                // TransformControllerBinding.POINTER_RMB
+                TransformControllerBinding.POINTER_MOVE
+                | TransformControllerBinding.TOUCHES_2,
+                lookBehavior
+            );
+
+        console.log(cameraController);
         
         rafId = requestAnimationFrame(loop);
     });
@@ -263,6 +275,36 @@
 
         cancelAnimationFrame(rafId)}
     );
+
+    // const MASK_A = 1 << 1; // 0000 0010
+    // const MASK_B = 1 << 2; // 0000 0100
+    // const MASK_C = 1 << 3; // 0000 1000
+    // const MASK_D = 1 << 4; // 0001 0000
+
+    // // 0000 0100
+    // //     |
+    // // 0001 0000
+    // //     =
+    // // 0001 0100
+    // const MASK_E = MASK_B | MASK_D;
+
+    // console.log(MASK_E & MASK_B);
+    // console.log(MASK_E & MASK_D);
+    // console.log(MASK_E & MASK_C);
+    
+    // // 0001 0100
+    // //     &
+    // // 1111 1011
+    // //     =
+    // // 0001 0000
+    // const MASK_F = MASK_E & (~MASK_B);
+
+    // // console.log(MASK_A);
+    // // console.log(MASK_B);
+    // // console.log(MASK_C);
+    // // console.log(MASK_D);
+    // // console.log(MASK_E);
+    // // console.log(MASK_F);
 </script>
 
 <canvas bind:this={canvasElement}></canvas>
