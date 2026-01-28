@@ -15,7 +15,11 @@
         TransformController,
         FlyBehavior,
         LookBehavior,
-        TransformControllerBinding
+        TransformControllerBinding,
+        InputManager,
+        InputLayer,
+        InputActionValueType,
+        InputActionFactory
     } from 'voyd';
 
     import { CanvasResizer } from '$lib/services';
@@ -305,6 +309,20 @@
     // // console.log(MASK_D);
     // // console.log(MASK_E);
     // // console.log(MASK_F);
+
+    const gameInputLayer = new InputLayer('Game');
+    const moveAction = InputActionFactory.createAction('Move', InputActionValueType.SCALAR);
+
+    moveAction.value += 1;
+    moveAction.value += 2;
+    moveAction.value += 3;
+    moveAction.value += 4;
+
+    moveAction.attachTo(gameInputLayer);
+    InputManager.addLayer(gameInputLayer);
+
+    console.log(InputManager.getAction('Game/Move'));
+    console.log(InputManager.prototype);
 </script>
 
 <canvas bind:this={canvasElement}></canvas>
