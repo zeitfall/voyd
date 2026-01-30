@@ -25,7 +25,6 @@
 		"emitDeclarationOnly": true,
 
 		// Stricter Typechecking Options
-		"strictNullChecks": true,
 		"noUncheckedIndexedAccess": false,
 		"exactOptionalPropertyTypes": true,
 

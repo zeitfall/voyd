@@ -8,8 +8,6 @@ export * from './geometries';
 
 export * from './scene';
 
-export * from './input';
-
 export * from './utils';
 
 export * from './assertions';
