@@ -1,38 +1,37 @@
 import type { GPUContextConfig } from '~/types';
 
 class GPUContext {
-	static #gpu: GPU;
-	static #adapter: GPUAdapter;
-	static #device: GPUDevice;
-	static #preferredFormat: GPUTextureFormat;
+	#gpu: GPU | null;
+	#adapter: GPUAdapter | null;
+	#device: GPUDevice | null;
+	#preferredFormat: GPUTextureFormat | null;
 
-	static get gpu() {
-		return GPUContext.#gpu;
+	constructor() {
+		this.#gpu = null;
+		this.#adapter = null;
+		this.#device = null;
+		this.#preferredFormat = null;
 	}
 
-	static get adapter() {
-		return GPUContext.#adapter;
+	get gpu() {
+		return this.#gpu;
 	}
 
-	static get device() {
-		return GPUContext.#device;
+	get adapter() {
+		return this.#adapter;
 	}
 
-	static get preferredFormat() {
-		return GPUContext.#preferredFormat;
+	get device() {
+		return this.#device;
 	}
 
-	static get limits() {
-		return GPUContext.device.limits;
+	get preferredFormat() {
+		return this.#preferredFormat;
 	}
 
-	static get features() {
-		return GPUContext.device.features;
-	}
-
-	static async init(config?: Partial<GPUContextConfig>) {
+	async init(config?: Partial<GPUContextConfig>) {
 		try {
-			if (GPUContext.gpu && GPUContext.adapter && GPUContext.device) {
+			if (this.gpu && this.adapter && this.device) {
 				throw new Error('[GPUContext]: Device has already been initialized.');
 			}
 
@@ -48,7 +47,7 @@ class GPUContext {
 				this.#device = device;
 				this.#preferredFormat = preferredFormat;
 
-				GPUContext.#handleDeviceLost();
+				this.#handleDeviceLost();
 			}
 		}
 		catch (error) {
@@ -58,12 +57,8 @@ class GPUContext {
 		}
 	}
 
-	static hasFeature(name: GPUFeatureName) {
-		return GPUContext.features.has(name);
-	}
-
-	static async #handleDeviceLost() {
-		const { device } = GPUContext;
+	async #handleDeviceLost() {
+		const { device } = this;
 
 		if (device) {
 			const { reason, message } = await device.lost;
@@ -75,10 +70,8 @@ class GPUContext {
 			}
 		}
 	}
-
-	private constructor() {
-		throw new Error('[GPUContext]: This class is not constructable. Please, consider using GPUContext.init() instead.');
-	}
 }
 
-export default GPUContext;
+const gpuContextInstance = new GPUContext();
+
+export default gpuContextInstance;
