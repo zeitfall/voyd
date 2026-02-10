@@ -72,13 +72,15 @@
     enum Route {
         Home = '/',
         Debug = '/debug',
-        SceneNodes = '/scene-nodes'
+        SceneNodes = '/scene-nodes',
+        InputManager = '/input-manager'
     };
 
     const ROUTE_LABELS_MAP = {
         [Route.Home]: 'Voyd',
         [Route.Debug]: 'Debug',
         [Route.SceneNodes]: 'Scene Nodes',
+        [Route.InputManager]: 'Input Manager'
     } as const;
 
     const navigationRoutePaths = $derived(Object.values(Route).filter((route) => route !== Route.Home));

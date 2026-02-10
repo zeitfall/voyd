@@ -273,8 +273,8 @@
     onDestroy(() => {
         canvasElement.removeEventListener('resize', handleCanvasResize);
 
-        cancelAnimationFrame(rafId)}
-    );
+        cancelAnimationFrame(rafId);
+    });
 
     // const MASK_A = 1 << 1; // 0000 0010
     // const MASK_B = 1 << 2; // 0000 0100

@@ -1,12 +1,4 @@
 <style>
-    main {
-        max-width: 48em;
-        height: 100%;
-        margin-inline: auto;
-        padding: 4em 1em;
-        font-size: .75em;
-    }
-
     main > p {
         margin-bottom: .5em;
         font-size: 1.5em;

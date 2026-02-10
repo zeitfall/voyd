@@ -22,16 +22,33 @@
 	:global(body) {
 		height: 100%;
 		overflow: hidden;
+		touch-action: none;
+	}
+
+	:global(main) {
+        max-width: 48em;
+        height: 100%;
+        margin-inline: auto;
+        padding: 4em 1em;
+        font-size: .75em;
+    }
+
+	p {
+		font-weight: bold;
 	}
 </style>
 
 <Header />
 
 {#await GPUContext.init()}
-	<p>Initializing GPU...</p>
+	<main>
+		<p>Initializing GPU...</p>
+	</main>
 {:then}
 	{@render children()}
 {:catch error}
-	<p>An error occured, while initializing GPU.</p>
-	<code>{error}</code>
+	<main>
+		<p>An error occured, while initializing GPU.</p>
+		<code>{error}</code>
+	</main>
 {/await}
