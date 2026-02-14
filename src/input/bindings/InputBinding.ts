@@ -1,10 +1,14 @@
-import type InputControl from './InputControl';
+import InputControl from './InputControl';
 
-abstract class InputBinding {
+import type { InputControlReference } from '~/types';
+
+class InputBinding {
     #control: InputControl;
 
-    constructor(control: InputControl) {
-        this.#control = control;
+    constructor(descriptor: InputControlReference) {
+        const { deviceType, key } = descriptor;
+
+        this.#control = new InputControl(deviceType, key);
     }
 
     get control() {

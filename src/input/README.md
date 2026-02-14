@@ -25,6 +25,7 @@ InputControlType.VECTOR_2 :
 InputControlType.VECTOR_3 :
 
     - InputBinding : <Device/Path>; // Ex. Gyroscope rotation.
+
     - InputAxis3DBinding :
         - Left     : InputControl : <Device/Path>;
         - Right    : InputControl : <Device/Path>;

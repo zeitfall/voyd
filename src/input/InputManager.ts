@@ -11,6 +11,14 @@ class InputManager {
         this.#actions = new Map();
     }
 
+    getDevice(type: InputDeviceType) {
+        return this.#devices.get(type);
+    }
+
+    hasDevice(type: InputDeviceType) {
+        return this.#devices.has(type);
+    }
+
     registerDevice(device: InputDevice) {
         const deviceType = device.type;
         const hasDeviceRegistered = this.#devices.has(deviceType);
@@ -48,6 +56,14 @@ class InputManager {
         this.#actions.set(action.name, action);
 
         return this;
+    }
+
+    removeAction(name: string) {
+        this.#actions.delete(name);
+    }
+
+    hasAction(name: string) {
+        return this.#actions.has(name);
     }
 
     update() {

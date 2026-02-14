@@ -2,9 +2,9 @@ import type { InputDeviceType } from '~/enums';
 
 class InputControl {
     #deviceType: InputDeviceType;
-    #key: string;
+    #key: unknown;
 
-    constructor(deviceType: InputDeviceType, key: string) {
+    constructor(deviceType: InputDeviceType, key: unknown) {
         this.#deviceType = deviceType;
         this.#key = key;
     }
