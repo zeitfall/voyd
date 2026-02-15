@@ -15,7 +15,15 @@ import type {
     InputActionContinuousEvaluator,
     InputActionAxisEvaluator,
     InputActionVector2Evaluator,
-    InputActionVector3Evaluator
+    InputActionVector3Evaluator,
+    InputNumberClampProcessor,
+    InputNumberNormalizeProcessor,
+    InputNumberScaleProcessor,
+    InputNumberInvertProcessor,
+    InputVectorNormalizeProcessor,
+    InputVectorScaleProcessor,
+    InputVector2InvertProcessor,
+    InputVector3InvertProcessor
 } from '~/input';
 
 import type { InputDeviceType, InputControlType, MouseButton } from '~/enums';
@@ -81,6 +89,28 @@ export interface InputActionEvaluatorMap {
     [InputControlType.AXIS]: InputActionAxisEvaluator;
     [InputControlType.VECTOR_2]: InputActionVector2Evaluator;
     [InputControlType.VECTOR_3]: InputActionVector3Evaluator;
+}
+
+export interface InputProcessor<V = unknown> {
+    process(value: V): V;
+}
+
+export type InputNumberProcessor =
+    | InputNumberClampProcessor
+    | InputNumberNormalizeProcessor
+    | InputNumberScaleProcessor
+    | InputNumberInvertProcessor;
+
+export type InputVectorProcessor =
+    | InputVectorNormalizeProcessor
+    | InputVectorScaleProcessor;
+
+export interface InputProcessorMap {
+    [InputControlType.DISCRETE]: InputNumberProcessor;
+    [InputControlType.CONTINUOUS]: InputNumberProcessor;
+    [InputControlType.AXIS]: InputNumberProcessor;
+    [InputControlType.VECTOR_2]: InputVectorProcessor | InputVector2InvertProcessor;
+    [InputControlType.VECTOR_3]: InputVectorProcessor | InputVector3InvertProcessor;
 }
 
 export type InputAxis1DDirection = 'positive' | 'negative';

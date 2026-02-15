@@ -7,7 +7,8 @@ import type {
     InputActionValueMap,
     InputActionEvaluator,
     InputActionEvaluatorMap,
-    InputBindingMap
+    InputBindingMap,
+    InputProcessorMap
 } from '~/types';
 
 class InputActionState<C extends InputControlType> {
@@ -25,13 +26,22 @@ class InputActionState<C extends InputControlType> {
         return this.#value;
     }
 
-    update(devices: InputDeviceMap, bindings: Set<InputBindingMap[C]>) {
+    update(
+        devices: InputDeviceMap,
+        bindings: ReadonlySet<InputBindingMap[C]>,
+        processors: ReadonlySet<InputProcessorMap[C]>
+    ) {
         const evaluator = this.#evaluator as unknown as InputActionEvaluator<C>;
 
         this.#value = evaluator.reset(this.#value);
 
         bindings.forEach((binding) => {
-            const newValue = evaluator.evaluate(devices, binding, this.#tempValue);
+            let newValue = evaluator.evaluate(devices, binding, this.#tempValue);
+
+            processors.forEach((processor) => {
+                // @ts-expect-error Argument of type 'number | Vector2 | Vector3' is not assignable to parameter of type 'number & Vector & Vector2 & Vector3'.
+                newValue = processor.process(newValue);
+            });
 
             this.#value = evaluator.resolve(this.#value, newValue);
         });

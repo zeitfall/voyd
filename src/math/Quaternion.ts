@@ -442,11 +442,13 @@ class Quaternion {
 	}
 
 	divideByScalar(scalar: number) {
+		let _scalar = scalar;
+
 		if (Math.abs(scalar) < Number.EPSILON) {
-			throw new Error('[Quaternion]: Cannot divide by zero.');
+			_scalar = 1;
 		}
 
-		return this.multiplyByScalar(1 / scalar);
+		return this.multiplyByScalar(1 / _scalar);
 	}
 
 	normalize() {

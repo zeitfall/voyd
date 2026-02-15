@@ -121,15 +121,17 @@ abstract class Vector {
 	}
 
 	divideByScalar(scalar: number) {
+		let _scalar = scalar;
+
 		if (Math.abs(scalar) < Number.EPSILON) {
-			throw new Error('[Vector]: Division by zero.');
+			_scalar = 1;
 		}
 
-		return this.multiplyByScalar(1 / scalar);
+		return this.multiplyByScalar(1 / _scalar);
 	}
 
 	normalize() {
-		return this.divideByScalar(this.length);
+		return this.divideByScalar(this.length || 1);
 	}
 
 	negate() {
