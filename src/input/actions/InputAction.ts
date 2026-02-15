@@ -2,24 +2,22 @@ import InputActionStateFactory from './InputActionStateFactory';
 
 import { InputControlType } from '~/enums';
 
-import type {
-	InputDeviceMap,
-	InputActionStateDictionary,
-	InputBindingDictionary
-} from '~/types';
+import type InputActionState from './InputActionState';
+import type { InputDeviceMap, InputBindingMap } from '~/types';
 
 class InputAction<
 	C extends InputControlType = InputControlType.DISCRETE,
-	B extends InputBindingDictionary[C] = InputBindingDictionary[C]	
+	B extends InputBindingMap[C] = InputBindingMap[C]	
 > {
 	#name: string;
 	#controlType: C;
-	#state: InputActionStateDictionary[C];
+	#state: InputActionState<C>;
 	#bindings: Set<B>;
 
 	constructor(name: string, controlType: C) {
 		this.#name = name;
 		this.#controlType = controlType;
+		// @ts-expect-error Type 'InputActionStateMap[C]' is not assignable to type 'InputActionState<C>'.
 		this.#state = InputActionStateFactory.create(controlType);
 		this.#bindings = new Set();
 	}
@@ -47,7 +45,6 @@ class InputAction<
 	}
 
 	update(devices: InputDeviceMap) {
-		// @ts-expect-error Argument of type 'Set<B>' is not assignable to parameter of type 'Set<InputBinding>'.
 		this.#state.update(devices, this.#bindings);
 	}
 }

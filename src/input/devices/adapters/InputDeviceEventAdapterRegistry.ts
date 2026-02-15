@@ -11,14 +11,36 @@ class InputDeviceEventAdapterRegistry {
     #adapters: Map<InputDeviceType, InputDeviceEventAdapter>;
 
     constructor() {
-        const adapters = new Map();
+        this.#adapters = new Map();
 
-        adapters.set(InputDeviceType.KEYBOARD, KeyboardEventAdapter);
-        adapters.set(InputDeviceType.POINTER, PointerEventAdapter);
-        adapters.set(InputDeviceType.GAMEPAD, GamepadEventAdapter);
-        adapters.set(InputDeviceType.GYROSCOPE, GyroscopeEventAdapter);
+        this.register(InputDeviceType.KEYBOARD, KeyboardEventAdapter)
+            .register(InputDeviceType.POINTER, PointerEventAdapter)
+            .register(InputDeviceType.GAMEPAD, GamepadEventAdapter)
+            .register(InputDeviceType.GYROSCOPE, GyroscopeEventAdapter);
+    }
 
-        this.#adapters = adapters;
+    register(deviceType: InputDeviceType, adapter: InputDeviceEventAdapter) {
+        const adapters = this.#adapters;
+
+        if (adapters.has(deviceType)) {
+            throw new Error(`[InputDeviceEventAdapterRegistry]: Event adapter for device type "${deviceType}" has already been registered.`);
+        }
+
+        adapters.set(deviceType, adapter);
+
+        return this;
+    }
+
+    unregister(deviceType: InputDeviceType) {
+        const adapters = this.#adapters;
+
+        const adapter = adapters.get(deviceType);
+
+        if (!adapter) {
+            throw new Error(`[InputDeviceEventAdapterRegistry]: Cannot unregister. Event adapter for device type "${deviceType}" was not found.`);
+        }
+
+        adapters.delete(deviceType);
     }
 
     get(deviceType: InputDeviceType) {

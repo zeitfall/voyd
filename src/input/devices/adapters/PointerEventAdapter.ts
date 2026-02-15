@@ -20,7 +20,7 @@ class PointerEventAdapter implements InputDeviceEventAdapter<InputDeviceType.POI
             outValue.set(movementX, movementY);
         }
         else if (outValue instanceof Vector3) {
-            outValue.set(movementX, movementY, 0);
+            outValue.set(movementX, 0, movementY);
         }
 
         return outValue;
@@ -33,7 +33,7 @@ class PointerEventAdapter implements InputDeviceEventAdapter<InputDeviceType.POI
             outValue.set(clientX, clientY);
         }
         else if (outValue instanceof Vector3) {
-            outValue.set(clientX, clientY, 0);
+            outValue.set(clientX, 0, clientY);
         }
 
         return outValue;

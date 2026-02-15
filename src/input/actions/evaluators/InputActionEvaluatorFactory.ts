@@ -6,26 +6,26 @@ import InputActionVector3Evaluator from './InputActionVector3Evaluator';
 
 import { InputControlType } from '~/enums';
 
-import type { InputActionEvaluatorDictionary } from '~/types';
+import type { InputActionEvaluatorMap } from '~/types';
 
 class InputActionEvaluatorFactory {
 
     static create<C extends InputControlType>(controlType: C) {
         switch (controlType) {
             case InputControlType.DISCRETE:
-                return new InputActionDiscreteEvaluator() as InputActionEvaluatorDictionary[C];
+                return new InputActionDiscreteEvaluator() as InputActionEvaluatorMap[C];
 
             case InputControlType.CONTINUOUS:
-                return new InputActionContinuousEvaluator() as InputActionEvaluatorDictionary[C];
+                return new InputActionContinuousEvaluator() as InputActionEvaluatorMap[C];
 
             case InputControlType.AXIS:
-                return new InputActionAxisEvaluator() as InputActionEvaluatorDictionary[C];
+                return new InputActionAxisEvaluator() as InputActionEvaluatorMap[C];
 
             case InputControlType.VECTOR_2:
-                return new InputActionVector2Evaluator() as InputActionEvaluatorDictionary[C];
+                return new InputActionVector2Evaluator() as InputActionEvaluatorMap[C];
 
             case InputControlType.VECTOR_3:
-                return new InputActionVector3Evaluator as InputActionEvaluatorDictionary[C];
+                return new InputActionVector3Evaluator as InputActionEvaluatorMap[C];
 
             default:
                 throw new Error(`[InputActionValueFactory]: Unsupported control type. Control with type "${controlType}" was given.`);

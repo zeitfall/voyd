@@ -4,16 +4,16 @@ import { InputControlType } from '~/enums';
 
 import type {
     InputDeviceMap,
-    InputActionValueDictionary,
+    InputActionValueMap,
     InputActionEvaluator,
-    InputActionEvaluatorDictionary,
-    InputBindingDictionary
+    InputActionEvaluatorMap,
+    InputBindingMap
 } from '~/types';
 
 class InputActionState<C extends InputControlType> {
-    #value: InputActionValueDictionary[C];
-    #tempValue: InputActionValueDictionary[C];
-    #evaluator: InputActionEvaluatorDictionary[C];
+    #value: InputActionValueMap[C];
+    #tempValue: InputActionValueMap[C];
+    #evaluator: InputActionEvaluatorMap[C];
 
     constructor(controlType: C) {
         this.#value = InputActionValueFactory.create(controlType);
@@ -25,7 +25,7 @@ class InputActionState<C extends InputControlType> {
         return this.#value;
     }
 
-    update(devices: InputDeviceMap, bindings: Set<InputBindingDictionary[C]>) {
+    update(devices: InputDeviceMap, bindings: Set<InputBindingMap[C]>) {
         const evaluator = this.#evaluator as unknown as InputActionEvaluator<C>;
 
         this.#value = evaluator.reset(this.#value);
