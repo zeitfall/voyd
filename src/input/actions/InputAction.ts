@@ -5,16 +5,12 @@ import { InputControlType } from '~/enums';
 import type InputActionState from './InputActionState';
 import type { InputDeviceMap, InputBindingMap, InputProcessorMap } from '~/types';
 
-class InputAction<
-	C extends InputControlType,
-	B extends InputBindingMap[C] = InputBindingMap[C],
-	P extends InputProcessorMap[C] = InputProcessorMap[C]
-> {
+class InputAction<C extends InputControlType> {
 	#name: string;
 	#controlType: C;
 	#state: InputActionState<C>;
-	#bindings: Set<B>;
-	#processors: Set<P>;
+	#bindings: Set<InputBindingMap[C]>;
+	#processors: Set<InputProcessorMap[C]>;
 
 	constructor(name: string, controlType: C) {
 		this.#name = name;
@@ -37,20 +33,12 @@ class InputAction<
 		return this.#state.value;
 	}
 
-	get bindings(): ReadonlySet<B> {
+	get bindings() {
 		return this.#bindings;
 	}
 
-	addBinding(binding: B) {
-		this.#bindings.add(binding);
-
-		return this;
-	}
-
-	addProcessor(processor: P) {
-		this.#processors.add(processor);
-	
-		return this;
+	get processors() {
+		return this.#processors;
 	}
 
 	update(devices: InputDeviceMap) {

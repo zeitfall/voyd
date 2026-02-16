@@ -10,8 +10,10 @@
         InputAxis2DBinding,
         InputAxis3DBinding,
         InputControlType,
-        InputBinding,
+        InputSingleBinding,
         MouseButton,
+        InputVectorNormalizeProcessor,
+        InputVector3InvertProcessor,
 	} from 'voyd';
 
 	const keyboardDevice = new KeyboardDevice();
@@ -19,19 +21,18 @@
 
 	const jumpAction = new InputAction('Jump', InputControlType.CONTINUOUS);
 
-	const jumpActionMouseBinding = new InputBinding({ deviceType: InputDeviceType.POINTER, key: MouseButton.LMB });
-	const jumpActionTouchBinding = new InputBinding({ deviceType: InputDeviceType.POINTER, key: 'Touch0' });
-	const jumpActionKeyboardBinding = new InputBinding({ deviceType: InputDeviceType.KEYBOARD, key: 'Space' });
+	const jumpActionMouseBinding = new InputSingleBinding({ deviceType: InputDeviceType.POINTER, key: MouseButton.LMB });
+	const jumpActionTouchBinding = new InputSingleBinding({ deviceType: InputDeviceType.POINTER, key: 'Touch0' });
+	const jumpActionKeyboardBinding = new InputSingleBinding({ deviceType: InputDeviceType.KEYBOARD, key: 'Space' });
 
-	jumpAction
-		.addBinding(jumpActionMouseBinding)
-		.addBinding(jumpActionTouchBinding)
-		.addBinding(jumpActionKeyboardBinding);
+	jumpAction.bindings.add(jumpActionMouseBinding);
+	jumpAction.bindings.add(jumpActionTouchBinding);
+	jumpAction.bindings.add(jumpActionKeyboardBinding);
 
 	const moveAction = new InputAction('Move', InputControlType.VECTOR_3);
 
-	const moveActionMouseBinding = new InputBinding({ deviceType: InputDeviceType.POINTER, key: MouseButton.LMB });
-	const moveActionTouchBinding = new InputBinding({ deviceType: InputDeviceType.POINTER, key: 'Touch0' });
+	const moveActionMouseBinding = new InputSingleBinding({ deviceType: InputDeviceType.POINTER, key: MouseButton.LMB });
+	const moveActionTouchBinding = new InputSingleBinding({ deviceType: InputDeviceType.POINTER, key: 'Touch0' });
 	const moveActionWASDBinding = new InputAxis3DBinding({
 		left: [
 			{ deviceType: InputDeviceType.KEYBOARD, key: 'KeyA' },
@@ -58,10 +59,10 @@
 		]
 	});
 
-	moveAction
-		.addBinding(moveActionMouseBinding)
-		.addBinding(moveActionTouchBinding)
-		.addBinding(moveActionWASDBinding);
+	moveAction.bindings.add(moveActionMouseBinding);
+	moveAction.bindings.add(moveActionTouchBinding);
+	moveAction.bindings.add(moveActionWASDBinding);
+	moveAction.processors.add(new InputVectorNormalizeProcessor());
 
 	console.log('jumpAction', jumpAction);
 	console.log('moveAction', moveAction);

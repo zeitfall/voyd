@@ -1,15 +1,15 @@
 import { InputDeviceEventAdapterRegistry } from '../../devices';
-import { InputBinding, InputAxis1DBinding } from '../../bindings';
+import { InputSingleBinding, InputAxis1DBinding } from '../../bindings';
 
 import type { InputControlType } from '~/enums';
 import type { InputDeviceMap, InputActionEvaluator, InputControlMap } from '~/types';
 
 class InputActionAxisEvaluator implements InputActionEvaluator<InputControlType.AXIS> {
 
-    evaluate(devices: InputDeviceMap, binding: InputBinding | InputAxis1DBinding) {
+    evaluate(devices: InputDeviceMap, binding: InputSingleBinding | InputAxis1DBinding) {
 
-        if (binding instanceof InputBinding) {
-            return this.#handleInputBinding(devices, binding);
+        if (binding instanceof InputSingleBinding) {
+            return this.#handleInputSingleBinding(devices, binding);
         }
 
         if (binding instanceof InputAxis1DBinding) {
@@ -27,7 +27,7 @@ class InputActionAxisEvaluator implements InputActionEvaluator<InputControlType.
         return 0;
     }
 
-    #handleInputBinding(devices: InputDeviceMap, binding: InputBinding) {
+    #handleInputSingleBinding(devices: InputDeviceMap, binding: InputSingleBinding) {
         // // TBD
         // const control = binding.control;
         // const controlDeviceType = control.deviceType;

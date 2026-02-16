@@ -1,6 +1,6 @@
 import { Vector3 } from '~/math';
 import { InputDeviceEventAdapterRegistry } from '../../devices';
-import { InputBinding, InputAxis3DBinding } from '../../bindings';
+import { InputSingleBinding, InputAxis3DBinding } from '../../bindings';
 
 import type { InputControlType } from '~/enums';
 import type { InputDeviceMap, InputActionEvaluator, InputControlMap } from '~/types';
@@ -8,11 +8,11 @@ import type { InputDeviceMap, InputActionEvaluator, InputControlMap } from '~/ty
 class InputActionVector3Evaluator implements InputActionEvaluator<InputControlType.VECTOR_3> {
 
     // NOTE: I kinda dislike the 'tempValue' parameter approach, but let it be.
-    evaluate(devices: InputDeviceMap, binding: InputBinding | InputAxis3DBinding, tempValue: Vector3) {
+    evaluate(devices: InputDeviceMap, binding: InputSingleBinding | InputAxis3DBinding, tempValue: Vector3) {
         tempValue.reset();
 
-        if (binding instanceof InputBinding) {
-            this.#handleInputBinding(devices, binding, tempValue);
+        if (binding instanceof InputSingleBinding) {
+            this.#handleInputSingleBinding(devices, binding, tempValue);
         }
         else if (binding instanceof InputAxis3DBinding) {
             this.#handleInputAxis3DBinding(devices, binding, tempValue);
@@ -33,7 +33,7 @@ class InputActionVector3Evaluator implements InputActionEvaluator<InputControlTy
         return value.reset();
     }
 
-    #handleInputBinding(devices: InputDeviceMap, binding: InputBinding, tempValue: Vector3) {
+    #handleInputSingleBinding(devices: InputDeviceMap, binding: InputSingleBinding, tempValue: Vector3) {
         const control = binding.control;
         const controlDeviceType = control.deviceType;
         const controlKey = control.key;

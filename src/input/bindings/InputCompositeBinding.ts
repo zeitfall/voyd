@@ -1,14 +1,17 @@
+import InputBinding from './InputBinding';
 import InputControl from './InputControl';
 
 import type {
-    InputAxisBindingDescriptor,
-    InputAxisBindingDescriptorResolver,
+    InputCompositeBindingDescriptor,
+    InputCompositeBindingControlGroups,
 } from '~/types';
 
-class InputAxisBinding<D extends InputAxisBindingDescriptor> {
-    #controls: Readonly<InputAxisBindingDescriptorResolver<D>>;
+class InputCompositeBinding<D extends InputCompositeBindingDescriptor> extends InputBinding {
+    #controls: Readonly<InputCompositeBindingControlGroups<D>>;
 
     constructor(descriptor: D) {
+        super();
+
         this.#controls = this.#resolveControls(descriptor);
     }
 
@@ -17,7 +20,7 @@ class InputAxisBinding<D extends InputAxisBindingDescriptor> {
     }
 
     #resolveControls(descriptor: D) {
-        const controls = {} as InputAxisBindingDescriptorResolver<D>;
+        const controls = {} as InputCompositeBindingControlGroups<D>;
 
         for (const controlGroupKey in descriptor) {
             const controlGroup = descriptor[controlGroupKey];
@@ -40,4 +43,4 @@ class InputAxisBinding<D extends InputAxisBindingDescriptor> {
     }
 }
 
-export default InputAxisBinding;
+export default InputCompositeBinding;

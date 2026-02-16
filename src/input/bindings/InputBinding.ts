@@ -1,18 +1,14 @@
-import InputControl from './InputControl';
-
-import type { InputControlReference } from '~/types';
+import type { InputProcessor } from '~/types';
 
 class InputBinding {
-    #control: InputControl;
+    #processors: Set<InputProcessor>;
 
-    constructor(descriptor: InputControlReference) {
-        const { deviceType, key } = descriptor;
-
-        this.#control = new InputControl(deviceType, key);
+    constructor() {
+        this.#processors = new Set();        
     }
 
-    get control() {
-        return this.#control;
+    get processors() {
+        return this.#processors;
     }
 }
 

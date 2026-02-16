@@ -2,7 +2,7 @@ import type { Vector, Vector2, Vector3 } from '~/math';
 
 import type {
     InputControl,
-    InputBinding,
+    InputSingleBinding,
     InputAxis1DBinding,
     InputAxis2DBinding,
     InputAxis3DBinding,
@@ -118,22 +118,22 @@ export type InputAxis2DDirection = 'left' | 'right' | 'up' | 'down';
 export type InputAxis3DDirection = InputAxis2DDirection | 'forward' | 'backward';
 
 export interface InputBindingMap {
-    [InputControlType.DISCRETE]: InputBinding;
-    [InputControlType.CONTINUOUS]: InputBinding;
-    [InputControlType.AXIS]: InputBinding | InputAxis1DBinding;
-    [InputControlType.VECTOR_2]: InputBinding | InputAxis2DBinding;
-    [InputControlType.VECTOR_3]: InputBinding | InputAxis3DBinding;
+    [InputControlType.DISCRETE]: InputSingleBinding;
+    [InputControlType.CONTINUOUS]: InputSingleBinding;
+    [InputControlType.AXIS]: InputSingleBinding | InputAxis1DBinding;
+    [InputControlType.VECTOR_2]: InputSingleBinding | InputAxis2DBinding;
+    [InputControlType.VECTOR_3]: InputSingleBinding | InputAxis3DBinding;
 }
 
-export type InputAxisBindingDescriptor<D extends string = any> = {
+export type InputCompositeBindingDescriptor<D extends string = any> = {
     [K in D]: InputControlReference[];
 };
 
-export type InputAxis1DBindingDescriptor = InputAxisBindingDescriptor<InputAxis1DDirection>;
-export type InputAxis2DBindingDescriptor = InputAxisBindingDescriptor<InputAxis2DDirection>;
-export type InputAxis3DBindingDescriptor = InputAxisBindingDescriptor<InputAxis3DDirection>;
+export type InputAxis1DBindingDescriptor = InputCompositeBindingDescriptor<InputAxis1DDirection>;
+export type InputAxis2DBindingDescriptor = InputCompositeBindingDescriptor<InputAxis2DDirection>;
+export type InputAxis3DBindingDescriptor = InputCompositeBindingDescriptor<InputAxis3DDirection>;
 
-export type InputAxisBindingDescriptorResolver<D extends InputAxisBindingDescriptor = InputAxisBindingDescriptor> = {
+export type InputCompositeBindingControlGroups<D extends InputCompositeBindingDescriptor = InputCompositeBindingDescriptor> = {
     [K in keyof D]: D[K] extends InputControlReference[] ? InputControlMap : never;
 };
 

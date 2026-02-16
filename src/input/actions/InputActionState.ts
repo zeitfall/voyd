@@ -8,7 +8,8 @@ import type {
     InputActionEvaluator,
     InputActionEvaluatorMap,
     InputBindingMap,
-    InputProcessorMap
+    InputProcessorMap,
+    InputProcessor
 } from '~/types';
 
 class InputActionState<C extends InputControlType> {
@@ -38,13 +39,23 @@ class InputActionState<C extends InputControlType> {
         bindings.forEach((binding) => {
             let newValue = evaluator.evaluate(devices, binding, this.#tempValue);
 
-            processors.forEach((processor) => {
-                // @ts-expect-error Argument of type 'number | Vector2 | Vector3' is not assignable to parameter of type 'number & Vector & Vector2 & Vector3'.
-                newValue = processor.process(newValue);
-            });
+            newValue = this.#processValue(newValue, binding.processors) as InputActionValueMap[C];
 
             this.#value = evaluator.resolve(this.#value, newValue);
         });
+
+        // @ts-expect-error Argument of type 'ReadonlySet<InputProcessorMap[C]>' is not assignable to parameter of type 'ReadonlySet<InputProcessor<InputActionValueMap[C]>>'.
+        this.#value = this.#processValue(this.#value, processors);
+    }
+
+    #processValue<V>(initialValue: V, processors: ReadonlySet<InputProcessor<V>>) {
+        let value = initialValue;
+
+        processors.forEach((processor) => {
+            value = processor.process(value);
+        });
+
+        return value;
     }
 }
 

@@ -1,13 +1,13 @@
 import { InputDeviceEventAdapterRegistry } from '../../devices';
 
-import type { InputBinding } from '../../bindings';
+import type { InputSingleBinding } from '../../bindings';
 import type { InputControlType } from '~/enums';
 import type { InputDeviceMap, InputActionEvaluator } from '~/types';
 
 class InputActionContinuousEvaluator implements InputActionEvaluator<InputControlType.CONTINUOUS> {
 
-    evaluate(devices: InputDeviceMap, binding: InputBinding) {
-        return this.#handleInputBinding(devices, binding);
+    evaluate(devices: InputDeviceMap, binding: InputSingleBinding) {
+        return this.#handleInputSingleBinding(devices, binding);
     }
 
     resolve(oldValue: number, newValue: number) {
@@ -18,7 +18,7 @@ class InputActionContinuousEvaluator implements InputActionEvaluator<InputContro
         return 0;
     }
 
-    #handleInputBinding(devices: InputDeviceMap, binding: InputBinding) {
+    #handleInputSingleBinding(devices: InputDeviceMap, binding: InputSingleBinding) {
         const control = binding.control;
         const controlDeviceType = control.deviceType;
         const controlKey = control.key;

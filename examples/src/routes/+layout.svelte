@@ -31,6 +31,7 @@
         margin-inline: auto;
         padding: 4em 1em;
         font-size: .75em;
+		line-height: 1.5;
     }
 
 	p {

@@ -2,11 +2,11 @@
 InputControlType.DISCRETE   : [Single Press (0  /  1)]
 InputControlType.CONTINUOUS : [Single Press (0 ... 1)]
 
-    - InputBinding : <Device/Path>;
+    - InputSingleBinding : <Device/Path>;
 
 InputControlType.AXIS :
 
-    - InputBinding : <Device/Path>; // Ex. Joystick movement.
+    - InputSingleBinding : <Device/Path>; // Ex. Joystick movement.
 
     - InputAxis1DBinding :
         - Positive : InputControl : <Device/Path>;
@@ -14,7 +14,7 @@ InputControlType.AXIS :
 
 InputControlType.VECTOR_2 :
 
-    - InputBinding : <Device/Path>; // Ex. Joystick movement.
+    - InputSingleBinding : <Device/Path>; // Ex. Joystick movement.
 
     - InputAxis2DBinding :
         - Left  : InputControl : <Device/Path>;
@@ -24,7 +24,7 @@ InputControlType.VECTOR_2 :
 
 InputControlType.VECTOR_3 :
 
-    - InputBinding : <Device/Path>; // Ex. Gyroscope rotation.
+    - InputSingleBinding : <Device/Path>; // Ex. Gyroscope rotation.
 
     - InputAxis3DBinding :
         - Left     : InputControl : <Device/Path>;
