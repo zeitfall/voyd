@@ -1,6 +1,6 @@
-import type { Tuple } from './utils';
+import type { LiteralUnion } from './utils';
 
-export type GeometryAttributeNames = Tuple<'position' | 'normal' | 'uv'>;
+export type GeometryAttributeNames = LiteralUnion<'position' | 'normal' | 'uv'>;
 
 export interface GeometryVertexData {
 	vertices: number[];

@@ -8,8 +8,8 @@ import type {
     InputActionEvaluator,
     InputActionEvaluatorMap,
     InputBindingMap,
-    InputProcessorMap,
-    InputProcessor
+    InputProcessor,
+    InputProcessorMap
 } from '~/types';
 
 class InputActionState<C extends InputControlType> {

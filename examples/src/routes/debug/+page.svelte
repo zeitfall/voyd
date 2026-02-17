@@ -1,81 +1,111 @@
-<script lang="ts">
-    import { onMount,onDestroy } from 'svelte';
+<canvas bind:this={canvasElement}></canvas>
 
+<script lang="ts">
+    import { onDestroy, onMount } from 'svelte';
+    import { CanvasResizer } from '$lib/services';
+    
     import {
         GPUContext,
-        VertexBuffer,
-        VertexBufferLayout,
-        IndexBuffer,
         RenderBundle,
+        VertexBuffer,
+        IndexBuffer,
+        SceneNode,
+        PerspectiveCamera,
+        FlyController,
+        FreeLookController,
         InputManager,
         KeyboardDevice,
-        PointerDevice,
-        Vector3,
-        Quaternion,
-        PlaneGeometry,
-        SceneNode,
-        PerspectiveCamera
+        PointerDevice
     } from 'voyd';
-
-    import { CanvasResizer } from '$lib/services';
 
     let canvasElement: HTMLCanvasElement;
     let canvasContext: GPUCanvasContext;
     let canvasResizer: CanvasResizer;
 
-    const keyboardDevice = new KeyboardDevice();
-	const pointerDevice = new PointerDevice();
+    const vertexData = new Float32Array([1, 1, 0, -1, 1, 0, -1, -1, 0, 1, -1, 0]);
+    const vertexBuffer = new VertexBuffer(vertexData, 0, true);
+
+    const indexData = new Uint16Array([0, 1, 2, 0, 2, 3]);
+    const indexBuffer = new IndexBuffer(indexData, 0, true);
+
+    const rootSceneNode = new SceneNode();
+
+    const cameraNode = new SceneNode();
+    const camera = new PerspectiveCamera();
+    
+    cameraNode.transform.position.set(0, 2, -2);
+    cameraNode.transform.lookAt(0, 0, 0);
+
+    cameraNode.attachTo(rootSceneNode);
+    cameraNode.addComponent(camera);
+    cameraNode.addComponent(new FlyController());
+    cameraNode.addComponent(new FreeLookController());
 
     InputManager
-        .registerDevice(keyboardDevice)
-        .registerDevice(pointerDevice);
+        .registerDevice(new KeyboardDevice())
+        .registerDevice(new PointerDevice());
 
-    const rootNode = new SceneNode();
+    const renderShader = GPUContext.device.createShaderModule({
+        code: `
+            struct VertexStageInput {
+                @location(0) vertex_position : vec3f
+            }
 
-    const camera = new PerspectiveCamera();
-    const cameraNode = new SceneNode();
+            struct VertexStageOutput {
+                @builtin(position) vertex_position : vec4f
+            }
 
-    cameraNode.addComponent(camera)
-    cameraNode.attachTo(rootNode);
-    cameraNode.transform.position.set(0, 1, -1);
-    cameraNode.transform.lookAt(new Vector3(0, 0, 0));
-    cameraNode.transform.update();
+            struct FragmentStageOutput {
+                @location(0) fragment_color : vec4f
+            }
 
-    const geometry = new PlaneGeometry(1, 1, 32, 32);
+            @group(0) @binding(0) var<uniform> camera_view       : mat4x4f;
+            @group(0) @binding(1) var<uniform> camera_projection : mat4x4f;
 
-    const vertexBuffer = VertexBuffer.fromGeometry(geometry, 0, true);
-    const vertexBufferLayout = VertexBufferLayout.fromGeometry(geometry);
+            @vertex
+            fn vertex_stage(input : VertexStageInput) -> VertexStageOutput {
+                var output : VertexStageOutput;
 
-    const indexBuffer = new IndexBuffer(geometry.indices, 0, true);
+                var vertex_position = camera_projection * camera_view * vec4f(input.vertex_position, 1);
 
-    let depthTexture: GPUTexture;
+                output.vertex_position = vertex_position;
 
-    const bindGroupLayout = GPUContext.device.createBindGroupLayout({
+                return output;
+            }
+
+            @fragment
+            fn fragment_stage(input : VertexStageOutput) -> FragmentStageOutput {
+                var output : FragmentStageOutput;
+
+                output.fragment_color = vec4f(0.25, 0.75, 0.15, 1);
+
+                return output;
+            }
+        `
+    });
+
+    const renderBindGroupLayout = GPUContext.device.createBindGroupLayout({
         entries: [
             {
                 binding: 0,
                 visibility: GPUShaderStage.VERTEX,
-                buffer: {
-                    type: 'uniform'
-                }
+                buffer: { type: 'uniform' }
             },
             {
                 binding: 1,
                 visibility: GPUShaderStage.VERTEX,
-                buffer: {
-                    type: 'uniform'
-                }
+                buffer: { type: 'uniform' }
             }
         ]
     });
 
-    const bindGroup = GPUContext.device.createBindGroup({
-        layout: bindGroupLayout,
+    const renderBindGroup = GPUContext.device.createBindGroup({
+        layout: renderBindGroupLayout,
         entries: [
             {
                 binding: 0,
                 resource: {
-                    buffer: camera.viewMatrixBuffer.instance,
+                    buffer: camera.viewMatrixBuffer.instance
                 }
             },
             {
@@ -87,143 +117,75 @@
         ]
     });
 
-    const renderShader = GPUContext.device.createShaderModule({
-        code: `
-            struct VSIn {
-                @location(0) position: vec3f,
-                @location(1) normal: vec3f,
-                @location(2) uv: vec2f
-            }
-
-            struct VSOut {
-                @builtin(position) position: vec4f,
-                @location(0) vertex: vec3f,
-                @location(1) normal: vec3f,
-                @location(2) uv: vec2f
-            }
-
-            @group(0) @binding(0) var<uniform> view_matrix: mat4x4f;
-            @group(0) @binding(1) var<uniform> projection_matrix: mat4x4f;
-
-            @vertex
-            fn vs(input: VSIn) -> VSOut {
-                var out: VSOut;
-
-                out.position = projection_matrix * view_matrix * vec4f(input.position, 1);
-                out.vertex = input.position;
-                out.normal = input.normal;
-                out.uv = input.uv;
-
-                return out;
-            }
-
-            @fragment
-            fn fs(input: VSOut) -> @location(0) vec4f {
-                var vertex_color = 1 - smoothstep(0, 1, 4 * input.vertex.z);
-                // var vertex_color = 1f;
-
-                return vec4f(vec3f(vertex_color), 1);
-            }
-        `,
+    const renderPipelineLayout = GPUContext.device.createPipelineLayout({
+        bindGroupLayouts: [renderBindGroupLayout]
     });
-
-    const renderPipelineLayout = GPUContext.device.createPipelineLayout({ bindGroupLayouts: [bindGroupLayout] });
 
     const renderPipeline = GPUContext.device.createRenderPipeline({
         layout: renderPipelineLayout,
         vertex: {
             module: renderShader,
-            entryPoint: 'vs',
-            buffers: [vertexBufferLayout],
-        },
-        fragment: {
-            module: renderShader,
-            entryPoint: 'fs',
-            targets: [
+            entryPoint: 'vertex_stage',
+            buffers: [
                 {
-                    format: GPUContext.preferredFormat
+                    arrayStride: 3 * vertexData.BYTES_PER_ELEMENT,
+                    attributes: [
+                        {
+                            shaderLocation: 0,
+                            offset: 0,
+                            format: 'float32x3'
+                        }
+                    ]
                 }
             ]
         },
-        depthStencil: {
-            depthWriteEnabled: true,
-            depthCompare: 'less',
-            format: 'depth24plus'
-        },
-        primitive: {
-            topology: geometry.topology
+        fragment: {
+            module: renderShader,
+            entryPoint: 'fragment_stage',
+            targets: [{ format: GPUContext.preferredFormat }]
         }
     });
 
     const renderBundle = new RenderBundle(
         (encoder) => {
             encoder.setPipeline(renderPipeline);
-            encoder.setBindGroup(0, bindGroup);
+            encoder.setBindGroup(0, renderBindGroup);
             encoder.setVertexBuffer(0, vertexBuffer.instance);
             encoder.setIndexBuffer(indexBuffer.instance, 'uint16');
-            encoder.drawIndexed(geometry.indices.length);
+            encoder.drawIndexed(indexData.length);
         },
-        {
-            colorFormats: [GPUContext.preferredFormat],
-            depthStencilFormat: 'depth24plus'
-        }
+        { colorFormats: [GPUContext.preferredFormat] }
     );
 
     const renderPassDescriptor: GPURenderPassDescriptor = {
         colorAttachments: [
             {
                 view: undefined,
-                clearValue: [0, 0, 0, 1],
+                clearValue: [0.65, 0.85, 1, 1],
                 loadOp: 'clear',
-                storeOp: 'store'
+                storeOp: 'store',
             }
-        ],
-        depthStencilAttachment: {
-            view: undefined,
-            depthClearValue: 1,
-            depthLoadOp: 'clear',
-            depthStoreOp: 'store'
-        }
+        ]
     };
 
-    function handleCanvasResize() {
-        if (depthTexture) {
-            depthTexture.destroy();
-        }
+    let rafId = requestAnimationFrame(updateLoop);
+    let rafTime = 0;
 
-        depthTexture = GPUContext.device.createTexture({
-            size: [canvasElement.width, canvasElement.height],
-            format: 'depth24plus',
-            usage: GPUTextureUsage.RENDER_ATTACHMENT
-        });
-    }
+    function updateLoop(currentTimestamp: number) {
+        const deltaTime = rafTime ? currentTimestamp - rafTime : 0;
+        const deltaTimeMs = deltaTime / 1000;
 
-    let rafId: number;
-    let t0 = 0;
-    let t1 = 0;
-
-    function loop() {
-        // Very silly
-        if (!depthTexture) {
-            rafId = requestAnimationFrame(loop);
-
-            return;
-        }
-
-        t1 = performance.now();
-
-        const deltaTime = (t1 - t0) / 1000;
+        rafTime = currentTimestamp;
 
         InputManager.update();
-        camera.setAspectRatio(canvasElement.width / canvasElement.height);
+        rootSceneNode.update(deltaTimeMs);
 
-        rootNode.update(deltaTime);
+        camera.setAspectRatio(canvasElement.width / canvasElement.height);
 
         const commandEncoder = GPUContext.device.createCommandEncoder();
 
         // @ts-expect-error Property '0' does not exist on type 'Iterable<GPURenderPassColorAttachment>'.
         renderPassDescriptor.colorAttachments[0].view = canvasContext.getCurrentTexture().createView();
-        renderPassDescriptor.depthStencilAttachment.view = depthTexture.createView();
 
         const renderPass = commandEncoder.beginRenderPass(renderPassDescriptor);
 
@@ -234,33 +196,22 @@
 
         GPUContext.device.queue.submit([commandBuffer]);
 
-        rafId = requestAnimationFrame(loop);
-
-        t0 = t1;
+        rafId = requestAnimationFrame(updateLoop);
     }
 
-    onMount(() => {
-        canvasElement.addEventListener('resize', handleCanvasResize);
-        canvasElement.addEventListener('contextmenu', (event) => event.preventDefault());
-
+    onMount(async () => {
         canvasContext = canvasElement.getContext('webgpu');
         canvasResizer = new CanvasResizer(canvasElement);
 
         canvasContext.configure({
             device: GPUContext.device,
-            format: GPUContext.preferredFormat,
+            format: GPUContext.preferredFormat
         });
-
-        rafId = requestAnimationFrame(loop);
     });
 
     onDestroy(() => {
-        canvasElement.removeEventListener('resize', handleCanvasResize);
-
-		InputManager.unregisterAllDevices();
+        InputManager.unregisterAllDevices();
 
         cancelAnimationFrame(rafId);
     });
 </script>
-
-<canvas bind:this={canvasElement}></canvas>

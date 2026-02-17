@@ -69,12 +69,12 @@ class Transform {
         forward.set(fx, fy, fz).normalize();
     }
 
-    lookAt(target: Vector3) {
+    lookAt(x: number, y: number, z: number) {
         const position = this.#position;
         const rotation = this.#rotation;
         const directionToTarget = this.#directionToTarget;
 
-        directionToTarget.copy(target).directionFrom(position);
+        directionToTarget.set(x, y, z).directionFrom(position);
         rotation.setFromDirection(directionToTarget);
 
         return this;

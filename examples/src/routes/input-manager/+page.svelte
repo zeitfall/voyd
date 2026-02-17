@@ -14,6 +14,8 @@
         MouseButton,
         InputVectorNormalizeProcessor,
         InputVector3InvertProcessor,
+        InputNumberNormalizeProcessor,
+        InputNumberClampProcessor,
 	} from 'voyd';
 
 	const keyboardDevice = new KeyboardDevice();

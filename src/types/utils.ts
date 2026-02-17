@@ -1,4 +1,4 @@
-export type Tuple<D = never> = D | (string & {});
+export type LiteralUnion<D = never> = D | (string & {});
 
 export type ValueOf<T> = T[keyof T];
 

@@ -1,3 +1,2 @@
-export { default as TransformController } from './TransformController';
-
-export * from './behaviors';
+export { default as FlyController } from './FlyController';
+export { default as FreeLookController } from './FreeLookController';
