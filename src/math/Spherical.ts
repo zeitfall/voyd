@@ -62,7 +62,7 @@ class Spherical {
 		}
 
 		const theta = Math.atan2(x, z);
-		const phi = Math.asin(clamp(y / this.radius, -1, 1));
+		const phi = Math.asin(clamp(y / radius, -1, 1));
 
 		return this.set(radius, theta, phi);
 	}

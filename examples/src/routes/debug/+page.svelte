@@ -35,6 +35,7 @@
     
     cameraNode.transform.position.set(0, 2, -2);
     cameraNode.transform.lookAt(0, 0, 0);
+    cameraNode.transform.update();
 
     cameraNode.attachTo(rootSceneNode);
     cameraNode.addComponent(camera);

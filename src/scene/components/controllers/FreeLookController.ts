@@ -38,40 +38,7 @@ class FreeLookController extends SceneComponent {
     constructor() {
         super();
 
-        const inputAction = new InputAction('_FreeLookController', InputControlType.VECTOR_2);
-
-        const inputKeyboardBinding = new InputAxis2DBinding({
-            left: [
-                { deviceType: InputDeviceType.KEYBOARD, key: 'KeyQ' }
-            ],
-            right: [
-                { deviceType: InputDeviceType.KEYBOARD, key: 'KeyE' }
-            ],
-            up: [
-                { deviceType: InputDeviceType.KEYBOARD, key: 'KeyR' }
-            ],
-            down: [
-                { deviceType: InputDeviceType.KEYBOARD, key: 'KeyF' }
-            ]
-        });
-
-        const pointerInputInvertProcessor = new InputVector2InvertProcessor(false, true);
-
-        const inputMouseBinding = new InputSingleBinding({ deviceType: InputDeviceType.POINTER, key: MouseButton.RMB });
-        const inputTouchBinding = new InputSingleBinding({ deviceType: InputDeviceType.POINTER, key: 'Touch0' });
-
-        inputMouseBinding.processors.add(pointerInputInvertProcessor);
-        inputTouchBinding.processors.add(pointerInputInvertProcessor);
-
-        inputAction.bindings.add(inputKeyboardBinding);
-        inputAction.bindings.add(inputMouseBinding);
-        inputAction.bindings.add(inputTouchBinding);
-        inputAction.processors.add(new InputVectorNormalizeProcessor());
-        inputAction.processors.add(new InputVectorScaleProcessor(0.05));
-
-        InputManager.addAction(inputAction);
-
-        this.#inputAction = inputAction;
+        this.#inputAction = this.#setupInputAction();
 
         this.#yawQuaternion = new Quaternion();
         this.#pitchQuaternion = new Quaternion();
@@ -149,8 +116,8 @@ class FreeLookController extends SceneComponent {
         nodeSphericalForward.setFromVector(nodeForward);
 
         this.#targetYawAngle = this.#currentYawAngle = nodeSphericalForward.theta;
-        this.#targetPitchAngle = this.#currentPitchAngle = nodeSphericalForward.phi;
-
+        this.#targetPitchAngle = this.#currentPitchAngle = -nodeSphericalForward.phi;
+    
         return this;
     }
 
@@ -176,6 +143,9 @@ class FreeLookController extends SceneComponent {
         const pitchQuaternion = this.#pitchQuaternion;
 
         if (inputActionValue.lengthSquared > 0) {
+            // TODO: Ideally, the input action value components must be multiplied by "deltaTime".
+            // However, it should NOT be applied to pointer generated events.
+            // Most likely, we need to update the state of the scale processor of the keyboard binding.
             this.yawAngle += inputActionValue.x;
             this.pitchAngle += inputActionValue.y;
         }
@@ -187,7 +157,7 @@ class FreeLookController extends SceneComponent {
         currentPitchAngle = damp(currentPitchAngle, this.#targetPitchAngle, 16, deltaTime);
 
         yawQuaternion.setFromAxisAngle(Vector3.UP, currentYawAngle);
-        pitchQuaternion.setFromAxisAngle(Vector3.RIGHT, -currentPitchAngle);
+        pitchQuaternion.setFromAxisAngle(Vector3.RIGHT, currentPitchAngle);
 
         this.#currentYawAngle = currentYawAngle;
         this.#currentPitchAngle = currentPitchAngle;
@@ -196,6 +166,44 @@ class FreeLookController extends SceneComponent {
             .copy(this.#yawQuaternion)
             .multiply(this.#pitchQuaternion)
             .normalize();
+    }
+
+    #setupInputAction() {
+        const inputAction = new InputAction('_FreeLookController', InputControlType.VECTOR_2);
+
+        const inputKeyboardBinding = new InputAxis2DBinding({
+            left: [
+                { deviceType: InputDeviceType.KEYBOARD, key: 'KeyQ' }
+            ],
+            right: [
+                { deviceType: InputDeviceType.KEYBOARD, key: 'KeyE' }
+            ],
+            up: [
+                { deviceType: InputDeviceType.KEYBOARD, key: 'KeyR' }
+            ],
+            down: [
+                { deviceType: InputDeviceType.KEYBOARD, key: 'KeyF' }
+            ]
+        });
+
+        const inputMouseBinding = new InputSingleBinding({ deviceType: InputDeviceType.POINTER, key: MouseButton.RMB });
+        const inputTouchBinding = new InputSingleBinding({ deviceType: InputDeviceType.POINTER, key: 'Touch0' });
+
+        const pointerInputScaleProcessor = new InputVectorScaleProcessor(0.01);
+
+        inputKeyboardBinding.processors.add(new InputVector2InvertProcessor(false, true))
+        inputKeyboardBinding.processors.add(new InputVectorNormalizeProcessor());
+        inputKeyboardBinding.processors.add(new InputVectorScaleProcessor(0.05));
+        inputMouseBinding.processors.add(pointerInputScaleProcessor);
+        inputTouchBinding.processors.add(pointerInputScaleProcessor);
+
+        inputAction.bindings.add(inputKeyboardBinding);
+        inputAction.bindings.add(inputMouseBinding);
+        inputAction.bindings.add(inputTouchBinding);
+
+        InputManager.addAction(inputAction);
+
+        return inputAction;
     }
 }
 
