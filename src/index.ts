@@ -2,8 +2,6 @@ export * from './core';
 
 export * from './input';
 
-export * from './buffers';
-
 export * from './math';
 
 export * from './geometries';

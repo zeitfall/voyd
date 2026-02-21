@@ -1,20 +1,21 @@
 import SceneComponent from '../SceneComponent';
 
 import { GPUContext } from '~/core';
-import { UniformBuffer } from '~/buffers';
 import { Matrix4 } from '~/math';
+
+import { createUniformBuffer } from '~/utils';
 
 abstract class Camera extends SceneComponent {
     #viewMatrix: Matrix4;
     #viewMatrixArray: Float32Array;
-    #viewMatrixBuffer: UniformBuffer;
+    #viewMatrixBuffer: GPUBuffer;
 
     constructor(public nearPlane = 0.1, public farPlane = 128) {
         super();
 
         const viewMatrix = new Matrix4();
         const viewMatrixArray = new Float32Array(viewMatrix.elements);
-        const viewMatrixBuffer = new UniformBuffer(viewMatrixArray, GPUBufferUsage.COPY_DST);
+        const viewMatrixBuffer = createUniformBuffer(viewMatrixArray, GPUBufferUsage.COPY_DST);
 
 		this.#viewMatrix = viewMatrix;
 		this.#viewMatrixArray = viewMatrixArray;
@@ -31,7 +32,7 @@ abstract class Camera extends SceneComponent {
 
 	abstract get projectionMatrix(): Matrix4;
 
-	abstract get projectionMatrixBuffer(): UniformBuffer;
+	abstract get projectionMatrixBuffer(): GPUBuffer;
 
 	setNearPlane(value: number) {
 		this.nearPlane = value;
@@ -67,7 +68,7 @@ abstract class Camera extends SceneComponent {
 
         viewMatrixArray.set(viewMatrix.elements);
 
-        GPUContext.device.queue.writeBuffer(viewMatrixBuffer.instance, 0, viewMatrixArray.buffer, 0);
+        GPUContext.device.queue.writeBuffer(viewMatrixBuffer, 0, viewMatrixArray.buffer, 0);
     }
 }
 

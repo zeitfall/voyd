@@ -129,13 +129,13 @@ export type InputCompositeBindingDescriptor<D extends string = any> = {
     [K in D]: InputControlReference[];
 };
 
-export type InputAxis1DBindingDescriptor = InputCompositeBindingDescriptor<InputAxis1DDirection>;
-export type InputAxis2DBindingDescriptor = InputCompositeBindingDescriptor<InputAxis2DDirection>;
-export type InputAxis3DBindingDescriptor = InputCompositeBindingDescriptor<InputAxis3DDirection>;
-
 export type InputCompositeBindingControlGroups<D extends InputCompositeBindingDescriptor = InputCompositeBindingDescriptor> = {
     [K in keyof D]: D[K] extends InputControlReference[] ? InputControlMap : never;
 };
+
+export type InputAxis1DBindingDescriptor = InputCompositeBindingDescriptor<InputAxis1DDirection>;
+export type InputAxis2DBindingDescriptor = InputCompositeBindingDescriptor<InputAxis2DDirection>;
+export type InputAxis3DBindingDescriptor = InputCompositeBindingDescriptor<InputAxis3DDirection>;
 
 export interface InputControlReference {
     deviceType: InputDeviceType;

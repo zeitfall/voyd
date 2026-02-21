@@ -1,16 +1,15 @@
 import Camera from './Camera';
 
 import { GPUContext } from '~/core';
-import { UniformBuffer } from '~/buffers';
 import { Matrix4 } from '~/math';
 
-import { toRadians } from '~/utils';
+import { createUniformBuffer, toRadians } from '~/utils';
 
 // https://perry.cz/articles/ProjectionMatrix.xhtml
 class PerspectiveCamera extends Camera {
 	#projectionMatrix: Matrix4;
 	#projectionMatrixArray: Float32Array;
-	#projectionMatrixBuffer: UniformBuffer;
+	#projectionMatrixBuffer: GPUBuffer;
 
 	constructor(
 		public fovy = 80,
@@ -22,7 +21,7 @@ class PerspectiveCamera extends Camera {
 
 		const projectionMatrix = new Matrix4();
 		const projectionMatrixArray = new Float32Array(projectionMatrix.elements);
-		const projectionMatrixBuffer = new UniformBuffer(projectionMatrixArray, GPUBufferUsage.COPY_DST);
+		const projectionMatrixBuffer = createUniformBuffer(projectionMatrixArray, GPUBufferUsage.COPY_DST);
 
 		this.#projectionMatrix = projectionMatrix;
 		this.#projectionMatrixArray = projectionMatrixArray;
@@ -76,7 +75,7 @@ class PerspectiveCamera extends Camera {
 
 		projectionMatrixArray.set(projectionMatrix.elements);
 
-		GPUContext.device.queue.writeBuffer(projectionMatrixBuffer.instance, 0, projectionMatrixArray.buffer, 0);
+		GPUContext.device.queue.writeBuffer(projectionMatrixBuffer, 0, projectionMatrixArray.buffer, 0);
 	}
 }
 

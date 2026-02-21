@@ -1,12 +1,14 @@
 import type { GPUContextConfig } from '~/types';
 
-class GPUContext {
+class GPUContext extends EventTarget {
 	#gpu: GPU | null;
 	#adapter: GPUAdapter | null;
 	#device: GPUDevice | null;
 	#preferredFormat: GPUTextureFormat | null;
 
 	constructor() {
+		super();
+
 		this.#gpu = null;
 		this.#adapter = null;
 		this.#device = null;
@@ -31,7 +33,9 @@ class GPUContext {
 
 	async init(config?: Partial<GPUContextConfig>) {
 		if (this.gpu && this.adapter && this.device) {
-			throw new Error('[GPUContext]: Device has already been initialized.');
+			console.warn('[GPUContext]: Device has already been initialized.');
+
+			return this;
 		}
 
 		const gpu = navigator.gpu;
@@ -45,9 +49,41 @@ class GPUContext {
 			this.#adapter = adapter;
 			this.#device = device;
 			this.#preferredFormat = preferredFormat;
+
+			this.#handleDeviceLost();
 		}
 
 		return this;
+	}
+
+	async #handleDeviceLost() {
+		const device = this.#device;
+
+		if (!device) {
+			return;
+		}
+
+		const deviceLostInfo = await device.lost;
+		const deviceLostEvent = new CustomEvent('devicelost', { detail: deviceLostInfo });
+
+		switch (deviceLostInfo.reason) {
+			case 'destroyed':
+				console.warn('[GPUContext]: Device has been destroyed intentionally.');
+
+				break;
+
+			case 'unknown':
+				console.warn('[GPUContext]: Device has been lost because of unknown issue.');
+
+				break;
+		}
+
+		this.#gpu = null;
+		this.#adapter = null;
+		this.#device = null;
+		this.#preferredFormat = null;
+
+		this.dispatchEvent(deviceLostEvent);
 	}
 }
 

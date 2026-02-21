@@ -1,4 +1,4 @@
-import { VertexAttribute } from '~/buffers';
+import { VertexAttribute } from '~/core';
 
 import { MAX_16_BIT_VALUE } from '~/constants';
 

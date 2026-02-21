@@ -7,15 +7,15 @@
     import {
         GPUContext,
         RenderBundle,
-        VertexBuffer,
-        IndexBuffer,
         SceneNode,
         PerspectiveCamera,
         FlyController,
         FreeLookController,
         InputManager,
         KeyboardDevice,
-        PointerDevice
+        PointerDevice,
+        createVertexBuffer,
+        createIndexBuffer
     } from 'voyd';
 
     let canvasElement: HTMLCanvasElement;
@@ -23,10 +23,10 @@
     let canvasResizer: CanvasResizer;
 
     const vertexData = new Float32Array([1, 1, 0, -1, 1, 0, -1, -1, 0, 1, -1, 0]);
-    const vertexBuffer = new VertexBuffer(vertexData, 0, true);
+    const vertexBuffer = createVertexBuffer(vertexData);
 
     const indexData = new Uint16Array([0, 1, 2, 0, 2, 3]);
-    const indexBuffer = new IndexBuffer(indexData, 0, true);
+    const indexBuffer = createIndexBuffer(indexData);
 
     const rootSceneNode = new SceneNode();
 
@@ -106,13 +106,13 @@
             {
                 binding: 0,
                 resource: {
-                    buffer: camera.viewMatrixBuffer.instance
+                    buffer: camera.viewMatrixBuffer
                 }
             },
             {
                 binding: 1,
                 resource: {
-                    buffer: camera.projectionMatrixBuffer.instance
+                    buffer: camera.projectionMatrixBuffer
                 }
             }
         ]
@@ -151,8 +151,8 @@
         (encoder) => {
             encoder.setPipeline(renderPipeline);
             encoder.setBindGroup(0, renderBindGroup);
-            encoder.setVertexBuffer(0, vertexBuffer.instance);
-            encoder.setIndexBuffer(indexBuffer.instance, 'uint16');
+            encoder.setVertexBuffer(0, vertexBuffer);
+            encoder.setIndexBuffer(indexBuffer, 'uint16');
             encoder.drawIndexed(indexData.length);
         },
         { colorFormats: [GPUContext.preferredFormat] }
