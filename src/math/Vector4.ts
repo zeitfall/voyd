@@ -5,6 +5,7 @@ import { clamp, damp, lerp } from '~/utils';
 import type Matrix4 from './Matrix4';
 
 class Vector4 extends Vector {
+
 	constructor(public x = 0, public y = 0, public z = 0, public w = 0) {
 		super();
 	}
@@ -15,6 +16,14 @@ class Vector4 extends Vector {
 
 	copy(vector: Vector4) {
 		return this.set(vector.x, vector.y, vector.z, vector.w);
+	}
+
+	set(x: number, y: number, z: number, w: number) {
+		return this.setX(x).setY(y).setZ(z).setW(w);
+	}
+
+	reset() {
+		return this.set(0, 0, 0, 0);
 	}
 
 	setX(x: number) {
@@ -41,20 +50,54 @@ class Vector4 extends Vector {
 		return this;
 	}
 
-	set(x: number, y: number, z: number, w: number) {
-		return this.setX(x).setY(y).setZ(z).setW(w);
-	}
-
-	reset() {
-		return this.set(0, 0, 0, 0);
-	}
-
 	add(vector: Vector4) {
 		return this.set(this.x + vector.x, this.y + vector.y, this.z + vector.z, this.w + vector.w);
 	}
 
 	subtract(vector: Vector4) {
 		return this.set(this.x - vector.x, this.y - vector.y, this.z - vector.z, this.w - vector.w);
+	}
+
+	scale(scalarX: number, scalarY?: number, scalarZ?: number, scalarW?: number) {
+		const sx = scalarX;
+		const sy = scalarY ?? scalarX;
+		const sz = scalarZ ?? scalarY ?? scalarX;
+		const sw = scalarW ?? scalarZ ?? scalarY ?? scalarX;
+	
+		return this.scaleX(sx).scaleY(sy).scaleZ(sz).scaleW(sw);
+	}
+
+	scaleX(scalar: number) {
+		this.x *= scalar;
+		return this;
+	}
+
+	scaleY(scalar: number) {
+		this.y *= scalar;
+		return this;
+	}
+
+	scaleZ(scalar: number) {
+		this.z *= scalar;
+		return this;
+	}
+
+	scaleW(scalar: number) {
+		this.w *= scalar;
+		return this;
+	}
+
+	dot(vector: Vector4) {
+		return this.x * vector.x + this.y * vector.y + this.z * vector.z + this.w * vector.w;
+	}
+
+	distanceToSquared(vector: Vector4) {
+		const dx = vector.x - this.x;
+		const dy = vector.y - this.y;
+		const dz = vector.z - this.z;
+		const dw = vector.w - this.w;
+
+		return dx * dx + dy * dy + dz * dz + dw * dw;
 	}
 
 	clamp(min: Vector4, max: Vector4) {
@@ -115,52 +158,6 @@ class Vector4 extends Vector {
 			x * e31 + y * e32 + z * e33 + w * e34,
 			x * e41 + y * e42 + z * e43 + w * e44,
 		);
-	}
-
-	scaleX(scalar: number) {
-		this.x *= scalar;
-
-		return this;
-	}
-
-	scaleY(scalar: number) {
-		this.y *= scalar;
-
-		return this;
-	}
-
-	scaleZ(scalar: number) {
-		this.z *= scalar;
-
-		return this;
-	}
-
-	scaleW(scalar: number) {
-		this.w *= scalar;
-
-		return this;
-	}
-
-	scale(scalarX: number, scalarY?: number, scalarZ?: number, scalarW?: number) {
-		const sx = scalarX;
-		const sy = scalarY ?? scalarX;
-		const sz = scalarZ ?? scalarY ?? scalarX;
-		const sw = scalarW ?? scalarZ ?? scalarY ?? scalarX;
-	
-		return this.scaleX(sx).scaleY(sy).scaleZ(sz).scaleW(sw);
-	}
-
-	dot(vector: Vector4) {
-		return this.x * vector.x + this.y * vector.y + this.z * vector.z + this.w * vector.w;
-	}
-
-	distanceToSquared(vector: Vector4) {
-		const dx = vector.x - this.x;
-		const dy = vector.y - this.y;
-		const dz = vector.z - this.z;
-		const dw = vector.w - this.w;
-
-		return dx * dx + dy * dy + dz * dz + dw * dw;
 	}
 
 	equals(vector: Vector4, tolerance = 0) {

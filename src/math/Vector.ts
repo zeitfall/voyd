@@ -4,6 +4,7 @@ import type Matrix from './Matrix';
 import type { Constructor } from '~/types';
 
 abstract class Vector {
+
 	static clone<T extends Vector>(this: Constructor<T>, vector: T) {
 		return vector.clone() as T;
 	}
@@ -16,12 +17,40 @@ abstract class Vector {
 		return vectorA.clone().subtract(vectorB) as T;
 	}
 
+	static negate<T extends Vector>(this: Constructor<T>, vector: T) {
+		return vector.clone().negate() as T;
+	}
+
+	static dot<T extends Vector>(this: Constructor<T>, vectorA: T, vectorB: T) {
+		return vectorA.dot(vectorB);
+	}
+
+	static normalize<T extends Vector>(this: Constructor<T>, vector: T) {
+		return vector.clone().normalize() as T;
+	}
+
+	static distanceBetween<T extends Vector>(this: Constructor<T>, vectorA: T, vectorB: T) {
+		return vectorA.distanceTo(vectorB);
+	}
+	
+	static distanceBetweenSquared<T extends Vector>(this: Constructor<T>, vectorA: T, vectorB: T) {
+		return vectorA.distanceToSquared(vectorB);
+	}
+	
+	static angleBetween<T extends Vector>(this: Constructor<T>, vectorA: T, vectorB: T) {
+		return vectorA.angleTo(vectorB);
+	}
+	
 	static displacement<T extends Vector>(this: Constructor<T>, vectorA: T, vectorB: T) {
 		return vectorB.clone().displacementFrom(vectorA) as T;
 	} 
-
+	
 	static direction<T extends Vector>(this: Constructor<T>, vectorA: T, vectorB: T) {
 		return vectorB.clone().directionFrom(vectorA) as T;
+	}
+	
+	static projectOnVector<T extends Vector>(this: Constructor<T>, vectorA: T, vectorB: T) {
+		return vectorA.clone().projectOnVector(vectorB) as T;
 	}
 
 	static clamp<T extends Vector>(this: Constructor<T>, vector: T, min: T, max: T) {
@@ -34,34 +63,6 @@ abstract class Vector {
 
 	static multiplyByMatrix<T extends Vector>(this: Constructor<T>, vector: T, matrix: Matrix) {
 		return vector.clone().multiplyByMatrix(matrix) as T;
-	}
-
-	static projectOnVector<T extends Vector>(this: Constructor<T>, vectorA: T, vectorB: T) {
-		return vectorA.clone().projectOnVector(vectorB) as T;
-	}
-
-	static normalize<T extends Vector>(this: Constructor<T>, vector: T) {
-		return vector.clone().normalize() as T;
-	}
-
-	static negate<T extends Vector>(this: Constructor<T>, vector: T) {
-		return vector.clone().negate() as T;
-	}
-
-	static dot<T extends Vector>(this: Constructor<T>, vectorA: T, vectorB: T) {
-		return vectorA.dot(vectorB);
-	}
-
-	static distanceBetweenSquared<T extends Vector>(this: Constructor<T>, vectorA: T, vectorB: T) {
-		return vectorA.distanceToSquared(vectorB);
-	}
-
-	static distanceBetween<T extends Vector>(this: Constructor<T>, vectorA: T, vectorB: T) {
-		return vectorA.distanceTo(vectorB);
-	}
-
-	static angleBetween<T extends Vector>(this: Constructor<T>, vectorA: T, vectorB: T) {
-		return vectorA.angleTo(vectorB);
 	}
 
 	static equals<T extends Vector>(this: Constructor<T>, vectorA: T, vectorB: T, tolerance?: number) {
@@ -92,15 +93,69 @@ abstract class Vector {
 		this.setLength(length);
 	}
 
-	setLength(length: number) {
-		return this.normalize().scale(length);
+	multiplyByScalar(scalar: number) {
+		return this.scale(scalar);
 	}
 
-	projectOnVector(vector: Vector) {
-		const vLSq = vector.lengthSquared;
+	divideByScalar(scalar: number) {
+		if (Math.abs(scalar) < Number.EPSILON) {
+			throw new Error('[Vector]: Division by zero.');
+		}
 
-		if (vLSq > 0) {
-			const scalarPart = this.dot(vector) / vLSq;
+		return this.multiplyByScalar(1 / scalar);
+	}
+
+	negate() {
+		return this.multiplyByScalar(-1);
+	}
+
+	setLength(length: number) {
+		if (this.lengthSquared === 0) {
+			return this;
+		}
+
+		return this.normalize().multiplyByScalar(length);
+	}
+
+	normalize() {
+		const length = this.length;
+	
+		if (length === 0) {
+			return this;
+		}
+	
+		return this.divideByScalar(length);
+	}
+
+	distanceTo(vector: this) {
+		return Math.sqrt(this.distanceToSquared(vector));
+	}
+
+	angleTo(vector: this) {
+		const lengthProduct = this.length * vector.length;
+
+		if (lengthProduct === 0) {
+			return 0;
+		}
+		
+		const cosAlpha = this.dot(vector) / lengthProduct;
+
+		return Math.acos(clamp(cosAlpha, -1, 1));
+	}
+
+	displacementFrom(vector: this) {
+		return this.subtract(vector);
+	}
+
+	directionFrom(vector: this) {
+		return this.displacementFrom(vector).normalize();
+	}
+
+	projectOnVector(vector: this) {
+		const vectorLengthSquared = vector.lengthSquared;
+
+		if (vectorLengthSquared > 0) {
+			const scalarPart = this.dot(vector) / vectorLengthSquared;
 
 			return this.copy(vector).multiplyByScalar(scalarPart);
 		}
@@ -108,48 +163,7 @@ abstract class Vector {
 		return this.reset();
 	}
 
-	displacementFrom(vector: Vector) {
-		return this.subtract(vector);
-	}
-
-	directionFrom(vector: Vector) {
-		return this.displacementFrom(vector).normalize();
-	}
-
-	multiplyByScalar(scalar: number) {
-		return this.scale(scalar);
-	}
-
-	divideByScalar(scalar: number) {
-		let _scalar = scalar;
-
-		if (Math.abs(scalar) < Number.EPSILON) {
-			_scalar = 1;
-		}
-
-		return this.multiplyByScalar(1 / _scalar);
-	}
-
-	normalize() {
-		return this.divideByScalar(this.length || 1);
-	}
-
-	negate() {
-		return this.multiplyByScalar(-1);
-	}
-
-	distanceTo(vector: Vector) {
-		return Math.sqrt(this.distanceToSquared(vector));
-	}
-
-	angleTo(vector: Vector) {
-		const dotProduct = this.dot(vector);
-		const cosAlpha = dotProduct / (this.length * vector.length);
-
-		return Math.acos(clamp(cosAlpha, -1, 1));
-	}
-
-	notEquals(vector: Vector, tolerance?: number) {
+	notEquals(vector: this, tolerance?: number) {
 		return !this.equals(vector, tolerance);
 	}
 
@@ -159,31 +173,31 @@ abstract class Vector {
 
 	abstract clone(): Vector;
 
-	abstract copy(vector: Vector): this;
+	abstract copy(vector: this): this;
 
 	abstract set(...components: number[]): this;
 
 	abstract reset(...components: number[]): this;
 
-	abstract add(vector: Vector): this;
+	abstract add(vector: this): this;
 
-	abstract subtract(vector: Vector): this;
-
-	abstract clamp(min: Vector, max: Vector): this;
-
-	abstract lerp(vector: Vector, factor: number): this;
-
-	abstract damp(vector: Vector, lambda: number, deltaTime: number): this;
-
-	abstract multiplyByMatrix(matrix: Matrix): this;
+	abstract subtract(vector: this): this;
 
 	abstract scale(...scaleFactors: number[]): this;
 
-	abstract dot(vector: Vector): number;
+	abstract dot(vector: this): number;
 
-	abstract distanceToSquared(vector: Vector): number;
+	abstract distanceToSquared(vector: this): number;
 
-	abstract equals(vector: Vector, tolerance?: number): boolean;
+	abstract clamp(min: this, max: this): this;
+	
+	abstract lerp(vector: this, factor: number): this;
+	
+	abstract damp(vector: this, lambda: number, deltaTime: number): this;
+
+	abstract multiplyByMatrix(matrix: Matrix): this;
+
+	abstract equals(vector: this, tolerance?: number): boolean;
 
 	abstract toArray(): number[];
 }

@@ -6,6 +6,7 @@ import type Vector3 from './Vector3';
 
 // https://en.wikipedia.org/wiki/Spherical_coordinate_system
 class Spherical {
+
 	static clone(spherical: Spherical) {
 		return spherical.clone();
 	}
@@ -28,6 +29,14 @@ class Spherical {
 		return this.set(spherical.radius, spherical.theta, spherical.phi);
 	}
 
+	set(radius: number, theta: number, phi: number) {
+		return this.setRadius(radius).setTheta(theta).setPhi(phi);
+	}
+
+	reset() {
+		return this.set(1, 0, 0);
+	}
+
 	setRadius(radius: number) {
 		this.radius = radius;
 
@@ -44,14 +53,6 @@ class Spherical {
 		this.phi = phi;
 
 		return this;
-	}
-
-	set(radius: number, theta: number, phi: number) {
-		return this.setRadius(radius).setTheta(theta).setPhi(phi);
-	}
-
-	reset() {
-		return this.set(1, 0, 0);
 	}
 
 	setFromCartesian(x: number, y: number, z: number) {

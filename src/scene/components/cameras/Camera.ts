@@ -7,18 +7,15 @@ import { createUniformBuffer } from '~/utils';
 
 abstract class Camera extends SceneComponent {
     #viewMatrix: Matrix4;
-    #viewMatrixArray: Float32Array;
     #viewMatrixBuffer: GPUBuffer;
 
     constructor(public nearPlane = 0.1, public farPlane = 128) {
         super();
 
         const viewMatrix = new Matrix4();
-        const viewMatrixArray = new Float32Array(viewMatrix.elements);
-        const viewMatrixBuffer = createUniformBuffer(viewMatrixArray, GPUBufferUsage.COPY_DST);
+        const viewMatrixBuffer = createUniformBuffer(viewMatrix.array, GPUBufferUsage.COPY_DST);
 
 		this.#viewMatrix = viewMatrix;
-		this.#viewMatrixArray = viewMatrixArray;
 		this.#viewMatrixBuffer = viewMatrixBuffer;
     }
 
@@ -56,7 +53,6 @@ abstract class Camera extends SceneComponent {
         const node = this.node;
 
         const viewMatrix = this.#viewMatrix;
-        const viewMatrixArray = this.#viewMatrixArray;
         const viewMatrixBuffer = this.#viewMatrixBuffer;
 
         if (node) {
@@ -66,9 +62,7 @@ abstract class Camera extends SceneComponent {
             viewMatrix.identity();
         }
 
-        viewMatrixArray.set(viewMatrix.elements);
-
-        GPUContext.device.queue.writeBuffer(viewMatrixBuffer, 0, viewMatrixArray.buffer, 0);
+        GPUContext.device.queue.writeBuffer(viewMatrixBuffer, 0, viewMatrix.array.buffer, 0);
     }
 }
 

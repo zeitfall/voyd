@@ -1,7 +1,8 @@
 import type Vector from './Vector';
 import type { Constructor } from '~/types';
 
-abstract class Matrix<E extends number[] = number[]> {
+abstract class Matrix {
+
 	static determinant<T extends Matrix>(this: Constructor<T>, matrix: T) {
 		return matrix.determinant;
 	}
@@ -34,26 +35,24 @@ abstract class Matrix<E extends number[] = number[]> {
 		return matrix.clone().inverse() as T;
 	}
 
-	#elements: E;
+	#array: Float32Array<ArrayBuffer>;
 
-	constructor() {
-		this.#elements = [] as unknown as E;
+	constructor(length: number) {
+		this.#array = new Float32Array(length);
 
 		this.identity();
 	}
 
-	get elements() {
-		return this.#elements;
+	get array() {
+		return this.#array;
 	}
 
 	abstract get determinant(): number;
 
 	copy(matrix: Matrix) {
-		return this.set(...matrix);
-	}
+		this.array.set(matrix.array);
 
-	setFromArray(array: E) {
-		return this.set(...array);
+		return this;
 	}
 
 	premultiply(matrix: Matrix) {
@@ -61,7 +60,7 @@ abstract class Matrix<E extends number[] = number[]> {
 	}
 
 	divideByScalar(scalar: number) {
-		if (scalar === 0) {
+		if (Math.abs(scalar) < Number.EPSILON) {
 			throw new Error('[Matrix]: Division by zero.');
 		}
 
@@ -69,16 +68,16 @@ abstract class Matrix<E extends number[] = number[]> {
 	}
 
 	*[Symbol.iterator]() {
-		yield* this.elements;
+		yield* this.array;
 	}
 
 	abstract clone(): Matrix;
 
 	abstract set(...elements: number[]): this;
 
-	abstract setFromVectors(...vectors: Vector[]): this;
-
 	abstract identity(): this;
+
+	abstract setFromVectors(...vectors: Vector[]): this;
 
 	abstract add(matrix: Matrix): this;
 

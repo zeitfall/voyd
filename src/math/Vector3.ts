@@ -55,6 +55,14 @@ class Vector3 extends Vector {
 		return this.set(vector.x, vector.y, vector.z);
 	}
 
+	set(x: number, y: number, z: number) {
+		return this.setX(x).setY(y).setZ(z);
+	}
+
+	reset() {
+		return this.set(0, 0, 0);
+	}
+
 	setX(x: number) {
 		this.x = x;
 
@@ -71,14 +79,6 @@ class Vector3 extends Vector {
 		this.z = z;
 
 		return this;
-	}
-
-	set(x: number, y: number, z: number) {
-		return this.setX(x).setY(y).setZ(z);
-	}
-
-	reset() {
-		return this.set(0, 0, 0);
 	}
 
 	setFromSphericalCoordinates(radius: number, theta: number, phi: number) {
@@ -106,6 +106,44 @@ class Vector3 extends Vector {
 
 	subtract(vector: Vector3) {
 		return this.set(this.x - vector.x, this.y - vector.y, this.z - vector.z);
+	}
+
+	scale(scalarX: number, scalarY?: number, scalarZ?: number) {
+		const sx = scalarX;
+		const sy = scalarY ?? scalarX;
+		const sz = scalarZ ?? scalarY ?? scalarX;
+	
+		return this.scaleX(sx).scaleY(sy).scaleZ(sz);
+	}
+
+	scaleX(scalar: number) {
+		this.x *= scalar;
+		
+		return this;
+	}
+
+	scaleY(scalar: number) {
+		this.y *= scalar;
+
+		return this;
+	}
+
+	scaleZ(scalar: number) {
+		this.z *= scalar;
+
+		return this;
+	}
+
+	dot(vector: Vector3) {
+		return this.x * vector.x + this.y * vector.y + this.z * vector.z;
+	}
+
+	distanceToSquared(vector: Vector3) {
+		const dx = vector.x - this.x;
+		const dy = vector.y - this.y;
+		const dz = vector.z - this.z;
+
+		return dx * dx + dy * dy + dz * dz;
 	}
 
 	clamp(min: Vector3, max: Vector3) {
@@ -212,44 +250,6 @@ class Vector3 extends Vector {
 		}
 
 		return this.set(vx - nx, vy - ny, vz - nz);
-	}
-
-	scaleX(scalar: number) {
-		this.x *= scalar;
-
-		return this;
-	}
-
-	scaleY(scalar: number) {
-		this.y *= scalar;
-
-		return this;
-	}
-
-	scaleZ(scalar: number) {
-		this.z *= scalar;
-
-		return this;
-	}
-
-	scale(scalarX: number, scalarY?: number, scalarZ?: number) {
-		const sx = scalarX;
-		const sy = scalarY ?? scalarX;
-		const sz = scalarZ ?? scalarY ?? scalarX;
-	
-		return this.scaleX(sx).scaleY(sy).scaleZ(sz);
-	}
-
-	dot(vector: Vector3) {
-		return this.x * vector.x + this.y * vector.y + this.z * vector.z;
-	}
-
-	distanceToSquared(vector: Vector3) {
-		const dx = vector.x - this.x;
-		const dy = vector.y - this.y;
-		const dz = vector.z - this.z;
-
-		return dx * dx + dy * dy + dz * dz;
 	}
 
 	equals(vector: Vector3, tolerance = 0) {

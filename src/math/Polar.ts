@@ -6,6 +6,7 @@ import type Vector2 from './Vector2';
 
 // https://en.wikipedia.org/wiki/Polar_coordinate_system
 class Polar {
+
 	static fromCartesian(x: number, y: number) {
 		return new Polar().setFromCartesian(x, y);
 	}
@@ -24,6 +25,14 @@ class Polar {
 		return this.set(polar.radius, polar.theta);
 	}
 
+	set(radius: number, theta: number) {
+		return this.setRadius(radius).setTheta(theta);
+	}
+
+	reset() {
+		return this.set(1, 0);
+	}
+
 	setRadius(radius: number) {
 		this.radius = radius;
 
@@ -34,14 +43,6 @@ class Polar {
 		this.theta = theta;
 
 		return this;
-	}
-
-	set(radius: number, theta: number) {
-		return this.setRadius(radius).setTheta(theta);
-	}
-
-	reset() {
-		return this.set(1, 0);
 	}
 
 	setFromCartesian(x: number, y: number) {

@@ -2,14 +2,8 @@ import Matrix from './Matrix';
 
 import type Vector3 from './Vector3';
 import type Quaternion from './Quaternion';
-import type { ArrayOf } from '~/types';
 
-type Matrix3Elements = ArrayOf<number, 9>;
-
-class Matrix3 extends Matrix<Matrix3Elements> {
-	static fromArray(array: Matrix3Elements) {
-		return new Matrix3().setFromArray(array);
-	}
+class Matrix3 extends Matrix {
 
 	static fromVectors(vectorA: Vector3, vectorB: Vector3, vectorC: Vector3) {
 		return new Matrix3().setFromVectors(vectorA, vectorB, vectorC);
@@ -20,11 +14,11 @@ class Matrix3 extends Matrix<Matrix3Elements> {
 	}
 
 	constructor() {
-		super();
+		super(9);
 	}
 
 	get determinant() {
-		const a = this.elements;
+		const a = this.array;
 
 		const e11 = a[0];
 		const e12 = a[3];
@@ -40,24 +34,35 @@ class Matrix3 extends Matrix<Matrix3Elements> {
 	}
 
 	clone() {
-		return new Matrix3().set(...this.elements)
+		return new Matrix3().copy(this);
 	}
 
-	set(...elements: Matrix3Elements) {
-		const a = this.elements;
-		const b = elements;
+	set(
+		e11: number, e21: number, e31: number,
+		e12: number, e22: number, e32: number,
+		e13: number, e23: number, e33: number
+	) {
+		const a = this.array;
 
-		a[0] = b[0];
-		a[1] = b[1];
-		a[2] = b[2];
-		a[3] = b[3];
-		a[4] = b[4];
-		a[5] = b[5];
-		a[6] = b[6];
-		a[7] = b[7];
-		a[8] = b[8];
+		a[0] = e11;
+		a[1] = e21;
+		a[2] = e31;
+		a[3] = e12;
+		a[4] = e22;
+		a[5] = e32;
+		a[6] = e13;
+		a[7] = e23;
+		a[8] = e33;
 
 		return this;
+	}
+
+	identity() {
+		return this.set(
+			1, 0, 0,
+			0, 1, 0,
+			0, 0, 1
+		);
 	}
 
 	setFromVectors(vectorA: Vector3, vectorB: Vector3, vectorC: Vector3) {
@@ -92,17 +97,9 @@ class Matrix3 extends Matrix<Matrix3Elements> {
 		);
 	}
 
-	identity() {
-		return this.set(
-			1, 0, 0,
-			0, 1, 0,
-			0, 0, 1
-		);
-	}
-
 	add(matrix: Matrix3) {
-		const a = this.elements;
-		const b = matrix.elements;
+		const a = this.array;
+		const b = matrix.array;
 
 		return this.set(
 			a[0] + b[0],
@@ -118,8 +115,8 @@ class Matrix3 extends Matrix<Matrix3Elements> {
 	}
 
 	subtract(matrix: Matrix3) {
-		const a = this.elements;
-		const b = matrix.elements;
+		const a = this.array;
+		const b = matrix.array;
 
 		return this.set(
 			a[0] - b[0],
@@ -135,8 +132,8 @@ class Matrix3 extends Matrix<Matrix3Elements> {
 	}
 
 	multiply(matrix: Matrix3, premultiply = false) {
-		const a = premultiply ? matrix.elements : this.elements;
-		const b = premultiply ? this.elements : matrix.elements;
+		const a = premultiply ? matrix.array : this.array;
+		const b = premultiply ? this.array : matrix.array;
 
 		const a11 = a[0];
 		const a12 = a[3];
@@ -166,7 +163,7 @@ class Matrix3 extends Matrix<Matrix3Elements> {
 	}
 
 	multiplyByScalar(scalar: number) {
-		const a = this.elements;
+		const a = this.array;
 
 		return this.set(
 			scalar * a[0],
@@ -182,17 +179,17 @@ class Matrix3 extends Matrix<Matrix3Elements> {
 	}
 
 	transpose() {
-		const a = this.elements;
+		const array = this.array;
 
-		const e11 = a[0];
-		const e12 = a[3];
-		const e13 = a[6];
-		const e21 = a[1];
-		const e22 = a[4];
-		const e23 = a[7];
-		const e31 = a[2];
-		const e32 = a[5];
-		const e33 = a[8];
+		const e11 = array[0];
+		const e12 = array[3];
+		const e13 = array[6];
+		const e21 = array[1];
+		const e22 = array[4];
+		const e23 = array[7];
+		const e31 = array[2];
+		const e32 = array[5];
+		const e33 = array[8];
 
 		return this.set(e11, e12, e13, e21, e22, e23, e31, e32, e33);
 	}
@@ -204,7 +201,7 @@ class Matrix3 extends Matrix<Matrix3Elements> {
 			throw new Error(`[Matrix]: Cannot inverse, because matrix is singular [det=${det}].`);
 		}
 
-		const a = this.elements;
+		const a = this.array;
 
 		const e11 = a[0];
 		const e12 = a[3];
@@ -226,14 +223,12 @@ class Matrix3 extends Matrix<Matrix3Elements> {
 		const c32 = -(e11 * e23 - e13 * e21);
 		const c33 = e11 * e22 - e12 * e21;
 
-		return this
-			.set(
-				c11, c21, c31,
-				c12, c22, c32,
-				c13, c23, c33
-			)
-			.transpose()
-			.divideByScalar(det);
+		// NOTE: Already transposed.
+		return this.set(
+			c11, c12, c13,
+			c21, c22, c23,
+			c31, c32, c33
+		).divideByScalar(det);
 	}
 }
 

@@ -39,18 +39,6 @@ class Vector2 extends Vector {
 		return this.set(vector.x, vector.y);
 	}
 
-	setX(x: number) {
-		this.x = x;
-
-		return this;
-	}
-
-	setY(y: number) {
-		this.y = y;
-
-		return this;
-	}
-
 	set(x: number, y: number) {
 		return this.setX(x).setY(y);
 	}
@@ -59,13 +47,22 @@ class Vector2 extends Vector {
 		return this.set(0, 0);
 	}
 
+	setX(x: number) {
+		this.x = x;
+		return this;
+	}
+
+	setY(y: number) {
+		this.y = y;
+		return this;
+	}
+
 	setFromPolarCoordinates(radius: number, theta: number) {
 		return this.set(radius * Math.cos(theta), radius * Math.sin(theta));
 	}
 
 	setFromPolar(polar: Polar) {
 		const { radius, theta } = polar;
-
 		return this.setFromPolarCoordinates(radius, theta);
 	}
 
@@ -75,6 +72,36 @@ class Vector2 extends Vector {
 
 	subtract(vector: Vector2) {
 		return this.set(this.x - vector.x, this.y - vector.y);
+	}
+
+	scale(scalarX: number, scalarY?: number) {
+		const sx = scalarX;
+		const sy = scalarY ?? scalarX;
+
+		return this.scaleX(sx).scaleY(sy);
+	}
+
+	scaleX(scalar: number) {
+		this.x *= scalar;
+
+		return this;
+	}
+
+	scaleY(scalar: number) {
+		this.y *= scalar;
+
+		return this;
+	}
+
+	dot(vector: Vector2) {
+		return this.x * vector.x + this.y * vector.y;
+	}
+
+	distanceToSquared(vector: Vector2) {
+		const dx = vector.x - this.x;
+		const dy = vector.y - this.y;
+
+		return dx * dx + dy * dy;
 	}
 
 	clamp(min: Vector2, max: Vector2) {
@@ -101,36 +128,6 @@ class Vector2 extends Vector {
 		const e22 = a[3];
 
 		return this.set(x * e11 + y * e12, x * e21 + y * e22);
-	}
-
-	scaleX(scalar: number) {
-		this.x *= scalar;
-
-		return this;
-	}
-
-	scaleY(scalar: number) {
-		this.y *= scalar;
-
-		return this;
-	}
-
-	scale(scalarX: number, scalarY?: number) {
-		const sx = scalarX;
-		const sy = scalarY ?? scalarX;
-	
-		return this.scaleX(sx).scaleY(sy);
-	}
-
-	dot(vector: Vector2) {
-		return this.x * vector.x + this.y * vector.y;
-	}
-
-	distanceToSquared(vector: Vector2) {
-		const dx = vector.x - this.x;
-		const dy = vector.y - this.y;
-
-		return dx * dx + dy * dy;
 	}
 
 	equals(vector: Vector2, tolerance = 0) {

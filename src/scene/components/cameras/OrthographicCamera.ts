@@ -7,7 +7,6 @@ import { createUniformBuffer } from '~/utils';
 
 class OrthographicCamera extends Camera {
 	#projectionMatrix: Matrix4;
-	#projectionMatrixArray: Float32Array;
 	#projectionMatrixBuffer: GPUBuffer;
 
 	constructor(
@@ -21,11 +20,9 @@ class OrthographicCamera extends Camera {
 		super(nearPlane, farPlane);
 
 		const projectionMatrix = new Matrix4();
-		const projectionMatrixArray = new Float32Array(projectionMatrix.elements);
-		const projectionMatrixBuffer = createUniformBuffer(projectionMatrixArray, GPUBufferUsage.COPY_DST);
+		const projectionMatrixBuffer = createUniformBuffer(projectionMatrix.array, GPUBufferUsage.COPY_DST);
 
 		this.#projectionMatrix = projectionMatrix;
-		this.#projectionMatrixArray = projectionMatrixArray;
 		this.#projectionMatrixBuffer = projectionMatrixBuffer;
 
 		this.update();
@@ -97,7 +94,6 @@ class OrthographicCamera extends Camera {
 		} = this;
 
 		const projectionMatrix = this.#projectionMatrix;
-		const projectionMatrixArray = this.#projectionMatrixArray;
 		const projectionMatrixBuffer = this.#projectionMatrixBuffer;
 
 		const width = rightPlane - leftPlane;
@@ -119,9 +115,7 @@ class OrthographicCamera extends Camera {
             D, E, F, G,
         );
 
-		projectionMatrixArray.set(projectionMatrix.elements);
-
-		GPUContext.device.queue.writeBuffer(projectionMatrixBuffer, 0, projectionMatrixArray.buffer, 0);
+		GPUContext.device.queue.writeBuffer(projectionMatrixBuffer, 0, projectionMatrix.array.buffer, 0);
 	}
 }
 

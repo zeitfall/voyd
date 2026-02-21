@@ -40,31 +40,31 @@ class Transform {
     }
 
     extractRight(right: Vector3) {
-        const matrixElements = this.#worldMatrix.elements;
+        const matrixArray = this.#worldMatrix.array;
 
-        const rx = matrixElements[0];
-        const ry = matrixElements[1];
-        const rz = matrixElements[2];
+        const rx = matrixArray[0];
+        const ry = matrixArray[1];
+        const rz = matrixArray[2];
 
         right.set(rx, ry, rz).normalize();
     }
 
     extractUp(up: Vector3) {
-        const matrixElements = this.#worldMatrix.elements;
+        const matrixArray = this.#worldMatrix.array;
 
-        const ux = matrixElements[4];
-        const uy = matrixElements[5];
-        const uz = matrixElements[6];
+        const ux = matrixArray[4];
+        const uy = matrixArray[5];
+        const uz = matrixArray[6];
 
         up.set(ux, uy, uz).normalize();
     }
 
     extractForward(forward: Vector3) {
-        const matrixElements = this.#worldMatrix.elements;
+        const matrixArray = this.#worldMatrix.array;
 
-        const fx = matrixElements[8];
-        const fy = matrixElements[9];
-        const fz = matrixElements[10];
+        const fx = matrixArray[8];
+        const fy = matrixArray[9];
+        const fz = matrixArray[10];
 
         forward.set(fx, fy, fz).normalize();
     }

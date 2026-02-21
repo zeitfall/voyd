@@ -3,25 +3,19 @@ import Matrix from './Matrix';
 import type Vector3 from './Vector3';
 import type Vector4 from './Vector4';
 import type Quaternion from './Quaternion';
-import type { ArrayOf } from '~/types';
 
-type Matrix4Elements = ArrayOf<number, 16>;
-
-class Matrix4 extends Matrix<Matrix4Elements> {
-	static fromArray(array: Matrix4Elements) {
-		return new Matrix4().setFromArray(array);
-	}
+class Matrix4 extends Matrix {
 
 	static fromVectors(vectorA: Vector4, vectorB: Vector4, vectorC: Vector4, vectorD: Vector4) {
 		return new Matrix4().setFromVectors(vectorA, vectorB, vectorC, vectorD);
 	}
 
 	constructor() {
-		super();
+		super(16);
 	}
 
 	get determinant() {
-		const a = this.elements;
+		const a = this.array;
 
 		const e11 = a[0];
 		const e12 = a[4];
@@ -49,29 +43,33 @@ class Matrix4 extends Matrix<Matrix4Elements> {
 	}
 
 	clone() {
-		return new Matrix4().set(...this.elements);
+		return new Matrix4().copy(this);
 	}
 
-	set(...elements: Matrix4Elements) {
-		const a = this.elements;
-		const b = elements;
+	set(
+		e11: number, e21: number, e31: number, e41: number,
+		e12: number, e22: number, e32: number, e42: number,
+		e13: number, e23: number, e33: number, e43: number,
+		e14: number, e24: number, e34: number, e44: number
+	) {
+		const a = this.array;
 
-		a[0] = b[0];
-		a[1] = b[1];
-		a[2] = b[2];
-		a[3] = b[3];
-		a[4] = b[4];
-		a[5] = b[5];
-		a[6] = b[6];
-		a[7] = b[7];
-		a[8] = b[8];
-		a[9] = b[9];
-		a[10] = b[10];
-		a[11] = b[11];
-		a[12] = b[12];
-		a[13] = b[13];
-		a[14] = b[14];
-		a[15] = b[15];
+		a[0] = e11;
+		a[1] = e21;
+		a[2] = e31;
+		a[3] = e41;
+		a[4] = e12;
+		a[5] = e22;
+		a[6] = e32;
+		a[7] = e42;
+		a[8] = e13;
+		a[9] = e23;
+		a[10] = e33;
+		a[11] = e43;
+		a[12] = e14;
+		a[13] = e24;
+		a[14] = e34;
+		a[15] = e44;
 
 		return this;
 	}
@@ -143,8 +141,8 @@ class Matrix4 extends Matrix<Matrix4Elements> {
 	}
 
 	add(matrix: Matrix4) {
-		const a = this.elements;
-		const b = matrix.elements;
+		const a = this.array;
+		const b = matrix.array;
 
 		return this.set(
 			a[0] + b[0],
@@ -167,8 +165,8 @@ class Matrix4 extends Matrix<Matrix4Elements> {
 	}
 
 	subtract(matrix: Matrix4) {
-		const a = this.elements;
-		const b = matrix.elements;
+		const a = this.array;
+		const b = matrix.array;
 
 		return this.set(
 			a[0] - b[0],
@@ -191,8 +189,8 @@ class Matrix4 extends Matrix<Matrix4Elements> {
 	}
 
 	multiply(matrix: Matrix4, premultiply = false) {
-		const a = premultiply ? matrix.elements : this.elements;
-		const b = premultiply ? this.elements : matrix.elements;
+		const a = premultiply ? matrix.array : this.array;
+		const b = premultiply ? this.array : matrix.array;
 
 		const a11 = a[0];
 		const a12 = a[4];
@@ -252,7 +250,7 @@ class Matrix4 extends Matrix<Matrix4Elements> {
 	}
 
 	multiplyByScalar(scalar: number) {
-		const a = this.elements;
+		const a = this.array;
 
 		return this.set(
 			scalar * a[0],
@@ -275,7 +273,7 @@ class Matrix4 extends Matrix<Matrix4Elements> {
 	}
 
 	transpose() {
-		const a = this.elements;
+		const a = this.array;
 
 		const e11 = a[0];
 		const e12 = a[4];
@@ -304,7 +302,7 @@ class Matrix4 extends Matrix<Matrix4Elements> {
 			throw new Error(`[Matrix]: Cannot inverse, because matrix is singular [det=${det}].`);
 		}
 
-		const a = this.elements;
+		const a = this.array;
 
 		const e11 = a[0];
 		const e12 = a[4];
@@ -343,15 +341,12 @@ class Matrix4 extends Matrix<Matrix4Elements> {
 		const c43 = -(e11 * (e22 * e34 - e24 * e32) - e12 * (e21 * e34 - e24 * e31) + e14 * (e21 * e32 - e22 * e31));
 		const c44 = e11 * (e22 * e33 - e23 * e32) - e12 * (e21 * e33 - e23 * e31) + e13 * (e21 * e32 - e22 * e31);
 
-		return this
-			.set(
-				c11, c21, c31, c41,
-				c12, c22, c32, c42,
-				c13, c23, c33, c43,
-				c14, c24, c34, c44
-			)
-			.transpose()
-			.divideByScalar(det);
+		return this.set(
+			c11, c12, c13, c14,
+			c21, c22, c23, c24,
+			c31, c32, c33, c34,
+			c41, c42, c43, c44
+		).divideByScalar(det);
 	}
 }
 

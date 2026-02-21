@@ -7,6 +7,7 @@ import { EPSILON_4 } from '~/constants';
 import type Matrix3 from './Matrix3';
 
 class Quaternion {
+
 	static clone(vector: Quaternion) {
 		return vector.clone();
 	}
@@ -126,6 +127,14 @@ class Quaternion {
 		return this.set(quaternion.x, quaternion.y, quaternion.z, quaternion.w);
 	}
 
+	set(x: number, y: number, z: number, w: number) {
+		return this.setX(x).setY(y).setZ(z).setW(w);
+	}
+
+	reset() {
+		return this.set(0, 0, 0, 1);
+	}
+
 	setX(x: number) {
 		this.x = x;
 
@@ -148,10 +157,6 @@ class Quaternion {
 		this.w = w;
 
 		return this;
-	}
-
-	set(x: number, y: number, z: number, w: number) {
-		return this.setX(x).setY(y).setZ(z).setW(w);
 	}
 
 	setFromAxisAngle(axis: Vector3, angle: number) {
@@ -203,7 +208,7 @@ class Quaternion {
 				cx = 0;
 				cy = -az;
 				cz = ay;
-        	}
+			}
 		}
 
 		return this.set(cx, cy, cz, cw).normalize();
@@ -356,10 +361,6 @@ class Quaternion {
 		}
 
 		return this.set(x, y, z, w);
-	}
-
-	reset() {
-		return this.set(0, 0, 0, 1);
 	}
 
 	multiply(quaternion: Quaternion, premultiply = false) {

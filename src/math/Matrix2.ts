@@ -1,25 +1,19 @@
 import Matrix from './Matrix';
 
 import type Vector2 from './Vector2';
-import type { ArrayOf } from '~/types';
 
-type Matrix2Elements = ArrayOf<number, 4>;
-
-class Matrix2 extends Matrix<Matrix2Elements> {
-	static fromArray(array: Matrix2Elements) {
-		return new Matrix2().setFromArray(array);
-	}
+class Matrix2 extends Matrix {
 
 	static fromVectors(vectorA: Vector2, vectorB: Vector2) {
 		return new Matrix2().setFromVectors(vectorA, vectorB);
 	}
 
 	constructor() {
-		super();
+		super(4);
 	}
 
 	get determinant() {
-		const a = this.elements;
+		const a = this.array;
 
 		const a11 = a[0];
 		const a12 = a[2];
@@ -30,46 +24,48 @@ class Matrix2 extends Matrix<Matrix2Elements> {
 	}
 
 	clone() {
-		return new Matrix2().set(...this.elements);
+		return new Matrix2().copy(this);
 	}
 
-	set(...elements: Matrix2Elements) {
-		const a = this.elements;
-		const b = elements;
+	set(
+		e11: number, e21: number,
+		e12: number, e22: number
+	) {
+		const a = this.array;
 
-		a[0] = b[0];
-		a[1] = b[1];
-		a[2] = b[2];
-		a[3] = b[3];
+		a[0] = e11;
+		a[1] = e21;
+		a[2] = e12;
+		a[3] = e22;
 
 		return this;
-	}
-
-	setFromVectors(vectorA: Vector2, vectorB: Vector2) {
-		return this.set(vectorA.x, vectorA.y, vectorB.x, vectorB.y);
 	}
 
 	identity() {
 		return this.set(1, 0, 0, 1);
 	}
 
+	setFromVectors(vectorA: Vector2, vectorB: Vector2) {
+		return this.set(vectorA.x, vectorA.y, vectorB.x, vectorB.y);
+	}
+
 	add(matrix: Matrix2) {
-		const a = this.elements;
-		const b = matrix.elements;
+		const a = this.array;
+		const b = matrix.array;
 
 		return this.set(a[0] + b[0], a[1] + b[1], a[2] + b[2], a[3] + b[3]);
 	}
 
 	subtract(matrix: Matrix2) {
-		const a = this.elements;
-		const b = matrix.elements;
+		const a = this.array;
+		const b = matrix.array;
 
 		return this.set(a[0] - b[0], a[1] - b[1], a[2] - b[2], a[3] - b[3]);
 	}
 
 	multiply(matrix: Matrix2, premultiply = false) {
-		const a = premultiply ? matrix.elements : this.elements;
-		const b = premultiply ? this.elements : matrix.elements;
+		const a = premultiply ? matrix.array : this.array;
+		const b = premultiply ? this.array : matrix.array;
 
 		const a11 = a[0];
 		const a12 = a[2];
@@ -88,7 +84,7 @@ class Matrix2 extends Matrix<Matrix2Elements> {
 	}
 
 	multiplyByScalar(scalar: number) {
-		const a = this.elements;
+		const a = this.array;
 
 		return this.set(
 			scalar * a[0],
@@ -99,7 +95,7 @@ class Matrix2 extends Matrix<Matrix2Elements> {
 	}
 
 	transpose() {
-		const a = this.elements;
+		const a = this.array;
 
 		const e11 = a[0];
 		const e12 = a[2];
@@ -116,7 +112,7 @@ class Matrix2 extends Matrix<Matrix2Elements> {
 			throw new Error(`[Matrix]: Cannot inverse, because matrix is singular [det=${det}].`);
 		}
 
-		const a = this.elements;
+		const a = this.array;
 
 		const e11 = a[0];
 		const e12 = a[2];
@@ -128,7 +124,11 @@ class Matrix2 extends Matrix<Matrix2Elements> {
 		const c21 = -e12;
 		const c22 = e11;
 
-		return this.set(c11, c21, c12, c22).transpose().divideByScalar(det);
+		// NOTE: Already transposed.
+		return this.set(
+			c11, c12,
+			c21, c22
+		).divideByScalar(det);
 	}
 }
 
