@@ -1,4 +1,2 @@
-export { default as Geometry } from './Geometry';
-export { default as PlaneGeometry } from './PlaneGeometry';
-export { default as CircleGeometry } from './CircleGeometry';
-export { default as SphereGeometry } from './SphereGeometry';
+export { default as InterleavedBuffer } from './InterleavedBuffer';
+export { default as InterleavedBufferAttribute } from './InterleavedBufferAttribute';

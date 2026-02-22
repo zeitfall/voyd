@@ -7,6 +7,8 @@
     import {
         GPUContext,
         RenderBundle,
+        InterleavedBuffer,
+        InterleavedBufferAttribute,
         SceneNode,
         PerspectiveCamera,
         FlyController,
@@ -22,7 +24,49 @@
     let canvasContext: GPUCanvasContext;
     let canvasResizer: CanvasResizer;
 
-    const vertexData = new Float32Array([1, 1, 0, -1, 1, 0, -1, -1, 0, 1, -1, 0]);
+    const vertexBufferByteStride = 3 * Float32Array.BYTES_PER_ELEMENT + 4 * Uint8Array.BYTES_PER_ELEMENT;
+    const vertexData = new ArrayBuffer(4 * vertexBufferByteStride);
+    const vertexDataView = new DataView(vertexData);
+    const vertexInterleavedBuffer = new InterleavedBuffer(vertexData, vertexBufferByteStride);
+
+    vertexDataView.setFloat32(0, 32, true);
+    vertexDataView.setFloat32(4, 0, true);
+    vertexDataView.setFloat32(8, 32, true);
+    vertexDataView.setUint8(12, 1);
+    vertexDataView.setUint8(13, 0);
+    vertexDataView.setUint8(14, 0);
+    vertexDataView.setUint8(15, 1);
+
+    vertexDataView.setFloat32(16, -32, true);
+    vertexDataView.setFloat32(20, 0, true);
+    vertexDataView.setFloat32(24, 32, true);
+    vertexDataView.setUint8(28, 0);
+    vertexDataView.setUint8(29, 1);
+    vertexDataView.setUint8(30, 0);
+    vertexDataView.setUint8(31, 1);
+
+    vertexDataView.setFloat32(32, -32, true);
+    vertexDataView.setFloat32(36, 0, true);
+    vertexDataView.setFloat32(40, -32, true);
+    vertexDataView.setUint8(44, 0);
+    vertexDataView.setUint8(45, 0);
+    vertexDataView.setUint8(46, 1);
+    vertexDataView.setUint8(47, 1);
+
+    vertexDataView.setFloat32(48, 32, true);
+    vertexDataView.setFloat32(52, 0, true);
+    vertexDataView.setFloat32(56, -32, true);
+    vertexDataView.setUint8(60, 0);
+    vertexDataView.setUint8(61, 0);
+    vertexDataView.setUint8(62, 0);
+    vertexDataView.setUint8(63, 1);
+
+    const positionAttribute = new InterleavedBufferAttribute(vertexInterleavedBuffer, 'float32x3');
+    const colorAttribute = new InterleavedBufferAttribute(vertexInterleavedBuffer, 'uint8x4', 12);
+
+    console.log('positionAttribute', positionAttribute, positionAttribute.get(0, 0));
+    console.log('colorAttribute', colorAttribute, colorAttribute.get(0, 0));
+
     const vertexBuffer = createVertexBuffer(vertexData);
 
     const indexData = new Uint16Array([0, 1, 2, 0, 2, 3]);
@@ -33,8 +77,8 @@
     const cameraNode = new SceneNode();
     const camera = new PerspectiveCamera();
     
-    cameraNode.transform.position.set(0, 2, -2);
-    cameraNode.transform.lookAt(0, 0, 0);
+    cameraNode.transform.position.set(0, 1, 0);
+    // cameraNode.transform.lookAt(0, 0, 0);
     cameraNode.transform.update();
 
     cameraNode.attachTo(rootSceneNode);
@@ -49,11 +93,13 @@
     const renderShader = GPUContext.device.createShaderModule({
         code: `
             struct VertexStageInput {
-                @location(0) vertex_position : vec3f
+                @location(0) vertex_position : vec3f,
+                @location(1) vertex_color    : vec4u
             }
 
             struct VertexStageOutput {
-                @builtin(position) vertex_position : vec4f
+                @builtin(position) vertex_position : vec4f,
+                @location(0) vertex_color          : vec4f
             }
 
             struct FragmentStageOutput {
@@ -70,6 +116,7 @@
                 var vertex_position = camera_projection * camera_view * vec4f(input.vertex_position, 1);
 
                 output.vertex_position = vertex_position;
+                output.vertex_color    = vec4f(input.vertex_color);
 
                 return output;
             }
@@ -78,7 +125,7 @@
             fn fragment_stage(input : VertexStageOutput) -> FragmentStageOutput {
                 var output : FragmentStageOutput;
 
-                output.fragment_color = vec4f(0.25, 0.75, 0.15, 1);
+                output.fragment_color = vec4f(input.vertex_color);
 
                 return output;
             }
@@ -129,12 +176,17 @@
             entryPoint: 'vertex_stage',
             buffers: [
                 {
-                    arrayStride: 3 * vertexData.BYTES_PER_ELEMENT,
+                    arrayStride: vertexBufferByteStride,
                     attributes: [
                         {
                             shaderLocation: 0,
                             offset: 0,
                             format: 'float32x3'
+                        },
+                        {
+                            shaderLocation: 1,
+                            offset: 3 * Float32Array.BYTES_PER_ELEMENT,
+                            format: 'uint8x4'
                         }
                     ]
                 }
@@ -144,6 +196,9 @@
             module: renderShader,
             entryPoint: 'fragment_stage',
             targets: [{ format: GPUContext.preferredFormat }]
+        },
+        primitive: {
+            cullMode: 'back'
         }
     });
 

@@ -1,1 +1,45 @@
 export type BufferSource = ArrayBuffer | ArrayBufferView;
+
+export interface VertexViewMap {
+    uint8: Uint8Array; 
+    uint8x2: Uint8Array;
+    uint8x4: Uint8Array;
+    unorm8: Uint8Array;
+    unorm8x2: Uint8Array;
+    unorm8x4: Uint8Array;
+    'unorm8x4-bgra': Uint8Array;
+    'unorm10-10-10-2': never;
+    uint16: Uint16Array;
+    uint16x2: Uint16Array;
+    uint16x4: Uint16Array;
+    unorm16: Uint16Array;
+    unorm16x2: Uint16Array;
+    unorm16x4: Uint16Array;
+    uint32: Uint32Array;
+    uint32x2: Uint32Array;
+    uint32x3: Uint32Array;
+    uint32x4: Uint32Array;
+    sint8: Int8Array;
+    sint8x2: Int8Array;
+    sint8x4: Int8Array;
+    snorm8: Int8Array;
+    snorm8x2: Int8Array;
+    snorm8x4: Int8Array;
+    sint16: Int16Array;
+    sint16x2: Int16Array;
+    sint16x4: Int16Array;
+    snorm16: Int16Array;
+    snorm16x2: Int16Array;
+    snorm16x4: Int16Array;
+    sint32: Int32Array;
+    sint32x2: Int32Array;
+    sint32x3: Int32Array;
+    sint32x4: Int32Array;
+    float16: Float16Array;
+    float16x2: Float16Array;
+    float16x4: Float16Array;
+    float32: Float32Array;
+    float32x2: Float32Array;
+    float32x3: Float32Array;
+    float32x4: Float32Array;
+}
