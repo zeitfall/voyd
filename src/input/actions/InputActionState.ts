@@ -1,4 +1,4 @@
-import { InputActionValueFactory, InputActionEvaluatorFactory } from './evaluators';
+import { createInputActionValue, createInputActionEvaluator } from '~/utils';
 
 import { InputControlType } from '~/enums';
 
@@ -18,9 +18,9 @@ class InputActionState<C extends InputControlType> {
     #evaluator: InputActionEvaluatorMap[C];
 
     constructor(controlType: C) {
-        this.#value = InputActionValueFactory.create(controlType);
-        this.#tempValue = InputActionValueFactory.create(controlType);
-        this.#evaluator = InputActionEvaluatorFactory.create(controlType);
+        this.#value = createInputActionValue(controlType);
+        this.#tempValue = createInputActionValue(controlType);
+        this.#evaluator = createInputActionEvaluator(controlType);
     }
 
     get value() {

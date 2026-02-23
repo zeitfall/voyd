@@ -6,11 +6,6 @@ import type {
     InputAxis1DBinding,
     InputAxis2DBinding,
     InputAxis3DBinding,
-    InputActionDiscreteState,
-    InputActionContinuousState,
-    InputActionAxisState,
-    InputActionVector2State,
-    InputActionVector3State,
     InputActionDiscreteEvaluator,
     InputActionContinuousEvaluator,
     InputActionAxisEvaluator,
@@ -23,7 +18,12 @@ import type {
     InputVectorNormalizeProcessor,
     InputVectorScaleProcessor,
     InputVector2InvertProcessor,
-    InputVector3InvertProcessor
+    InputVector3InvertProcessor,
+    InputActionDiscreteState,
+    InputActionContinuousState,
+    InputActionAxisState,
+    InputActionVector2State,
+    InputActionVector3State
 } from '~/input';
 
 import type { InputDeviceType, InputControlType, MouseButton } from '~/enums';
@@ -66,6 +66,14 @@ export interface InputActionValueMap {
     [InputControlType.VECTOR_3]: Vector3;
 }
 
+export interface InputActionEvaluatorMap {
+    [InputControlType.DISCRETE]: InputActionDiscreteEvaluator;
+    [InputControlType.CONTINUOUS]: InputActionContinuousEvaluator;
+    [InputControlType.AXIS]: InputActionAxisEvaluator;
+    [InputControlType.VECTOR_2]: InputActionVector2Evaluator;
+    [InputControlType.VECTOR_3]: InputActionVector3Evaluator;
+}
+
 export interface InputActionStateMap {
     [InputControlType.DISCRETE]: InputActionDiscreteState;
     [InputControlType.CONTINUOUS]: InputActionContinuousState;
@@ -81,14 +89,6 @@ export interface InputActionEvaluator<
     evaluate(devices: InputDeviceMap, binding: InputBindingMap[C], tempValue: V): V;
     resolve(oldValue: V, newValue: V): V;
     reset(value: V): V;
-}
-
-export interface InputActionEvaluatorMap {
-    [InputControlType.DISCRETE]: InputActionDiscreteEvaluator;
-    [InputControlType.CONTINUOUS]: InputActionContinuousEvaluator;
-    [InputControlType.AXIS]: InputActionAxisEvaluator;
-    [InputControlType.VECTOR_2]: InputActionVector2Evaluator;
-    [InputControlType.VECTOR_3]: InputActionVector3Evaluator;
 }
 
 export interface InputProcessor<V = unknown> {

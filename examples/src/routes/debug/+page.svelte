@@ -64,8 +64,8 @@
     const positionAttribute = new InterleavedBufferAttribute(vertexInterleavedBuffer, 'float32x3');
     const colorAttribute = new InterleavedBufferAttribute(vertexInterleavedBuffer, 'uint8x4', 12);
 
-    console.log('positionAttribute', positionAttribute, positionAttribute.get(0, 0));
-    console.log('colorAttribute', colorAttribute, colorAttribute.get(0, 0));
+    console.log('positionAttribute', positionAttribute);
+    console.log('colorAttribute', colorAttribute);
 
     const vertexBuffer = createVertexBuffer(vertexData);
 

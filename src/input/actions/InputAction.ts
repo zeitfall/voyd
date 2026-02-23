@@ -1,4 +1,4 @@
-import InputActionStateFactory from './InputActionStateFactory';
+import { createInputActionState } from '~/utils';
 
 import { InputControlType } from '~/enums';
 
@@ -16,7 +16,7 @@ class InputAction<C extends InputControlType> {
 		this.#name = name;
 		this.#controlType = controlType;
 		// @ts-expect-error Type 'InputActionStateMap[C]' is not assignable to type 'InputActionState<C>'.
-		this.#state = InputActionStateFactory.create(controlType);
+		this.#state = createInputActionState(controlType);
 		this.#bindings = new Set();
 		this.#processors = new Set();
 	}

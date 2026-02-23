@@ -1,4 +1,4 @@
-import { VertexViewFactory } from '~/core';
+import { createVertexView } from '~/utils';
 
 import {
     VERTEX_ATTRIBUTE_COMPONENT_BYTE_SIZE_MAP,
@@ -16,7 +16,7 @@ class InterleavedBufferAttribute<F extends GPUVertexFormat> {
 
     constructor(buffer: InterleavedBuffer, format: F, byteOffset = 0) {
         this.#buffer = buffer;
-        this.#bufferView = VertexViewFactory.create(format, buffer.data);
+        this.#bufferView = createVertexView(format, buffer.data);
         this.#format = format;
         this.#byteOffset = byteOffset;
     }
