@@ -307,7 +307,7 @@ class Quaternion {
 	}
 
 	setFromMatrix(matrix: Matrix3) {
-		const a = matrix.elements;
+		const a = matrix.array;
 
 		const m11 = a[0];
 		const m12 = a[3];

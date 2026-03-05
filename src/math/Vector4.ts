@@ -128,7 +128,7 @@ class Vector4 extends Vector {
 	}
 
 	multiplyByMatrix(matrix: Matrix4): this {
-		const a = matrix.elements;
+		const a = matrix.array;
 
 		const e11 = a[0];
 		const e12 = a[4];

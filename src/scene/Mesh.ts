@@ -1,4 +1,4 @@
-import type { Geometry } from '~/geometries';
+import type { Geometry } from '~/geometry';
 import type { Material } from '~/materials';
 
 // https://docs.unity3d.com/6000.3/Documentation/ScriptReference/Mesh.html

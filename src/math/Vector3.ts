@@ -171,7 +171,7 @@ class Vector3 extends Vector {
 	}
 
 	multiplyByMatrix(matrix: Matrix3): this {
-		const a = matrix.elements;
+		const a = matrix.array;
 
 		const e11 = a[0];
 		const e12 = a[3];

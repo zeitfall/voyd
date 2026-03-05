@@ -120,7 +120,7 @@ class Vector2 extends Vector {
 		const x = this.x;
 		const y = this.y;
 
-		const a = matrix.elements;
+		const a = matrix.array;
 
 		const e11 = a[0];
 		const e12 = a[2];

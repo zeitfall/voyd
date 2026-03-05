@@ -1,6 +1,12 @@
 export type BufferSource = ArrayBuffer | ArrayBufferView;
 
-export interface VertexViewMap {
+export interface BufferAttribute {
+    readonly data: ArrayBuffer;
+    readonly byteStride: number;
+    readonly layout: Readonly<GPUVertexFormat[]>;
+}
+
+export interface VertexBufferViewMap {
     uint8: Uint8Array; 
     uint8x2: Uint8Array;
     uint8x4: Uint8Array;

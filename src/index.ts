@@ -4,7 +4,7 @@ export * from './input';
 
 export * from './math';
 
-export * from './geometries';
+export * from './geometry';
 
 export * from './scene';
 

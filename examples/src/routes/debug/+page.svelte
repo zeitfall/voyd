@@ -7,7 +7,7 @@
     import {
         GPUContext,
         RenderBundle,
-        InterleavedBuffer,
+        StandardBufferAttribute,
         InterleavedBufferAttribute,
         SceneNode,
         PerspectiveCamera,
@@ -17,7 +17,7 @@
         KeyboardDevice,
         PointerDevice,
         createVertexBuffer,
-        createIndexBuffer
+        createIndexBuffer,
     } from 'voyd';
 
     let canvasElement: HTMLCanvasElement;
@@ -26,46 +26,43 @@
 
     const vertexBufferByteStride = 3 * Float32Array.BYTES_PER_ELEMENT + 4 * Uint8Array.BYTES_PER_ELEMENT;
     const vertexData = new ArrayBuffer(4 * vertexBufferByteStride);
-    const vertexDataView = new DataView(vertexData);
-    const vertexInterleavedBuffer = new InterleavedBuffer(vertexData, vertexBufferByteStride);
+    const vertexInterleavedBufferAttribute = new InterleavedBufferAttribute(vertexData, ['float32x3', 'uint8x4']);
 
-    vertexDataView.setFloat32(0, 32, true);
-    vertexDataView.setFloat32(4, 0, true);
-    vertexDataView.setFloat32(8, 32, true);
-    vertexDataView.setUint8(12, 1);
-    vertexDataView.setUint8(13, 0);
-    vertexDataView.setUint8(14, 0);
-    vertexDataView.setUint8(15, 1);
+    vertexInterleavedBufferAttribute
+        .set(0, 0, 0, 32)
+        .set(0, 0, 1, 0)
+        .set(0, 0, 2, 32)
+        .set(0, 1, 0, 1)
+        .set(0, 1, 1, 0)
+        .set(0, 1, 2, 0)
+        .set(0, 1, 3, 1);
 
-    vertexDataView.setFloat32(16, -32, true);
-    vertexDataView.setFloat32(20, 0, true);
-    vertexDataView.setFloat32(24, 32, true);
-    vertexDataView.setUint8(28, 0);
-    vertexDataView.setUint8(29, 1);
-    vertexDataView.setUint8(30, 0);
-    vertexDataView.setUint8(31, 1);
+    vertexInterleavedBufferAttribute
+        .set(1, 0, 0, -32)
+        .set(1, 0, 1, 0)
+        .set(1, 0, 2, 32)
+        .set(1, 1, 0, 0)
+        .set(1, 1, 1, 1)
+        .set(1, 1, 2, 0)
+        .set(1, 1, 3, 1);
 
-    vertexDataView.setFloat32(32, -32, true);
-    vertexDataView.setFloat32(36, 0, true);
-    vertexDataView.setFloat32(40, -32, true);
-    vertexDataView.setUint8(44, 0);
-    vertexDataView.setUint8(45, 0);
-    vertexDataView.setUint8(46, 1);
-    vertexDataView.setUint8(47, 1);
+    vertexInterleavedBufferAttribute
+        .set(2, 0, 0, -32)
+        .set(2, 0, 1, 0)
+        .set(2, 0, 2, -32)
+        .set(2, 1, 0, 0)
+        .set(2, 1, 1, 0)
+        .set(2, 1, 2, 1)
+        .set(2, 1, 3, 1);
 
-    vertexDataView.setFloat32(48, 32, true);
-    vertexDataView.setFloat32(52, 0, true);
-    vertexDataView.setFloat32(56, -32, true);
-    vertexDataView.setUint8(60, 0);
-    vertexDataView.setUint8(61, 0);
-    vertexDataView.setUint8(62, 0);
-    vertexDataView.setUint8(63, 1);
-
-    const positionAttribute = new InterleavedBufferAttribute(vertexInterleavedBuffer, 'float32x3');
-    const colorAttribute = new InterleavedBufferAttribute(vertexInterleavedBuffer, 'uint8x4', 12);
-
-    console.log('positionAttribute', positionAttribute);
-    console.log('colorAttribute', colorAttribute);
+    vertexInterleavedBufferAttribute
+        .set(3, 0, 0, 32)
+        .set(3, 0, 1, 0)
+        .set(3, 0, 2, -32)
+        .set(3, 1, 0, 0)
+        .set(3, 1, 1, 0)
+        .set(3, 1, 2, 0)
+        .set(3, 1, 3, 1);
 
     const vertexBuffer = createVertexBuffer(vertexData);
 
