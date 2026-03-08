@@ -2,17 +2,17 @@ import { createVertexBufferView } from '~/utils';
 
 import { VERTEX_ATTRIBUTE_FORMAT_BYTE_SIZE_MAP } from '~/constants';
 
-import type { BufferAttribute, VertexBufferViewMap } from '~/types';
+import type { BufferView, VertexBufferViewMap } from '~/types';
 
-class InterleavedBufferAttribute implements BufferAttribute {
-    #data: ArrayBuffer;
+class InterleavedBufferView implements BufferView {
+    #buffer: ArrayBuffer;
     #byteStride: number;
     #layout: Readonly<GPUVertexFormat[]>;
 
     #views: Array<VertexBufferViewMap[GPUVertexFormat]>;
     #attributeByteOffsets: Uint32Array;
 
-    constructor(data: ArrayBuffer, layout: GPUVertexFormat[]) {
+    constructor(buffer: ArrayBuffer, layout: GPUVertexFormat[]) {
         const formatCount = layout.length;
 
         const views = new Array(formatCount);
@@ -25,13 +25,13 @@ class InterleavedBufferAttribute implements BufferAttribute {
             const format = layout[i];
 
             if (format === 'unorm10-10-10-2') {
-                throw new Error(`[InterleavedBufferAttribute]: Format "${format}" is packed and does not have a byte size per component.`);
+                throw new Error(`[InterleavedBufferView]: Format "${format}" is packed and does not have a byte size per component.`);
             }
 
             let view = viewMap.get(format);
 
             if (!view) {
-                view = createVertexBufferView(format, data);
+                view = createVertexBufferView(format, buffer);
 
                 viewMap.set(format, view);
             }
@@ -42,14 +42,14 @@ class InterleavedBufferAttribute implements BufferAttribute {
             currentAttributeOffset += VERTEX_ATTRIBUTE_FORMAT_BYTE_SIZE_MAP[format];
         }
 
-        const dataByteLength = data.byteLength;
+        const bufferByteLength = buffer.byteLength;
         const byteStride = currentAttributeOffset;
 
-        if (dataByteLength % byteStride !== 0) {
-            throw new Error(`[InterleavedBufferAttribute]: Data byte length must be a multiple of byte stride.`);
+        if (bufferByteLength % byteStride !== 0) {
+            throw new Error(`[InterleavedBufferView]: Buffer byte length must be a multiple of byte stride.`);
         }
 
-        this.#data = data;
+        this.#buffer = buffer;
         this.#layout = Object.freeze(layout);
         this.#byteStride = byteStride;
 
@@ -57,8 +57,8 @@ class InterleavedBufferAttribute implements BufferAttribute {
         this.#attributeByteOffsets = attributeByteOffsets;
     }
 
-    get data() {
-        return this.#data;
+    get buffer() {
+        return this.#buffer;
     }
 
     get layout() {
@@ -93,4 +93,4 @@ class InterleavedBufferAttribute implements BufferAttribute {
     }
 }
 
-export default InterleavedBufferAttribute;
+export default InterleavedBufferView;

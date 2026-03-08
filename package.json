@@ -15,12 +15,6 @@
 		}
 	},
 	"scripts": {
-		"biome:lint": "biome lint",
-		"biome:format": "biome format",
-		"biome:pretify": "npm run biome:lint && npm run biome:format",
-		"biome:lint:write": "biome lint --write",
-		"biome:format:write": "biome format --write",
-		"biome:pretify:write": "npm run biome:lint:write && npm run biome:format:write",
 		"vite:build": "vite build",
 		"vite:build:watch": "NODE_ENV=dev vite build -w"
 	},

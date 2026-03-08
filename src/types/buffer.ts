@@ -1,7 +1,9 @@
+import type { TypedArray } from './array';
+
 export type BufferSource = ArrayBuffer | ArrayBufferView;
 
-export interface BufferAttribute {
-    readonly data: ArrayBuffer;
+export interface BufferView {
+    readonly buffer: ArrayBuffer;
     readonly byteStride: number;
     readonly layout: Readonly<GPUVertexFormat[]>;
 }
@@ -48,4 +50,9 @@ export interface VertexBufferViewMap {
     float32x2: Float32Array;
     float32x3: Float32Array;
     float32x4: Float32Array;
+}
+
+export interface InterleaveVertexBufferSource {
+    format: GPUVertexFormat;
+    array: TypedArray;
 }

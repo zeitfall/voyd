@@ -7,8 +7,6 @@
     import {
         GPUContext,
         RenderBundle,
-        StandardBufferAttribute,
-        InterleavedBufferAttribute,
         SceneNode,
         PerspectiveCamera,
         FlyController,
@@ -16,65 +14,40 @@
         InputManager,
         KeyboardDevice,
         PointerDevice,
+        BufferAttribute,
         createVertexBuffer,
         createIndexBuffer,
+        interleaveBufferAttributes,
+        generatePlaneVertexData,
+        generateSphereVertexData,
+        generatePointListIndices,
+        generateLineListIndices,
+        generateTriangleListIndices,
     } from 'voyd';
 
     let canvasElement: HTMLCanvasElement;
     let canvasContext: GPUCanvasContext;
     let canvasResizer: CanvasResizer;
+    
+    let depthTexture: GPUTexture;
 
-    const vertexBufferByteStride = 3 * Float32Array.BYTES_PER_ELEMENT + 4 * Uint8Array.BYTES_PER_ELEMENT;
-    const vertexData = new ArrayBuffer(4 * vertexBufferByteStride);
-    const vertexInterleavedBufferAttribute = new InterleavedBufferAttribute(vertexData, ['float32x3', 'uint8x4']);
+    const shapeVertexData = generateSphereVertexData(4, 32, 32);
+    const shapeIndices = generateTriangleListIndices(32, 32);
 
-    vertexInterleavedBufferAttribute
-        .set(0, 0, 0, 32)
-        .set(0, 0, 1, 0)
-        .set(0, 0, 2, 32)
-        .set(0, 1, 0, 1)
-        .set(0, 1, 1, 0)
-        .set(0, 1, 2, 0)
-        .set(0, 1, 3, 1);
-
-    vertexInterleavedBufferAttribute
-        .set(1, 0, 0, -32)
-        .set(1, 0, 1, 0)
-        .set(1, 0, 2, 32)
-        .set(1, 1, 0, 0)
-        .set(1, 1, 1, 1)
-        .set(1, 1, 2, 0)
-        .set(1, 1, 3, 1);
-
-    vertexInterleavedBufferAttribute
-        .set(2, 0, 0, -32)
-        .set(2, 0, 1, 0)
-        .set(2, 0, 2, -32)
-        .set(2, 1, 0, 0)
-        .set(2, 1, 1, 0)
-        .set(2, 1, 2, 1)
-        .set(2, 1, 3, 1);
-
-    vertexInterleavedBufferAttribute
-        .set(3, 0, 0, 32)
-        .set(3, 0, 1, 0)
-        .set(3, 0, 2, -32)
-        .set(3, 1, 0, 0)
-        .set(3, 1, 1, 0)
-        .set(3, 1, 2, 0)
-        .set(3, 1, 3, 1);
-
-    const vertexBuffer = createVertexBuffer(vertexData);
-
-    const indexData = new Uint16Array([0, 1, 2, 0, 2, 3]);
-    const indexBuffer = createIndexBuffer(indexData);
+    const interleavedVertexBuffer = interleaveBufferAttributes([
+        new BufferAttribute('float32x3', shapeVertexData.positions),
+        new BufferAttribute('float32x3', shapeVertexData.normals),
+        new BufferAttribute('float32x2', shapeVertexData.uvs)
+    ]);
+    const vertexBuffer = createVertexBuffer(interleavedVertexBuffer);
+    const indexBuffer = createIndexBuffer(shapeIndices);
 
     const rootSceneNode = new SceneNode();
 
     const cameraNode = new SceneNode();
     const camera = new PerspectiveCamera();
     
-    cameraNode.transform.position.set(0, 1, 0);
+    cameraNode.transform.position.set(0, 0, -8);
     // cameraNode.transform.lookAt(0, 0, 0);
     cameraNode.transform.update();
 
@@ -91,12 +64,12 @@
         code: `
             struct VertexStageInput {
                 @location(0) vertex_position : vec3f,
-                @location(1) vertex_color    : vec4u
+                @location(1) vertex_normal   : vec3f, 
             }
 
             struct VertexStageOutput {
                 @builtin(position) vertex_position : vec4f,
-                @location(0) vertex_color          : vec4f
+                @location(0) vertex_normal         : vec3f, 
             }
 
             struct FragmentStageOutput {
@@ -110,10 +83,8 @@
             fn vertex_stage(input : VertexStageInput) -> VertexStageOutput {
                 var output : VertexStageOutput;
 
-                var vertex_position = camera_projection * camera_view * vec4f(input.vertex_position, 1);
-
-                output.vertex_position = vertex_position;
-                output.vertex_color    = vec4f(input.vertex_color);
+                output.vertex_position = camera_projection * camera_view * vec4f(input.vertex_position, 1);
+                output.vertex_normal   = input.vertex_normal;
 
                 return output;
             }
@@ -122,7 +93,15 @@
             fn fragment_stage(input : VertexStageOutput) -> FragmentStageOutput {
                 var output : FragmentStageOutput;
 
-                output.fragment_color = vec4f(input.vertex_color);
+                var light_source_position = normalize(vec3f(4, 1, -2));
+
+                var ambient_light = 0.25;
+                var diffuse_light = max(dot(input.vertex_normal, light_source_position), 0.0);
+
+                var base_color  = vec3f(0, 0.65, 0.42); 
+                var final_color = base_color * (ambient_light + diffuse_light);
+
+                output.fragment_color = vec4f(final_color, 1.0);
 
                 return output;
             }
@@ -173,7 +152,7 @@
             entryPoint: 'vertex_stage',
             buffers: [
                 {
-                    arrayStride: vertexBufferByteStride,
+                    arrayStride: 8 * Float32Array.BYTES_PER_ELEMENT,
                     attributes: [
                         {
                             shaderLocation: 0,
@@ -183,7 +162,12 @@
                         {
                             shaderLocation: 1,
                             offset: 3 * Float32Array.BYTES_PER_ELEMENT,
-                            format: 'uint8x4'
+                            format: 'float32x3'
+                        },
+                        {
+                            shaderLocation: 2,
+                            offset: 6 * Float32Array.BYTES_PER_ELEMENT,
+                            format: 'float32x2'
                         }
                     ]
                 }
@@ -195,7 +179,13 @@
             targets: [{ format: GPUContext.preferredFormat }]
         },
         primitive: {
+            topology: 'triangle-list',
             cullMode: 'back'
+        },
+        depthStencil: {
+            format: 'depth24plus',
+            depthWriteEnabled: true,
+            depthCompare: 'less'
         }
     });
 
@@ -205,9 +195,12 @@
             encoder.setBindGroup(0, renderBindGroup);
             encoder.setVertexBuffer(0, vertexBuffer);
             encoder.setIndexBuffer(indexBuffer, 'uint16');
-            encoder.drawIndexed(indexData.length);
+            encoder.drawIndexed(shapeIndices.length);
         },
-        { colorFormats: [GPUContext.preferredFormat] }
+        {
+            colorFormats: [GPUContext.preferredFormat],
+            depthStencilFormat: 'depth24plus'
+        }
     );
 
     const renderPassDescriptor: GPURenderPassDescriptor = {
@@ -218,13 +211,25 @@
                 loadOp: 'clear',
                 storeOp: 'store',
             }
-        ]
+        ],
+        depthStencilAttachment: {
+            view: undefined,
+            depthClearValue: 1,
+            depthLoadOp: 'clear',
+            depthStoreOp: 'store',
+        },
     };
 
     let rafId = requestAnimationFrame(updateLoop);
     let rafTime = 0;
 
     function updateLoop(currentTimestamp: number) {
+        if (!depthTexture) {
+            rafId = requestAnimationFrame(updateLoop);
+
+            return;
+        }
+
         const deltaTime = rafTime ? currentTimestamp - rafTime : 0;
         const deltaTimeMs = deltaTime / 1000;
 
@@ -239,6 +244,7 @@
 
         // @ts-expect-error Property '0' does not exist on type 'Iterable<GPURenderPassColorAttachment>'.
         renderPassDescriptor.colorAttachments[0].view = canvasContext.getCurrentTexture().createView();
+        renderPassDescriptor.depthStencilAttachment.view = depthTexture.createView();
 
         const renderPass = commandEncoder.beginRenderPass(renderPassDescriptor);
 
@@ -259,6 +265,18 @@
         canvasContext.configure({
             device: GPUContext.device,
             format: GPUContext.preferredFormat
+        });
+
+        canvasElement.addEventListener('resize', () => {
+            if (depthTexture) {
+                depthTexture.destroy();
+            }
+
+            depthTexture = GPUContext.device.createTexture({
+                size: [canvasElement.width, canvasElement.height],
+                format: 'depth24plus',
+                usage: GPUTextureUsage.RENDER_ATTACHMENT
+            });
         });
     });
 

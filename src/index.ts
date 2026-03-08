@@ -4,6 +4,8 @@ export * from './input';
 
 export * from './math';
 
+export * from './shapes';
+
 export * from './geometry';
 
 export * from './scene';

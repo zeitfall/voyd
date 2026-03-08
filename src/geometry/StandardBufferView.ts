@@ -5,34 +5,34 @@ import {
     VERTEX_ATTRIBUTE_FORMAT_BYTE_SIZE_MAP
 } from '~/constants';
 
-import type { BufferAttribute, VertexBufferViewMap } from '~/types';
+import type { BufferView, VertexBufferViewMap } from '~/types';
 
-class StandardBufferAttribute<F extends GPUVertexFormat> implements BufferAttribute {
-    #data: ArrayBuffer;
+class StandardBufferView<F extends GPUVertexFormat> implements BufferView {
+    #buffer: ArrayBuffer;
     #byteStride: number;
     #layout: Readonly<[GPUVertexFormat]>;
 
     #view: VertexBufferViewMap[F];
     #componentsPerElement: number;
 
-    constructor(data: ArrayBuffer, format: F) {
-        const dataByteLength = data.byteLength;
+    constructor(buffer: ArrayBuffer, format: F) {
+        const bufferByteLength = buffer.byteLength;
         const byteStride = VERTEX_ATTRIBUTE_FORMAT_BYTE_SIZE_MAP[format];
 
-        if (dataByteLength % byteStride !== 0) {
-            throw new Error(`[StandardBufferAttribute]: Data byte length must be a multiple of byte stride.`);
+        if (bufferByteLength % byteStride !== 0) {
+            throw new Error(`[StandardBufferView]: Buffer byte length must be a multiple of byte stride.`);
         }
 
-        this.#data = data;
+        this.#buffer = buffer;
         this.#byteStride = byteStride;
         this.#layout = Object.freeze([format]);
 
-        this.#view = createVertexBufferView(format, data);
+        this.#view = createVertexBufferView(format, buffer);
         this.#componentsPerElement = VERTEX_ATTRIBUTE_COMPONENT_COUNT_MAP[format];
     }
 
-    get data() {
-        return this.#data;
+    get buffer() {
+        return this.#buffer;
     }
 
     get byteStride() {
@@ -62,4 +62,4 @@ class StandardBufferAttribute<F extends GPUVertexFormat> implements BufferAttrib
     }
 }
 
-export default StandardBufferAttribute;
+export default StandardBufferView;

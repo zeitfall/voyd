@@ -1,6 +1,5 @@
 class CanvasResizer {
 	#canvasElement: HTMLCanvasElement;
-	#resizeObserver: ResizeObserver;
 	#resizeEvent: UIEvent;
 
 	constructor(canvasElement: HTMLCanvasElement) {
@@ -16,14 +15,7 @@ class CanvasResizer {
 		resizeObserver.observe(canvasElement);
 
 		this.#canvasElement = canvasElement;
-        this.#resizeObserver = resizeObserver;
         this.#resizeEvent = resizeEvent;
-	}
-
-	disconnectedCallback() {
-		this.#canvasElement.removeEventListener('contextmenu', this.#handleContextMenu);
-
-		this.#resizeObserver.disconnect();
 	}
 
 	#handleContextMenu(event: PointerEvent) {

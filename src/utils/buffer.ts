@@ -1,6 +1,16 @@
 import { GPUContext } from '~/core';
 
-import type { Constructor, TypedArray, VertexBufferViewMap } from '~/types';
+import {
+    VERTEX_ATTRIBUTE_COMPONENT_COUNT_MAP,
+    VERTEX_ATTRIBUTE_FORMAT_BYTE_SIZE_MAP
+} from '~/constants';
+
+import type { BufferAttribute } from '~/geometry';
+import type {
+    Constructor,
+    TypedArray,
+    VertexBufferViewMap
+} from '~/types';
 
 function createBuffer(size: number, usage: number, mappedAtCreation = false) {
     return GPUContext.device.createBuffer({
@@ -109,6 +119,67 @@ function createVertexBufferView<F extends GPUVertexFormat>(format: F, buffer?: A
     }
 }
 
+function interleaveBufferAttributes(attributes: BufferAttribute[]) {
+    let vertexCount = 0;
+    let bytesPerVertex = 0;
+
+    const attributeCount = attributes.length;
+    const attributeComponentCounts = new Array(attributeCount);
+    const attributeByteOffsets = new Array(attributeCount);
+    const attributeViews = new Array(attributeCount);
+    const attributeViewMap = new Map();
+
+    for (let i = 0; i < attributeCount; i++) {
+        const attribute = attributes[i];
+        const attributeFormat = attribute.format;
+        const attributeArrayByteLength = attribute.array.byteLength;
+        const attributeByteSize = VERTEX_ATTRIBUTE_FORMAT_BYTE_SIZE_MAP[attributeFormat];
+
+        attributeComponentCounts[i] = VERTEX_ATTRIBUTE_COMPONENT_COUNT_MAP[attributeFormat];
+        attributeByteOffsets[i] = bytesPerVertex;
+
+        vertexCount = Math.max(vertexCount, attributeArrayByteLength / attributeByteSize);
+        bytesPerVertex += attributeByteSize;
+    }
+
+    bytesPerVertex = 4 * Math.ceil(bytesPerVertex / 4);
+
+    const buffer = new ArrayBuffer(vertexCount * bytesPerVertex);
+
+    for (let i = 0; i < attributeCount; i++) {
+        const attribute = attributes[i];
+        const attributeFormat = attribute.format;
+        let attributeView = attributeViewMap.get(attributeFormat);
+
+        if (!attributeView) {
+            attributeView = createVertexBufferView(attributeFormat, buffer);
+
+            attributeViewMap.set(attributeFormat, attributeView);
+        }
+
+        attributeViews[i] = attributeView;
+    }
+
+    for (let i = 0; i < vertexCount; i++) {
+        const vertexByteOffset = i * bytesPerVertex;
+
+        for (let j = 0; j < attributeCount; j++) {
+            const attributeArray = attributes[j].array;
+            const attributeComponentCount = attributeComponentCounts[j];
+            const attributeByteOffset = attributeByteOffsets[j];
+            const attributeView = attributeViews[j];
+            const attributeViewStartIndex = (vertexByteOffset + attributeByteOffset) / attributeView.BYTES_PER_ELEMENT;
+            const attributeComponentStartIndex = i * attributeComponentCount;
+
+            for (let k = 0; k < attributeComponentCount; k++) {
+                attributeView[attributeViewStartIndex + k] = attributeArray[attributeComponentStartIndex + k];
+            }
+        }
+    }
+
+    return buffer;
+}
+
 function _instantiateTypedArray(
     Constructor: Constructor<TypedArray>,
     buffer?: ArrayBuffer,
@@ -129,6 +200,5 @@ export {
     createVertexBuffer,
     createIndexBuffer,
     createVertexBufferView,
-    getVertexBufferComponent,
-    setVertexBufferComponent
+    interleaveBufferAttributes
 };
