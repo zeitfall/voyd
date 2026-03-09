@@ -39,6 +39,8 @@ class KeyboardDevice implements InputDevice {
 
             this.#abortController = null;
         }
+
+        this.#events.clear();
     }
 
     getEvent(key: string) {

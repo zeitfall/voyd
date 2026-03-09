@@ -3,12 +3,18 @@ import { InputDeviceType, MouseButton } from '~/enums';
 import type { InputDevice, PointerButton } from '~/types';
 
 class PointerDevice implements InputDevice {
-    #abortController: AbortController | null;
+    #targetElement: HTMLElement;
+    #connectionAbortController: AbortController | null;
+    #pointerAbortController: AbortController | null;
+
     #events: Map<PointerButton, PointerEvent>;
     #pointerSlots: Map<number, number>;
 
-    constructor() {
-        this.#abortController = null;
+    constructor(targetElement: HTMLElement) {
+        this.#targetElement = targetElement;
+        this.#connectionAbortController = null;
+        this.#pointerAbortController = null;
+
         this.#events = new Map();
         this.#pointerSlots = new Map();
     }
@@ -25,30 +31,25 @@ class PointerDevice implements InputDevice {
         this.disconnect();
 
         const abortController = new AbortController();
-        const eventListenerOptions = { signal: abortController.signal, passive: true };
+        const eventListenerOptions = { signal: abortController.signal };
 
-        this.#abortController = abortController;
-
-        window.addEventListener('pointerdown', (event) => this.#handlePointerDown(event), eventListenerOptions);
-        window.addEventListener('pointerenter', (event) => this.#handlePointerDown(event), eventListenerOptions);
-        window.addEventListener('pointermove', (event) => this.#handlePointerMove(event), eventListenerOptions);
+        this.#connectionAbortController = abortController;
         
-        window.addEventListener('pointerup', (event) => this.#handlePointerUp(event), eventListenerOptions);
-        window.addEventListener('pointerleave', (event) => this.#handlePointerUp(event), eventListenerOptions);
-        window.addEventListener('pointercancel', (event) => this.#handlePointerUp(event), eventListenerOptions);
+        this.#targetElement.addEventListener('click', () => this.#requestPointerLock(), eventListenerOptions);
+        document.addEventListener('pointerlockchange', () => this.#handlePointerLockChange(), eventListenerOptions);
     }
 
     disconnect() {
-        const abortController = this.#abortController;
+        const connectionAbortController = this.#connectionAbortController;
 
-        if (abortController) {
-            abortController.abort();
+        if (connectionAbortController) {
+            connectionAbortController.abort();
 
-            this.#abortController = null;
+            this.#connectionAbortController = null;
         }
 
-        this.#events.clear();
-        this.#pointerSlots.clear();
+        this.#destroyPointerEventListeners();
+        this.#exitPointerLock();
     }
 
     getEvent(key: PointerButton) {
@@ -238,6 +239,69 @@ class PointerDevice implements InputDevice {
 
     #throwUnsupportedPointerError(pointerType: string) {
         throw new Error(`[PointerDevice]: Cannot handle pointer. Unsupported pointer type "${pointerType}" was given.`);
+    }
+
+    async #requestPointerLock() {
+        const targetElement = this.#targetElement;
+
+		try {
+            if (document.pointerLockElement === targetElement) {
+                return;
+            }
+
+			await targetElement.requestPointerLock({ unadjustedMovement: true });
+		} catch (error) {
+			// @ts-expect-error 'error' is of type 'unknown'.
+			if (error.name === 'NotSupportedError') {
+				await targetElement.requestPointerLock();
+
+				return;
+			}
+
+			throw error;
+		}
+    }
+
+    #exitPointerLock() {
+        if (document.pointerLockElement === this.#targetElement) {
+            document.exitPointerLock();
+        }
+    }
+
+    #handlePointerLockChange() {
+        this.#destroyPointerEventListeners();
+
+        if (document.pointerLockElement === this.#targetElement) {
+            const abortController = new AbortController();
+            const eventListenerOptions = { signal: abortController.signal, passive: true };
+
+            this.#pointerAbortController = abortController;
+
+            this.#initPointerEventListeners(eventListenerOptions);
+        }
+    }
+
+    #initPointerEventListeners(options: AddEventListenerOptions) {
+        window.addEventListener('pointerdown', (event) => this.#handlePointerDown(event), options);
+        window.addEventListener('pointerenter', (event) => this.#handlePointerDown(event), options);
+        window.addEventListener('pointermove', (event) => this.#handlePointerMove(event), options);
+        
+        window.addEventListener('pointerup', (event) => this.#handlePointerUp(event), options);
+        window.addEventListener('pointerleave', (event) => this.#handlePointerUp(event), options);
+        window.addEventListener('pointercancel', (event) => this.#handlePointerUp(event), options);
+    }
+
+    #destroyPointerEventListeners() {
+        const pointerAbortController = this.#pointerAbortController;
+
+        if (pointerAbortController) {
+            pointerAbortController.abort();
+
+            this.#pointerAbortController = null;
+        }
+
+        this.#events.clear();
+        this.#pointerSlots.clear();
     }
 }
 

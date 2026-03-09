@@ -56,9 +56,7 @@
     cameraNode.addComponent(new FlyController());
     cameraNode.addComponent(new FreeLookController());
 
-    InputManager
-        .registerDevice(new KeyboardDevice())
-        .registerDevice(new PointerDevice());
+    InputManager.registerDevice(new KeyboardDevice());
 
     const renderShader = GPUContext.device.createShaderModule({
         code: `
@@ -278,6 +276,8 @@
                 usage: GPUTextureUsage.RENDER_ATTACHMENT
             });
         });
+
+        InputManager.registerDevice(new PointerDevice(canvasElement));
     });
 
     onDestroy(() => {
