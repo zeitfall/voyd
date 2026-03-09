@@ -92,7 +92,7 @@ class FlyController extends SceneComponent {
                 tempMovement.normalize();
             }
 
-            tempMovement.scale(8 * deltaTime);
+            tempMovement.scale(16 * deltaTime);
 
             desiredPosition.add(tempMovement);
         }
@@ -129,7 +129,7 @@ class FlyController extends SceneComponent {
             ]
         });
 
-        const inputMouseBinding = new InputSingleBinding({ deviceType: InputDeviceType.POINTER, key: MouseButton.LMB });
+        const inputMouseBinding = new InputSingleBinding({ deviceType: InputDeviceType.POINTER, key: MouseButton.RMB });
         const inputTouchBinding = new InputSingleBinding({ deviceType: InputDeviceType.POINTER, key: 'Touch1' });
 
         const pointerInputInvertProcessor = new InputVector2InvertProcessor(true, false);

@@ -186,7 +186,7 @@ class FreeLookController extends SceneComponent {
             ]
         });
 
-        const inputMouseBinding = new InputSingleBinding({ deviceType: InputDeviceType.POINTER, key: MouseButton.RMB });
+        const inputMouseBinding = new InputSingleBinding({ deviceType: InputDeviceType.POINTER, key: MouseButton.LMB });
         const inputTouchBinding = new InputSingleBinding({ deviceType: InputDeviceType.POINTER, key: 'Touch0' });
 
         const pointerInputScaleProcessor = new InputVectorScaleProcessor(0.01);

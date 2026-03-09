@@ -19,6 +19,6 @@ export enum MouseButton {
     LMB,
     MMB,
     RMB,
-    BACK,
+    BACKWARD,
     FORWARD
 }

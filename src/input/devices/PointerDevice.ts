@@ -70,7 +70,7 @@ class PointerDevice implements InputDevice {
 
         switch (pointerType) {
             case 'mouse':
-                pointerKey = this.#getMouseKey(pointerButton);
+                pointerKey = this.#getMouseButtonKeyForPress(pointerButton);
 
                 break;
 
@@ -95,14 +95,14 @@ class PointerDevice implements InputDevice {
         const {
             pointerId,
             pointerType,
-            button: pointerButton
+            buttons: pointerButtons
         } = event;
 
         const events = this.#events;
 
         switch (pointerType) {
             case 'mouse':
-                const mouseKey = this.#getMouseKey(pointerButton);
+                const mouseKey = this.#getMouseButtonKeyForMove(pointerButtons);
 
                 if (events.has(mouseKey)) {
                     events.set(mouseKey, event);
@@ -138,7 +138,7 @@ class PointerDevice implements InputDevice {
 
         switch (pointerType) {
             case 'mouse':
-                pointerKey = this.#getMouseKey(pointerButton);
+                pointerKey = this.#getMouseButtonKeyForPress(pointerButton);
 
                 break;
 
@@ -160,7 +160,7 @@ class PointerDevice implements InputDevice {
         }
     }
 
-    #getMouseKey(pointerButton: number) {
+    #getMouseButtonKeyForPress(pointerButton: number) {
         switch (pointerButton) {
             case 0:
                 return MouseButton.LMB;
@@ -172,7 +172,7 @@ class PointerDevice implements InputDevice {
                 return MouseButton.RMB;
 
             case 3:
-                return MouseButton.BACK;
+                return MouseButton.BACKWARD;
 
             case 4:
                 return MouseButton.FORWARD;
@@ -180,6 +180,30 @@ class PointerDevice implements InputDevice {
             default:
                 return MouseButton.NONE;
         }
+    }
+
+    #getMouseButtonKeyForMove(pointerButtons: number) {
+        if (pointerButtons & 1) {
+            return MouseButton.LMB;
+        }
+
+        if (pointerButtons & 2) {
+            return MouseButton.RMB;
+        }
+
+        if (pointerButtons & 4) {
+            return MouseButton.MMB;
+        }
+
+        if (pointerButtons & 8) {
+            return MouseButton.BACKWARD;
+        }
+
+        if (pointerButtons & 16) {
+            return MouseButton.FORWARD;
+        }
+
+        return MouseButton.NONE;
     }
 
     #formatTouchKey(slotIndex: number) {
