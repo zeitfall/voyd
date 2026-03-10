@@ -60,6 +60,70 @@ class PointerDevice implements InputDevice {
         return this.#events.has(key);
     }
 
+
+    async #requestPointerLock() {
+        const targetElement = this.#targetElement;
+
+		try {
+            if (document.pointerLockElement === targetElement) {
+                return;
+            }
+
+			await targetElement.requestPointerLock({ unadjustedMovement: true });
+		} catch (error) {
+			// @ts-expect-error 'error' is of type 'unknown'.
+			if (error.name === 'NotSupportedError') {
+				await targetElement.requestPointerLock();
+
+				return;
+			}
+
+			throw error;
+		}
+    }
+
+    #exitPointerLock() {
+        if (document.pointerLockElement === this.#targetElement) {
+            document.exitPointerLock();
+        }
+    }
+
+    #handlePointerLockChange() {
+        this.#destroyPointerEventListeners();
+
+        if (document.pointerLockElement === this.#targetElement) {
+            const abortController = new AbortController();
+            const eventListenerOptions = { signal: abortController.signal, passive: true };
+
+            this.#pointerAbortController = abortController;
+
+            this.#initPointerEventListeners(eventListenerOptions);
+        }
+    }
+
+    #initPointerEventListeners(options: AddEventListenerOptions) {
+        window.addEventListener('pointerdown', (event) => this.#handlePointerDown(event), options);
+        window.addEventListener('pointerenter', (event) => this.#handlePointerDown(event), options);
+        window.addEventListener('pointermove', (event) => this.#handlePointerMove(event), options);
+        
+        window.addEventListener('pointerup', (event) => this.#handlePointerUp(event), options);
+        window.addEventListener('pointerleave', (event) => this.#handlePointerUp(event), options);
+        window.addEventListener('pointercancel', (event) => this.#handlePointerUp(event), options);
+    }
+
+    #destroyPointerEventListeners() {
+        const pointerAbortController = this.#pointerAbortController;
+
+        if (pointerAbortController) {
+            pointerAbortController.abort();
+
+            this.#pointerAbortController = null;
+        }
+
+        this.#events.clear();
+        this.#pointerSlots.clear();
+    }
+
     #handlePointerDown(event: PointerEvent) {
         const {
             pointerId,
@@ -239,69 +303,6 @@ class PointerDevice implements InputDevice {
 
     #throwUnsupportedPointerError(pointerType: string) {
         throw new Error(`[PointerDevice]: Cannot handle pointer. Unsupported pointer type "${pointerType}" was given.`);
-    }
-
-    async #requestPointerLock() {
-        const targetElement = this.#targetElement;
-
-		try {
-            if (document.pointerLockElement === targetElement) {
-                return;
-            }
-
-			await targetElement.requestPointerLock({ unadjustedMovement: true });
-		} catch (error) {
-			// @ts-expect-error 'error' is of type 'unknown'.
-			if (error.name === 'NotSupportedError') {
-				await targetElement.requestPointerLock();
-
-				return;
-			}
-
-			throw error;
-		}
-    }
-
-    #exitPointerLock() {
-        if (document.pointerLockElement === this.#targetElement) {
-            document.exitPointerLock();
-        }
-    }
-
-    #handlePointerLockChange() {
-        this.#destroyPointerEventListeners();
-
-        if (document.pointerLockElement === this.#targetElement) {
-            const abortController = new AbortController();
-            const eventListenerOptions = { signal: abortController.signal, passive: true };
-
-            this.#pointerAbortController = abortController;
-
-            this.#initPointerEventListeners(eventListenerOptions);
-        }
-    }
-
-    #initPointerEventListeners(options: AddEventListenerOptions) {
-        window.addEventListener('pointerdown', (event) => this.#handlePointerDown(event), options);
-        window.addEventListener('pointerenter', (event) => this.#handlePointerDown(event), options);
-        window.addEventListener('pointermove', (event) => this.#handlePointerMove(event), options);
-        
-        window.addEventListener('pointerup', (event) => this.#handlePointerUp(event), options);
-        window.addEventListener('pointerleave', (event) => this.#handlePointerUp(event), options);
-        window.addEventListener('pointercancel', (event) => this.#handlePointerUp(event), options);
-    }
-
-    #destroyPointerEventListeners() {
-        const pointerAbortController = this.#pointerAbortController;
-
-        if (pointerAbortController) {
-            pointerAbortController.abort();
-
-            this.#pointerAbortController = null;
-        }
-
-        this.#events.clear();
-        this.#pointerSlots.clear();
     }
 }
 

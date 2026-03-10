@@ -1,10 +1,5 @@
 import { GPUContext } from '~/core';
 
-import {
-    VERTEX_ATTRIBUTE_COMPONENT_COUNT_MAP,
-    VERTEX_ATTRIBUTE_FORMAT_BYTE_SIZE_MAP
-} from '~/constants';
-
 import type { BufferAttribute } from '~/geometry';
 import type {
     Constructor,
@@ -121,30 +116,26 @@ function createVertexBufferView<F extends GPUVertexFormat>(format: F, buffer?: A
 
 function interleaveBufferAttributes(attributes: BufferAttribute[]) {
     let vertexCount = 0;
-    let bytesPerVertex = 0;
+    let byteStride = 0;
 
     const attributeCount = attributes.length;
-    const attributeComponentCounts = new Array(attributeCount);
     const attributeByteOffsets = new Array(attributeCount);
     const attributeViews = new Array(attributeCount);
     const attributeViewMap = new Map();
 
     for (let i = 0; i < attributeCount; i++) {
         const attribute = attributes[i];
-        const attributeFormat = attribute.format;
-        const attributeArrayByteLength = attribute.array.byteLength;
-        const attributeByteSize = VERTEX_ATTRIBUTE_FORMAT_BYTE_SIZE_MAP[attributeFormat];
+        const attributeBytesPerItem = attribute.bytesPerItem;
 
-        attributeComponentCounts[i] = VERTEX_ATTRIBUTE_COMPONENT_COUNT_MAP[attributeFormat];
-        attributeByteOffsets[i] = bytesPerVertex;
+        attributeByteOffsets[i] = byteStride;
 
-        vertexCount = Math.max(vertexCount, attributeArrayByteLength / attributeByteSize);
-        bytesPerVertex += attributeByteSize;
+        vertexCount = Math.max(vertexCount, attribute.itemCount);
+        byteStride += attributeBytesPerItem;
     }
 
-    bytesPerVertex = 4 * Math.ceil(bytesPerVertex / 4);
+    byteStride = 4 * Math.ceil(byteStride / 4);
 
-    const buffer = new ArrayBuffer(vertexCount * bytesPerVertex);
+    const buffer = new ArrayBuffer(vertexCount * byteStride);
 
     for (let i = 0; i < attributeCount; i++) {
         const attribute = attributes[i];
@@ -161,17 +152,18 @@ function interleaveBufferAttributes(attributes: BufferAttribute[]) {
     }
 
     for (let i = 0; i < vertexCount; i++) {
-        const vertexByteOffset = i * bytesPerVertex;
+        const vertexByteOffset = i * byteStride;
 
         for (let j = 0; j < attributeCount; j++) {
-            const attributeArray = attributes[j].array;
-            const attributeComponentCount = attributeComponentCounts[j];
+            const attribute = attributes[j];
+            const attributeArray = attribute.array;
+            const attributeComponentsPerItem = attribute.componentsPerItem;
             const attributeByteOffset = attributeByteOffsets[j];
             const attributeView = attributeViews[j];
             const attributeViewStartIndex = (vertexByteOffset + attributeByteOffset) / attributeView.BYTES_PER_ELEMENT;
-            const attributeComponentStartIndex = i * attributeComponentCount;
+            const attributeComponentStartIndex = i * attributeComponentsPerItem;
 
-            for (let k = 0; k < attributeComponentCount; k++) {
+            for (let k = 0; k < attributeComponentsPerItem; k++) {
                 attributeView[attributeViewStartIndex + k] = attributeArray[attributeComponentStartIndex + k];
             }
         }
