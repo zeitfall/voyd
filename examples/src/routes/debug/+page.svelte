@@ -6,7 +6,6 @@
     
     import {
         GPUContext,
-        RenderBundle,
         SceneNode,
         PerspectiveCamera,
         FlyController,
@@ -15,9 +14,10 @@
         KeyboardDevice,
         PointerDevice,
         BufferAttribute,
+        createRenderBundle,
         createVertexBuffer,
         createIndexBuffer,
-        interleaveBufferAttributes,
+        createInterleavedBuffer,
         generatePlaneVertexData,
         generateSphereVertexData,
         generatePointListIndices,
@@ -34,7 +34,7 @@
     const shapeVertexData = generateSphereVertexData(4, 32, 32);
     const shapeIndices = generateTriangleListIndices(32, 32);
 
-    const interleavedVertexBuffer = interleaveBufferAttributes([
+    const interleavedVertexBuffer = createInterleavedBuffer([
         new BufferAttribute('float32x3', shapeVertexData.positions),
         new BufferAttribute('float32x3', shapeVertexData.normals),
         new BufferAttribute('float32x2', shapeVertexData.uvs)
@@ -187,7 +187,7 @@
         }
     });
 
-    const renderBundle = new RenderBundle(
+    const renderBundle = createRenderBundle(
         (encoder) => {
             encoder.setPipeline(renderPipeline);
             encoder.setBindGroup(0, renderBindGroup);
@@ -246,7 +246,7 @@
 
         const renderPass = commandEncoder.beginRenderPass(renderPassDescriptor);
 
-        renderPass.executeBundles([renderBundle.instance]);
+        renderPass.executeBundles([renderBundle]);
         renderPass.end();
 
         const commandBuffer = commandEncoder.finish();

@@ -1,3 +1,5 @@
+export * from './core';
+
 export * from './buffer';
 
 export * from './math';
