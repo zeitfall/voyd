@@ -13,11 +13,11 @@
         InputManager,
         KeyboardDevice,
         PointerDevice,
-        BufferAttribute,
+        InterleavedBuffer,
+        StandardBufferAttribute,
         createRenderBundle,
         createVertexBuffer,
         createIndexBuffer,
-        createInterleavedBuffer,
         generatePlaneVertexData,
         generateSphereVertexData,
         generatePointListIndices,
@@ -28,19 +28,42 @@
     let canvasElement: HTMLCanvasElement;
     let canvasContext: GPUCanvasContext;
     let canvasResizer: CanvasResizer;
-    
+
     let depthTexture: GPUTexture;
+
+    const pos = new Float32Array([
+        1, 1, 0,
+        -1, 1, 0,
+        -1, -1, 0,
+        1, -1, 0
+    ]);
+    const uv = new Uint8Array([
+        10, 10,
+        0, 10,
+        0, 0,
+        10, 0
+    ]);
+
+    const ib = new InterleavedBuffer([
+        new StandardBufferAttribute('uint8x2', uv),
+        new StandardBufferAttribute('float32x3', pos)
+    ]);
+
+    console.log(ib);
+    console.log(ib.attributes[1].set(1, 0, 100));
 
     const shapeVertexData = generateSphereVertexData(4, 32, 32);
     const shapeIndices = generateTriangleListIndices(32, 32);
 
-    const interleavedVertexBuffer = createInterleavedBuffer([
-        new BufferAttribute('float32x3', shapeVertexData.positions),
-        new BufferAttribute('float32x3', shapeVertexData.normals),
-        new BufferAttribute('float32x2', shapeVertexData.uvs)
+    const interleavedVertexBuffer = new InterleavedBuffer([
+        new StandardBufferAttribute('float32x3', shapeVertexData.positions),
+        new StandardBufferAttribute('float32x3', shapeVertexData.normals),
+        new StandardBufferAttribute('float32x2', shapeVertexData.uvs)
     ]);
-    const vertexBuffer = createVertexBuffer(interleavedVertexBuffer);
+    const vertexBuffer = createVertexBuffer(interleavedVertexBuffer.data);
     const indexBuffer = createIndexBuffer(shapeIndices);
+
+    // console.log(interleavedVertexBuffer);
 
     const rootSceneNode = new SceneNode();
 

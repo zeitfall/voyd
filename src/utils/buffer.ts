@@ -1,6 +1,5 @@
 import { GPUContext } from '~/core';
 
-import type { BufferAttribute } from '~/geometry';
 import type {
     Constructor,
     TypedArray,
@@ -49,57 +48,6 @@ function createVertexBuffer(data: BufferSource, usage = 0) {
 
 function createIndexBuffer(data: BufferSource, usage = 0) {
     return createBufferFromData(data, GPUBufferUsage.INDEX | usage);
-}
-
-function createInterleavedBuffer(attributes: BufferAttribute[]) {
-    const attributeCount = attributes.length;
-    const attributeByteOffsets = new Int32Array(attributeCount);
-    const attributeBytesPerItems = new Int32Array(attributeCount);
-    const attributeViews = new Array<Uint8Array>(attributeCount);
-
-    let itemCount = attributes[0].itemCount;
-    let byteStride = 0;
-
-    for (let i = 0; i < attributeCount; i++) {
-        const attribute = attributes[i];
-        const attributeArray = attribute.array;
-        const attributeItemCount = attribute.itemCount;
-        const attributeBytesPerItem = attribute.bytesPerItem;
-
-        if (itemCount !== attributeItemCount) {
-            throw new Error(`Attribute at index "${i}" has an incompatible number of items. Expected "${itemCount}", but got "${attributeItemCount}".`);
-        }
-
-        attributeByteOffsets[i] = byteStride;
-        attributeBytesPerItems[i] = attributeBytesPerItem;
-        attributeViews[i] = new Uint8Array(attributeArray.buffer, attributeArray.byteOffset, attributeArray.byteLength);
-
-        byteStride += attributeBytesPerItem
-    }
-
-    byteStride = 4 * Math.ceil(byteStride / 4);
-
-    const buffer = new ArrayBuffer(itemCount * byteStride);
-    const bufferView = new Uint8Array(buffer);
-
-    for (let i = 0; i < itemCount; i++) {
-        const itemByteStart = i * byteStride;
-
-        for (let j = 0; j < attributeCount; j++) {
-            const attributeByteOffset = attributeByteOffsets[j];
-            const attributeBytesPerItem = attributeBytesPerItems[j];
-            const attributeView = attributeViews[j];
-
-            const bufferViewByteStart = itemByteStart + attributeByteOffset;
-            const attributeViewByteStart = i * attributeBytesPerItem;
-
-            for (let k = 0; k < attributeBytesPerItem; k++) {
-                bufferView[bufferViewByteStart + k] = attributeView[attributeViewByteStart + k];
-            }
-        }
-    }
-
-    return buffer;
 }
 
 function createVertexBufferView<F extends GPUVertexFormat>(format: F, buffer?: ArrayBuffer, byteOffset?: number) {
@@ -184,6 +132,5 @@ export {
     createStorageBuffer,
     createVertexBuffer,
     createIndexBuffer,
-    createInterleavedBuffer,
-    createVertexBufferView,
+    createVertexBufferView
 };
