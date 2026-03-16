@@ -12,6 +12,7 @@ import type {
     InputActionVector2Evaluator,
     InputActionVector3Evaluator,
     InputNumberClampProcessor,
+    InputNumberRemapProcessor,
     InputNumberNormalizeProcessor,
     InputNumberScaleProcessor,
     InputNumberInvertProcessor,
@@ -97,6 +98,7 @@ export interface InputProcessor<V = unknown> {
 
 export type InputNumberProcessor =
     | InputNumberClampProcessor
+    | InputNumberRemapProcessor
     | InputNumberNormalizeProcessor
     | InputNumberScaleProcessor
     | InputNumberInvertProcessor;

@@ -23,6 +23,8 @@
         generatePointListIndices,
         generateLineListIndices,
         generateTriangleListIndices,
+        Quaternion,
+        Vector3,
     } from 'voyd';
 
     let canvasElement: HTMLCanvasElement;
@@ -30,27 +32,6 @@
     let canvasResizer: CanvasResizer;
 
     let depthTexture: GPUTexture;
-
-    const pos = new Float32Array([
-        1, 1, 0,
-        -1, 1, 0,
-        -1, -1, 0,
-        1, -1, 0
-    ]);
-    const uv = new Uint8Array([
-        10, 10,
-        0, 10,
-        0, 0,
-        10, 0
-    ]);
-
-    const ib = new InterleavedBuffer([
-        new StandardBufferAttribute('uint8x2', uv),
-        new StandardBufferAttribute('float32x3', pos)
-    ]);
-
-    console.log(ib);
-    console.log(ib.attributes[1].set(1, 0, 100));
 
     const shapeVertexData = generateSphereVertexData(4, 32, 32);
     const shapeIndices = generateTriangleListIndices(32, 32);
@@ -63,21 +44,29 @@
     const vertexBuffer = createVertexBuffer(interleavedVertexBuffer.data);
     const indexBuffer = createIndexBuffer(shapeIndices);
 
-    // console.log(interleavedVertexBuffer);
+    console.log(interleavedVertexBuffer);
 
     const rootSceneNode = new SceneNode();
 
+    const cameraPivotNode = new SceneNode();
     const cameraNode = new SceneNode();
     const camera = new PerspectiveCamera();
-    
-    cameraNode.transform.position.set(0, 0, -8);
-    // cameraNode.transform.lookAt(0, 0, 0);
-    cameraNode.transform.update();
 
-    cameraNode.attachTo(rootSceneNode);
-    cameraNode.addComponent(camera);
-    cameraNode.addComponent(new FlyController());
-    cameraNode.addComponent(new FreeLookController());
+    cameraPivotNode
+        .attachTo(rootSceneNode)
+        .addComponent(new FlyController())
+        .addComponent(new FreeLookController());
+
+    cameraNode
+        .attachTo(cameraPivotNode)
+        .addComponent(camera);
+    
+    // NOTE: This local offset defines the camera mode:
+    // - Offset applied (e.g., Z = -8): The camera orbits around the pivot (3rd-person view).
+    // - No offset (0, 0, 0): The camera sits inside the pivot (1st-person Free Look view).
+    cameraNode.transform.position.set(0, 0, -8);
+    cameraNode.transform.lookAt(0, 0, 0);
+    cameraNode.transform.update();
 
     InputManager.registerDevice(new KeyboardDevice());
 
@@ -90,7 +79,7 @@
 
             struct VertexStageOutput {
                 @builtin(position) vertex_position : vec4f,
-                @location(0) vertex_normal         : vec3f, 
+                @location(0) vertex_normal         : vec3f,
             }
 
             struct FragmentStageOutput {
@@ -114,7 +103,7 @@
             fn fragment_stage(input : VertexStageOutput) -> FragmentStageOutput {
                 var output : FragmentStageOutput;
 
-                var light_source_position = normalize(vec3f(4, 1, -2));
+                var light_source_position = normalize(vec3f(4, 0, 0));
 
                 var ambient_light = 0.25;
                 var diffuse_light = max(dot(input.vertex_normal, light_source_position), 0.0);
@@ -172,26 +161,7 @@
             module: renderShader,
             entryPoint: 'vertex_stage',
             buffers: [
-                {
-                    arrayStride: 8 * Float32Array.BYTES_PER_ELEMENT,
-                    attributes: [
-                        {
-                            shaderLocation: 0,
-                            offset: 0,
-                            format: 'float32x3'
-                        },
-                        {
-                            shaderLocation: 1,
-                            offset: 3 * Float32Array.BYTES_PER_ELEMENT,
-                            format: 'float32x3'
-                        },
-                        {
-                            shaderLocation: 2,
-                            offset: 6 * Float32Array.BYTES_PER_ELEMENT,
-                            format: 'float32x2'
-                        }
-                    ]
-                }
+                interleavedVertexBuffer.layout
             ]
         },
         fragment: {
@@ -255,6 +225,10 @@
         const deltaTimeMs = deltaTime / 1000;
 
         rafTime = currentTimestamp;
+
+        // cameraPivotNode.transform.rotation.multiply(
+        //     Quaternion.fromAxisAngle(Vector3.UP, deltaTimeMs)
+        // );
 
         InputManager.update();
         rootSceneNode.update(deltaTimeMs);

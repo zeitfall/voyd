@@ -35,6 +35,9 @@ class FreeLookController extends SceneComponent {
     minPitchAngle: number;
     maxPitchAngle: number;
 
+    #dampingFactor: number;
+    #lookSpeed: number;
+
     constructor() {
         super();
 
@@ -52,6 +55,9 @@ class FreeLookController extends SceneComponent {
         this.#targetPitchAngle = 0;
         this.minPitchAngle = -PI_OVER_TWO + Number.EPSILON;
         this.maxPitchAngle = PI_OVER_TWO - Number.EPSILON;
+
+        this.#dampingFactor = 12;
+        this.#lookSpeed = 12;
     }
 
     get yawAngle() {
@@ -68,6 +74,22 @@ class FreeLookController extends SceneComponent {
 
     set pitchAngle(value: number) {
         this.#targetPitchAngle = clamp(value, this.minPitchAngle, this.maxPitchAngle);
+    }
+
+        get dampingFactor() {
+        return this.#dampingFactor;
+    }
+
+    set dampingFactor(value: number) {
+        this.#dampingFactor = Math.max(0, value);
+    }
+
+    get lookSpeed() {
+        return this.#lookSpeed;
+    }
+
+    set lookSpeed(value: number) {
+        this.#lookSpeed = Math.max(0, value);
     }
 
     setYawAngle(angle: number) {
@@ -102,6 +124,18 @@ class FreeLookController extends SceneComponent {
 
     setMaxPitchAngle(angle: number) {
         this.maxPitchAngle = angle;
+
+        return this;
+    }
+
+    setDampingFactor(value: number) {
+        this.dampingFactor = value;
+
+        return this;
+    }
+
+    setLookSpeed(value: number) {
+        this.lookSpeed = value;
 
         return this;
     }
@@ -153,8 +187,8 @@ class FreeLookController extends SceneComponent {
         let currentYawAngle = this.#currentYawAngle;
         let currentPitchAngle = this.#currentPitchAngle;
 
-        currentYawAngle = damp(currentYawAngle, this.#targetYawAngle, 16, deltaTime);
-        currentPitchAngle = damp(currentPitchAngle, this.#targetPitchAngle, 16, deltaTime);
+        currentYawAngle = damp(currentYawAngle, this.#targetYawAngle, 12, deltaTime);
+        currentPitchAngle = damp(currentPitchAngle, this.#targetPitchAngle, 12, deltaTime);
 
         yawQuaternion.setFromAxisAngle(Vector3.UP, currentYawAngle);
         pitchQuaternion.setFromAxisAngle(Vector3.RIGHT, currentPitchAngle);
@@ -189,11 +223,11 @@ class FreeLookController extends SceneComponent {
         const inputMouseBinding = new InputSingleBinding({ deviceType: InputDeviceType.POINTER, key: MouseButton.LMB });
         const inputTouchBinding = new InputSingleBinding({ deviceType: InputDeviceType.POINTER, key: 'Touch0' });
 
-        const pointerInputScaleProcessor = new InputVectorScaleProcessor(0.01);
+        const pointerInputScaleProcessor = new InputVectorScaleProcessor(0.005);
 
         inputKeyboardBinding.processors.add(new InputVector2InvertProcessor(false, true))
         inputKeyboardBinding.processors.add(new InputVectorNormalizeProcessor());
-        inputKeyboardBinding.processors.add(new InputVectorScaleProcessor(0.05));
+        inputKeyboardBinding.processors.add(new InputVectorScaleProcessor(0.025));
         inputMouseBinding.processors.add(pointerInputScaleProcessor);
         inputTouchBinding.processors.add(pointerInputScaleProcessor);
 

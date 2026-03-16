@@ -1,4 +1,5 @@
 export { default as InputNumberClampProcessor } from './InputNumberClampProcessor';
+export { default as InputNumberRemapProcessor } from './InputNumberRemapProcessor';
 export { default as InputNumberNormalizeProcessor } from './InputNumberNormalizeProcessor';
 export { default as InputNumberScaleProcessor } from './InputNumberScaleProcessor';
 export { default as InputNumberInvertProcessor } from './InputNumberInvertProcessor';

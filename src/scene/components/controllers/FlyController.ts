@@ -22,6 +22,9 @@ class FlyController extends SceneComponent {
     #tempNodeForward: Vector3;
     #desiredPosition: Vector3;
 
+    #dampingFactor: number;
+    #movementSpeed: number;
+
     constructor() {
         super();
 
@@ -31,6 +34,37 @@ class FlyController extends SceneComponent {
         this.#tempNodeRight = new Vector3();
         this.#tempNodeForward = new Vector3();
         this.#desiredPosition = new Vector3();
+
+        this.#dampingFactor = 12;
+        this.#movementSpeed = 12;
+    }
+
+    get dampingFactor() {
+        return this.#dampingFactor;
+    }
+
+    set dampingFactor(value: number) {
+        this.#dampingFactor = Math.max(0, value);
+    }
+
+    get movementSpeed() {
+        return this.#movementSpeed;
+    }
+
+    set movementSpeed(value: number) {
+        this.#movementSpeed = Math.max(0, value);
+    }
+
+    setDampingFactor(value: number) {
+        this.dampingFactor = value;
+
+        return this;
+    }
+
+    setMovementSpeed(value: number) {
+        this.movementSpeed = value;
+
+        return this;
     }
 
     override attachTo(node: SceneNode) {
@@ -92,12 +126,12 @@ class FlyController extends SceneComponent {
                 tempMovement.normalize();
             }
 
-            tempMovement.scale(16 * deltaTime);
+            tempMovement.scale(this.#movementSpeed * deltaTime);
 
             desiredPosition.add(tempMovement);
         }
 
-        nodePosition.damp(desiredPosition, 16, deltaTime);
+        nodePosition.damp(desiredPosition, this.#dampingFactor, deltaTime);
     }
 
     #setupInputAction() {

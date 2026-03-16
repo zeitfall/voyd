@@ -19,6 +19,10 @@ export function damp(from: number, to: number, lambda: number, deltaTime: number
 }
 
 export function inverseLerp(min: number, max: number, value: number) {
+	if (min === max) {
+		return 0;
+	}
+
 	return clamp((min - value) / (min - max), 0, 1);
 }
 

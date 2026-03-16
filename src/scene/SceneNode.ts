@@ -88,6 +88,8 @@ class SceneNode {
         else {
             this.#components.add(component);
         }
+
+        return this;
     }
 
     removeComponent(component: SceneComponent) {
