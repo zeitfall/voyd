@@ -9,7 +9,7 @@ const DEFAULT_RADIUS = 1;
 const DEFAULT_LATITUDE_COUNT = 8;
 const DEFAULT_LONGITUDE_COUNT = 8;
 
-function generateSphereVertexData(
+function generateSphereVertices(
     radius = DEFAULT_RADIUS,
     latitudeCount = DEFAULT_LATITUDE_COUNT,
     longitudeCount = DEFAULT_LONGITUDE_COUNT
@@ -27,15 +27,15 @@ function generateSphereVertexData(
 
     const vertexCount = (latitudeCount + 1) * (longitudeCount + 1);
 
-    const positions = new Float32Array(3 * vertexCount);
-    const normals = new Float32Array(3 * vertexCount);
-    const uvs = new Float32Array(2 * vertexCount);
+    const vertices = new Float32Array(3 * vertexCount);
+    // const normals = new Float32Array(3 * vertexCount);
+    // const uvs = new Float32Array(2 * vertexCount);
 
-    let positionIndex = 0;
-    let normalIndex = 0;
-    let uvIndex = 0;
+    let vertexIndex = 0;
+    // let normalIndex = 0;
+    // let uvIndex = 0;
 
-    const tempPosition = new Vector3();
+    const tempVertex = new Vector3();
 
     for (let j = 0; j <= latitudeCount; j++) {
         const phi = j * latitudeAngle;
@@ -43,7 +43,7 @@ function generateSphereVertexData(
         const sinPhi = Math.sin(phi);
         const cosPhi = Math.cos(phi);
 
-        const v = 1 - j / latitudeAngle;
+        // const v = 1 - j / latitudeAngle;
 
         for (let i = 0; i <= longitudeCount; i++) {
             const theta = i * longitudeAngle;
@@ -51,34 +51,36 @@ function generateSphereVertexData(
             const sinTheta = Math.sin(theta);
             const cosTheta = Math.cos(theta);
 
-            const u = i / longitudeCount;
+            // const u = i / longitudeCount;
 
-            tempPosition.set(
+            tempVertex.set(
                 radius * sinPhi * cosTheta,
                 radius * cosPhi,
                 radius * sinPhi * sinTheta
             );
 
-            positions[positionIndex++] = tempPosition.x;
-            positions[positionIndex++] = tempPosition.y;
-            positions[positionIndex++] = tempPosition.z;
+            vertices[vertexIndex++] = tempVertex.x;
+            vertices[vertexIndex++] = tempVertex.y;
+            vertices[vertexIndex++] = tempVertex.z;
 
-            tempPosition.normalize();
+            // tempVertex.normalize();
 
-            normals[normalIndex++] = tempPosition.x;
-            normals[normalIndex++] = tempPosition.y;
-            normals[normalIndex++] = tempPosition.z;
+            // normals[normalIndex++] = tempVertex.x;
+            // normals[normalIndex++] = tempVertex.y;
+            // normals[normalIndex++] = tempVertex.z;
 
-            uvs[uvIndex++] = u;
-            uvs[uvIndex++] = v;
+            // uvs[uvIndex++] = u;
+            // uvs[uvIndex++] = v;
         }
     }
 
-    return {
-        positions,
-        normals,
-        uvs
-    };
+    return vertices;
+
+    // return {
+    //     positions,
+    //     normals,
+    //     uvs
+    // };
 }
 
-export default generateSphereVertexData;
+export default generateSphereVertices;

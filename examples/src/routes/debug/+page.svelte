@@ -18,13 +18,12 @@
         createRenderBundle,
         createVertexBuffer,
         createIndexBuffer,
-        generatePlaneVertexData,
-        generateSphereVertexData,
+        generatePlaneVertices,
+        generateSphereVertices,
+        computeTriangleListNormals,
         generatePointListIndices,
         generateLineListIndices,
         generateTriangleListIndices,
-        Quaternion,
-        Vector3,
     } from 'voyd';
 
     let canvasElement: HTMLCanvasElement;
@@ -33,18 +32,29 @@
 
     let depthTexture: GPUTexture;
 
-    const shapeVertexData = generateSphereVertexData(4, 32, 32);
-    const shapeIndices = generateTriangleListIndices(32, 32);
+    // PLANE
+    const planeVertices = generatePlaneVertices(32, 32, 32, 32);
+    const planeIndices = generateTriangleListIndices(32, 32);
+    const planeNormals = computeTriangleListNormals(planeVertices, planeIndices);
 
-    const interleavedVertexBuffer = new InterleavedBuffer([
-        new StandardBufferAttribute('float32x3', shapeVertexData.positions),
-        new StandardBufferAttribute('float32x3', shapeVertexData.normals),
-        new StandardBufferAttribute('float32x2', shapeVertexData.uvs)
+    const planeInterleavedVertexBuffer = new InterleavedBuffer([
+        new StandardBufferAttribute('float32x3', planeVertices),
+        new StandardBufferAttribute('float32x3', planeNormals)
     ]);
-    const vertexBuffer = createVertexBuffer(interleavedVertexBuffer.data);
-    const indexBuffer = createIndexBuffer(shapeIndices);
+    const planeVertexBuffer = createVertexBuffer(planeInterleavedVertexBuffer.data);
+    const planeIndexBuffer = createIndexBuffer(planeIndices);
 
-    console.log(interleavedVertexBuffer);
+    // SPHERE
+    const sphereVertices = generateSphereVertices(4, 32, 32);
+    const sphereIndices = generateTriangleListIndices(32, 32);
+    const sphereNormals = computeTriangleListNormals(sphereVertices, sphereIndices);
+
+    const sphereInterleavedVertexBuffer = new InterleavedBuffer([
+        new StandardBufferAttribute('float32x3', sphereVertices),
+        new StandardBufferAttribute('float32x3', sphereNormals)
+    ]);
+    const sphereVertexBuffer = createVertexBuffer(sphereInterleavedVertexBuffer.data);
+    const sphereIndexBuffer = createIndexBuffer(sphereIndices);
 
     const rootSceneNode = new SceneNode();
 
@@ -64,11 +74,9 @@
     // NOTE: This local offset defines the camera mode:
     // - Offset applied (e.g., Z = -8): The camera orbits around the pivot (3rd-person view).
     // - No offset (0, 0, 0): The camera sits inside the pivot (1st-person Free Look view).
-    cameraNode.transform.position.set(0, 0, -8);
+    cameraNode.transform.position.set(0, 8, -16);
     cameraNode.transform.lookAt(0, 0, 0);
     cameraNode.transform.update();
-
-    InputManager.registerDevice(new KeyboardDevice());
 
     const renderShader = GPUContext.device.createShaderModule({
         code: `
@@ -78,8 +86,8 @@
             }
 
             struct VertexStageOutput {
-                @builtin(position) vertex_position : vec4f,
-                @location(0) vertex_normal         : vec3f,
+                @builtin(position)              vertex_position : vec4f,
+                @location(0) @interpolate(flat) vertex_normal   : vec3f,
             }
 
             struct FragmentStageOutput {
@@ -103,7 +111,7 @@
             fn fragment_stage(input : VertexStageOutput) -> FragmentStageOutput {
                 var output : FragmentStageOutput;
 
-                var light_source_position = normalize(vec3f(4, 0, 0));
+                var light_source_position = normalize(vec3f(1, .25, 0));
 
                 var ambient_light = 0.25;
                 var diffuse_light = max(dot(input.vertex_normal, light_source_position), 0.0);
@@ -161,7 +169,22 @@
             module: renderShader,
             entryPoint: 'vertex_stage',
             buffers: [
-                interleavedVertexBuffer.layout
+                {
+                    arrayStride: 24,
+                    stepMode: 'vertex',
+                    attributes: [
+                        {
+                            shaderLocation: 0,
+                            format: 'float32x3',
+                            offset: 0
+                        },
+                        {
+                            shaderLocation: 1,
+                            format: 'float32x3',
+                            offset: 12
+                        }
+                    ]
+                }
             ]
         },
         fragment: {
@@ -180,13 +203,27 @@
         }
     });
 
-    const renderBundle = createRenderBundle(
+    const planeRenderBundle = createRenderBundle(
         (encoder) => {
             encoder.setPipeline(renderPipeline);
             encoder.setBindGroup(0, renderBindGroup);
-            encoder.setVertexBuffer(0, vertexBuffer);
-            encoder.setIndexBuffer(indexBuffer, 'uint16');
-            encoder.drawIndexed(shapeIndices.length);
+            encoder.setVertexBuffer(0, planeVertexBuffer);
+            encoder.setIndexBuffer(planeIndexBuffer, 'uint16');
+            encoder.drawIndexed(planeIndices.length);
+        },
+        {
+            colorFormats: [GPUContext.preferredFormat],
+            depthStencilFormat: 'depth24plus'
+        }
+    );
+
+    const sphereRenderBundle = createRenderBundle(
+        (encoder) => {
+            encoder.setPipeline(renderPipeline);
+            encoder.setBindGroup(0, renderBindGroup);
+            encoder.setVertexBuffer(0, sphereVertexBuffer);
+            encoder.setIndexBuffer(sphereIndexBuffer, 'uint16');
+            encoder.drawIndexed(sphereIndices.length);
         },
         {
             colorFormats: [GPUContext.preferredFormat],
@@ -226,10 +263,6 @@
 
         rafTime = currentTimestamp;
 
-        // cameraPivotNode.transform.rotation.multiply(
-        //     Quaternion.fromAxisAngle(Vector3.UP, deltaTimeMs)
-        // );
-
         InputManager.update();
         rootSceneNode.update(deltaTimeMs);
 
@@ -243,7 +276,7 @@
 
         const renderPass = commandEncoder.beginRenderPass(renderPassDescriptor);
 
-        renderPass.executeBundles([renderBundle]);
+        renderPass.executeBundles([planeRenderBundle, sphereRenderBundle]);
         renderPass.end();
 
         const commandBuffer = commandEncoder.finish();
@@ -252,6 +285,8 @@
 
         rafId = requestAnimationFrame(updateLoop);
     }
+
+    InputManager.registerDevice(new KeyboardDevice());
 
     onMount(async () => {
         canvasContext = canvasElement.getContext('webgpu');

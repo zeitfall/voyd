@@ -5,7 +5,7 @@ const DEFAULT_HEIGHT = 1;
 const DEFAULT_ROW_COUNT = 1;
 const DEFAULT_COLUMN_COUNT = 1;
 
-function generatePlaneVertexData(
+function generatePlaneVertices(
     width = DEFAULT_WIDTH,
     height = DEFAULT_HEIGHT,
     rowCount = DEFAULT_ROW_COUNT,
@@ -27,50 +27,53 @@ function generatePlaneVertexData(
 
     const vertexCount = (rowCount + 1) * (columnCount + 1);
 
-    const positions = new Float32Array(3 * vertexCount);
-    const normals = new Float32Array(3 * vertexCount);
-    const uvs = new Float32Array(2 * vertexCount);
+    const vertices = new Float32Array(3 * vertexCount);
+    // const normals = new Float32Array(3 * vertexCount);
+    // const uvs = new Float32Array(2 * vertexCount);
 
-    let positionIndex = 0;
-    let normalIndex = 0;
-    let uvIndex = 0;
+    let vertexIndex = 0;
+    // let normalIndex = 0;
+    // let uvIndex = 0;
 
-    const tempPosition = new Vector3();
+    const tempVertex = new Vector3();
 
     for (let j = 0; j <= rowCount; j++) {
         let y = j * cellHeight;
-        const v = 1 - j / rowCount;
+        // const v = 1 - j / rowCount;
 
         y -= halfHeight;
 
         for (let i = 0; i <= columnCount; i++) {
             let x = i * cellWidth;
-            const u = i / columnCount;
+            // const u = i / columnCount;
 
             x -= halfWidth;
 
-            tempPosition.set(x, -y, 0 /* Math.random() */);
+            tempVertex.set(x, Math.random(), -y);
+            // tempVertex.set(x, -y, 0);
 
-            positions[positionIndex++] = tempPosition.x;
-            positions[positionIndex++] = tempPosition.y;
-            positions[positionIndex++] = tempPosition.z;
+            vertices[vertexIndex++] = tempVertex.x;
+            vertices[vertexIndex++] = tempVertex.y;
+            vertices[vertexIndex++] = tempVertex.z;
 
-            tempPosition.normalize();
+            tempVertex.normalize();
 
-            normals[normalIndex++] = tempPosition.x;
-            normals[normalIndex++] = tempPosition.y;
-            normals[normalIndex++] = tempPosition.z;
+            // normals[normalIndex++] = tempVertex.x;
+            // normals[normalIndex++] = tempVertex.y;
+            // normals[normalIndex++] = tempVertex.z;
 
-            uvs[uvIndex++] = u;
-            uvs[uvIndex++] = v;
+            // uvs[uvIndex++] = u;
+            // uvs[uvIndex++] = v;
         }
     }
 
-    return {
-        positions,
-        normals,
-        uvs
-    };
+    return vertices;
+
+    // return {
+    //     vertices,
+    //     normals,
+    //     uvs
+    // };
 }
 
-export default generatePlaneVertexData;
+export default generatePlaneVertices;

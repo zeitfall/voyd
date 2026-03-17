@@ -5,7 +5,7 @@ import { InputControlType } from '~/enums';
 import type InputActionState from './InputActionState';
 import type { InputDeviceMap, InputBindingMap, InputProcessorMap } from '~/types';
 
-class InputAction<C extends InputControlType> {
+class InputAction<C extends InputControlType = InputControlType> {
 	#name: string;
 	#controlType: C;
 	#state: InputActionState<C>;

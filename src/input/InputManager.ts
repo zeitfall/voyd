@@ -1,10 +1,10 @@
 import type InputAction from './actions/InputAction';
-import type { InputDeviceType, InputControlType } from '~/enums';
+import type { InputDeviceType } from '~/enums';
 import type { InputDevice } from '~/types';
 
 class InputManager {
     #devices: Map<InputDeviceType, InputDevice>;
-    #actions: Map<unknown, InputAction<InputControlType>>;
+    #actions: Map<unknown, InputAction>;
 
     constructor() {
         this.#devices = new Map();
@@ -56,7 +56,7 @@ class InputManager {
         return this.#devices.has(type);
     }
 
-    addAction(action: InputAction<InputControlType>) {
+    addAction(action: InputAction) {
         this.#actions.set(action.name, action);
 
         return this;

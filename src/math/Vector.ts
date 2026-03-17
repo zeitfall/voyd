@@ -98,8 +98,8 @@ abstract class Vector {
 	}
 
 	divideByScalar(scalar: number) {
-		if (Math.abs(scalar) < Number.EPSILON) {
-			throw new Error('[Vector]: Division by zero.');
+		if (scalar === 0) {
+			return this;
 		}
 
 		return this.multiplyByScalar(1 / scalar);
@@ -118,13 +118,7 @@ abstract class Vector {
 	}
 
 	normalize() {
-		const length = this.length;
-	
-		if (length === 0) {
-			return this;
-		}
-	
-		return this.divideByScalar(length);
+		return this.divideByScalar(this.length);
 	}
 
 	distanceTo(vector: this) {
