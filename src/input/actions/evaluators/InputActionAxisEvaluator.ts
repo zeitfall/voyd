@@ -1,8 +1,11 @@
-import { InputDeviceEventAdapterRegistry } from '../../devices';
+import { Vector2 } from '~/math';
 import { InputSingleBinding, InputAxis1DBinding } from '../../bindings';
 
 import type { InputControlType } from '~/enums';
 import type { InputDeviceMap, InputActionEvaluator, InputControlMap } from '~/types';
+
+// PLEASE, FORGIVE ME
+const _tempVector = new Vector2();
 
 class InputActionAxisEvaluator implements InputActionEvaluator<InputControlType.AXIS> {
 
@@ -20,7 +23,7 @@ class InputActionAxisEvaluator implements InputActionEvaluator<InputControlType.
     }
 
     resolve(oldValue: number, newValue: number) {
-        return Math.max(oldValue, newValue);
+        return Math.abs(newValue) > Math.abs(oldValue) ? newValue : oldValue;
     }
 
     reset() {
@@ -28,20 +31,14 @@ class InputActionAxisEvaluator implements InputActionEvaluator<InputControlType.
     }
 
     #handleInputSingleBinding(devices: InputDeviceMap, binding: InputSingleBinding) {
-        // // TBD
-        // const control = binding.control;
-        // const controlDeviceType = control.deviceType;
-        // const controlKey = control.key;
+        const { control } = binding;
 
-        // const device = devices.get(controlDeviceType);
-        // const deviceEvent = device && device.getEvent(controlKey);
-        // const deviceEventAdapter = InputDeviceEventAdapterRegistry.get(controlDeviceType);
+        const device = devices.get(control.deviceType);
+        const deviceEvent = device && device.getEvent(control.key);
 
-        // if (device && deviceEvent && deviceEventAdapter) {
-        //     const value = deviceEventAdapter.getDelta(deviceEvent, new Vector2());
-
-        //     return value.projectOnVector(Vector2.RIGHT).length;
-        // }
+        if (deviceEvent) {
+            return device.eventAdapter.getDelta(deviceEvent, _tempVector).x;
+        }
 
         return 0;
     }
@@ -59,15 +56,11 @@ class InputActionAxisEvaluator implements InputActionEvaluator<InputControlType.
         let signal = 0;
 
         controls.forEach((control) => {
-            const controlDeviceType = control.deviceType;
-            const controlKey = control.key;
-
             const device = devices.get(control.deviceType);
-            const deviceEvent = device && device.getEvent(controlKey);
-            const deviceEventAdapter = InputDeviceEventAdapterRegistry.get(controlDeviceType);
+            const deviceEvent = device && device.getEvent(control.key);
 
-            if (device && deviceEvent && deviceEventAdapter) {
-                const newSignal = deviceEventAdapter.getContinuous(deviceEvent);
+            if (deviceEvent) {
+                const newSignal = device.eventAdapter.getContinuous(deviceEvent);
 
                 signal = Math.max(signal, newSignal);
             }

@@ -1,6 +1,7 @@
-export { default as KeyboardDevice } from './KeyboardDevice';
-export { default as PointerDevice } from './PointerDevice';
-export { default as GamepadDevice } from './GamepadDevice';
-export { default as GyroscopeDevice } from './GyroscopeDevice';
+export * from './keyboard';
 
-export * from './adapters';
+export * from './pointer';
+
+export * from './gamepad';
+
+export * from './gyroscope';

@@ -31,20 +31,26 @@ import type { InputDeviceType, InputControlType, MouseButton } from '~/enums';
 
 export interface InputDevice<T extends InputDeviceType = InputDeviceType> {
     readonly type: T;
+    readonly eventAdapter: InputDeviceEventAdapter<T>;
 
     connect(): void;
     disconnect(): void;
-    getEvent(key: unknown): InputDeviceEventMap[T];
+    flush(): void;
+    getEvent(key: unknown): InputDeviceEventMap[T] | undefined;
     hasEvent(key: unknown): boolean;
 }
 
 export type InputDeviceMap = ReadonlyMap<InputDeviceType, InputDevice>;
 
+export interface TouchPinchEventInit extends PointerEventInit {
+    deltaDistance: number;
+}
+
 export interface InputDeviceEventMap {
     [InputDeviceType.KEYBOARD]: KeyboardEvent;
-    [InputDeviceType.POINTER]: PointerEvent;
+    [InputDeviceType.POINTER]: PointerEvent | WheelEvent;
     [InputDeviceType.GAMEPAD]: GamepadEvent;
-    [InputDeviceType.GYROSCOPE]: unknown;
+    [InputDeviceType.GYROSCOPE]: never;
 }
 
 export interface InputDeviceEventAdapter<
@@ -57,7 +63,17 @@ export interface InputDeviceEventAdapter<
     getPosition<V extends Vector>(event: E, outValue: V): V;
 }
 
-export type PointerButton = MouseButton | `Touch${number}`;
+export type MouseKey = MouseButton | 'MouseWheel';
+export type TouchKey = `Touch${number}` | `TouchPan${number}` | 'TouchPinch';
+export type PointerKey = MouseKey | TouchKey;
+
+export interface PointerGesture {
+    readonly type: PointerKey;
+
+    evaluate(events: Map<PointerKey, PointerEvent | WheelEvent>, activePointerCount: number): PointerEvent | null;
+}
+
+export type InputActionID = string | symbol;
 
 export interface InputActionValueMap {
     [InputControlType.DISCRETE]: number;

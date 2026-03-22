@@ -1,10 +1,10 @@
 import type InputAction from './actions/InputAction';
 import type { InputDeviceType } from '~/enums';
-import type { InputDevice } from '~/types';
+import type { InputDevice, InputActionID } from '~/types';
 
 class InputManager {
     #devices: Map<InputDeviceType, InputDevice>;
-    #actions: Map<unknown, InputAction>;
+    #actions: Map<InputActionID, InputAction>;
 
     constructor() {
         this.#devices = new Map();
@@ -43,9 +43,10 @@ class InputManager {
     }
 
     unregisterAllDevices() {
-        this.#devices.forEach(device => device.disconnect());
+        const devices = this.#devices;
 
-        this.#devices.clear();
+        devices.forEach(device => device.disconnect());
+        devices.clear();
     }
 
     getDevice(type: InputDeviceType) {
@@ -57,7 +58,7 @@ class InputManager {
     }
 
     addAction(action: InputAction) {
-        this.#actions.set(action.name, action);
+        this.#actions.set(action.id, action);
 
         return this;
     }
@@ -71,7 +72,11 @@ class InputManager {
     }
 
     update() {
-        this.#actions.forEach(action => action.update(this.#devices));
+        const devices = this.#devices;
+        const actions = this.#actions; 
+
+        actions.forEach(action => action.update(devices));
+        devices.forEach(device => device.flush());
     }
 }
 

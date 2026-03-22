@@ -39,28 +39,6 @@ function createInputActionValue<C extends InputControlType>(controlType: C) {
 	}
 }
 
-function createInputActionEvaluator<C extends InputControlType>(controlType: C) {
-	switch (controlType) {
-		case InputControlType.DISCRETE:
-			return new InputActionDiscreteEvaluator() as InputActionEvaluatorMap[C];
-
-		case InputControlType.CONTINUOUS:
-			return new InputActionContinuousEvaluator() as InputActionEvaluatorMap[C];
-
-		case InputControlType.AXIS:
-			return new InputActionAxisEvaluator() as InputActionEvaluatorMap[C];
-
-		case InputControlType.VECTOR_2:
-			return new InputActionVector2Evaluator() as InputActionEvaluatorMap[C];
-
-		case InputControlType.VECTOR_3:
-			return new InputActionVector3Evaluator() as InputActionEvaluatorMap[C];
-
-		default:
-			throw new Error(`Unsupported control type, "${controlType}" was given.`);
-	}
-}
-
 function createInputActionState<C extends InputControlType>(controlType: C) {
 	switch (controlType) {
 		case InputControlType.DISCRETE:
@@ -83,8 +61,30 @@ function createInputActionState<C extends InputControlType>(controlType: C) {
 	}
 }
 
+function createInputActionEvaluator<C extends InputControlType>(controlType: C) {
+	switch (controlType) {
+		case InputControlType.DISCRETE:
+			return new InputActionDiscreteEvaluator() as InputActionEvaluatorMap[C];
+
+		case InputControlType.CONTINUOUS:
+			return new InputActionContinuousEvaluator() as InputActionEvaluatorMap[C];
+
+		case InputControlType.AXIS:
+			return new InputActionAxisEvaluator() as InputActionEvaluatorMap[C];
+
+		case InputControlType.VECTOR_2:
+			return new InputActionVector2Evaluator() as InputActionEvaluatorMap[C];
+
+		case InputControlType.VECTOR_3:
+			return new InputActionVector3Evaluator() as InputActionEvaluatorMap[C];
+
+		default:
+			throw new Error(`Unsupported control type, "${controlType}" was given.`);
+	}
+}
+
 export {
 	createInputActionValue,
-	createInputActionEvaluator,
 	createInputActionState,
+	createInputActionEvaluator
 };

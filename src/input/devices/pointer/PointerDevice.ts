@@ -1,26 +1,41 @@
+import PointerEventAdapter from './PointerEventAdapter';
+import TouchPanGesture from './TouchPanGesture';
+import TouchPinchGesture from './TouchPinchGesture';
+
 import { InputDeviceType, MouseButton } from '~/enums';
 
-import type { InputDevice, PointerButton } from '~/types';
+import type { InputDevice, PointerKey, PointerGesture } from '~/types';
 
-class PointerDevice implements InputDevice {
+class PointerDevice implements InputDevice<InputDeviceType.POINTER> {
     #targetElement: HTMLElement;
     #abortController: AbortController | null;
-    #events: Map<PointerButton, PointerEvent>;
+
+    #events: Map<PointerKey, PointerEvent | WheelEvent>;
+    #gestures: Set<PointerGesture>;
     #pointerSlots: Map<number, number>;
 
     constructor(targetElement: HTMLElement) {
         this.#targetElement = targetElement;
         this.#abortController = null;
+
+        const gestures = [
+            new TouchPanGesture(1),
+            new TouchPanGesture(2),
+            new TouchPanGesture(3),
+            new TouchPinchGesture()
+        ];
+
         this.#events = new Map();
+        this.#gestures = new Set(gestures);
         this.#pointerSlots = new Map();
     }
 
     get type() {
-        return InputDeviceType.POINTER;
+        return InputDeviceType.POINTER as const;
     }
 
-    get events(): ReadonlyMap<PointerButton, PointerEvent> {
-        return this.#events;
+    get eventAdapter() {
+        return PointerEventAdapter;
     }
 
     get pointerLocked() {
@@ -39,6 +54,8 @@ class PointerDevice implements InputDevice {
         document.addEventListener('pointerlockchange', () => this.#handlePointerLockChange(), eventListenerOptions);
         
         targetElement.addEventListener('click', () => this.#requestPointerLock(), eventListenerOptions);
+
+        targetElement.addEventListener('wheel', (event) => this.#handleWheel(event), eventListenerOptions);
 
         targetElement.addEventListener('pointerdown', (event) => this.#handlePointerDown(event), eventListenerOptions);
         targetElement.addEventListener('pointerenter', (event) => this.#handlePointerDown(event), eventListenerOptions);
@@ -62,11 +79,15 @@ class PointerDevice implements InputDevice {
         this.#exitPointerLock();
     }
 
-    getEvent(key: PointerButton) {
+    flush() {
+        this.#events.delete('MouseWheel');
+    }
+
+    getEvent(key: PointerKey) {
         return this.#events.get(key);
     }
 
-    hasEvent(key: PointerButton) {
+    hasEvent(key: PointerKey) {
         return this.#events.has(key);
     }
 
@@ -74,7 +95,7 @@ class PointerDevice implements InputDevice {
         const targetElement = this.#targetElement;
 
 		try {
-            if (this.pointerLocked) {
+            if (this.pointerLocked || typeof targetElement.requestPointerLock !== 'function') {
                 return;
             }
 
@@ -108,6 +129,10 @@ class PointerDevice implements InputDevice {
     #clearPointerMaps() {
         this.#events.clear();
         this.#pointerSlots.clear();
+    }
+
+    #handleWheel(event: WheelEvent) {
+        this.#events.set('MouseWheel', event);
     }
 
     #handlePointerDown(event: PointerEvent) {
@@ -144,6 +169,8 @@ class PointerDevice implements InputDevice {
         if (typeof pointerKey !== 'undefined') {
             this.#events.set(pointerKey, event);
         }
+
+        this.#evaluateGestures();
     }
 
     #handlePointerMove(event: PointerEvent) {
@@ -184,6 +211,8 @@ class PointerDevice implements InputDevice {
             default:
                 this.#throwUnsupportedPointerError(pointerType);
         }
+
+        this.#evaluateGestures();
     }
 
     #handlePointerUp(event: PointerEvent) {
@@ -221,6 +250,24 @@ class PointerDevice implements InputDevice {
             this.#events.delete(pointerKey);
             this.#pointerSlots.delete(pointerId);
         }
+
+        this.#evaluateGestures();
+    }
+
+    #evaluateGestures() {
+        const events = this.#events;
+
+        this.#gestures.forEach((gesture) => {
+            const gestureType = gesture.type;
+            const gestureEvent = gesture.evaluate(events, this.#pointerSlots.size);
+
+            if (gestureEvent) {
+                events.set(gestureType, gestureEvent);
+            }
+            else {
+                events.delete(gestureType);
+            }
+        });
     }
 
     #getMouseButtonKeyForPress(pointerButton: number) {
@@ -269,10 +316,6 @@ class PointerDevice implements InputDevice {
         return MouseButton.NONE;
     }
 
-    #formatTouchKey(slotIndex: number) {
-        return `Touch${slotIndex}` as const;
-    }
-
     #assignTouchKey(pointerId: number) {
         const pointerSlots = this.#pointerSlots;
 
@@ -301,6 +344,10 @@ class PointerDevice implements InputDevice {
         }
 
         return this.#formatTouchKey(pointerSlot);
+    }
+
+    #formatTouchKey(slotIndex: number) {
+        return `Touch${slotIndex}` as const;
     }
 
     #shouldProcessPointer(pointerType: string) {

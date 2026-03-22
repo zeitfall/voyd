@@ -10,6 +10,9 @@
         PerspectiveCamera,
         FlyController,
         FreeLookController,
+        ZoomController,
+        InputAction,
+        InputSingleBinding,
         InputManager,
         KeyboardDevice,
         PointerDevice,
@@ -24,6 +27,9 @@
         generatePointListIndices,
         generateLineListIndices,
         generateTriangleListIndices,
+        InputControlType,
+        InputDeviceType,
+        Vector3,
     } from 'voyd';
 
     let canvasElement: HTMLCanvasElement;
@@ -67,17 +73,14 @@
         .addComponent(new FlyController())
         .addComponent(new FreeLookController());
 
-    cameraNode
-        .attachTo(cameraPivotNode)
-        .addComponent(camera);
-    
-    // NOTE: This local offset defines the camera mode:
-    // - Offset applied (e.g., Z = -8): The camera orbits around the pivot (3rd-person view).
-    // - No offset (0, 0, 0): The camera sits inside the pivot (1st-person Free Look view).
-    cameraNode.transform.position.set(0, 8, -16);
-    cameraNode.transform.lookAt(0, 0, 0);
+    cameraNode.transform.position.set(0, 0, -16);
     cameraNode.transform.update();
 
+    cameraNode
+        .attachTo(cameraPivotNode)
+        .addComponent(camera)
+        .addComponent(new ZoomController());
+    
     const renderShader = GPUContext.device.createShaderModule({
         code: `
             struct VertexStageInput {
@@ -264,6 +267,7 @@
         rafTime = currentTimestamp;
 
         InputManager.update();
+        // console.log(testAction.value);
         rootSceneNode.update(deltaTimeMs);
 
         camera.setAspectRatio(canvasElement.width / canvasElement.height);

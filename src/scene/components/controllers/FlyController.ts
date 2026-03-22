@@ -36,7 +36,7 @@ class FlyController extends SceneComponent {
         this.#desiredPosition = new Vector3();
 
         this.#dampingFactor = 12;
-        this.#movementSpeed = 12;
+        this.#movementSpeed = 32;
     }
 
     get dampingFactor() {
@@ -114,8 +114,8 @@ class FlyController extends SceneComponent {
             nodeTransform.extractRight(tempNodeRight);
             nodeTransform.extractForward(tempNodeForward);
 
-            tempNodeRight.setY(0).normalize().scale(movementX);
-            tempNodeForward.setY(0).normalize().scale(movementZ);
+            tempNodeRight.setY(0).setLength(movementX);
+            tempNodeForward.setY(0).setLength(movementZ);
 
             tempMovement
                 .copy(Vector3.UP).scale(movementY)
@@ -135,7 +135,8 @@ class FlyController extends SceneComponent {
     }
 
     #setupInputAction() {
-        const inputAction = new InputAction('_FlyController', InputControlType.VECTOR_3);
+        const inputActionID = Symbol('FlyController');
+        const inputAction = new InputAction(inputActionID, InputControlType.VECTOR_3);
 
         const inputKeyboardBinding = new InputAxis3DBinding({
             left: [
@@ -164,7 +165,7 @@ class FlyController extends SceneComponent {
         });
 
         const inputMouseBinding = new InputSingleBinding({ deviceType: InputDeviceType.POINTER, key: MouseButton.RMB });
-        const inputTouchBinding = new InputSingleBinding({ deviceType: InputDeviceType.POINTER, key: 'Touch1' });
+        const inputTouchBinding = new InputSingleBinding({ deviceType: InputDeviceType.POINTER, key: 'TouchPan3' });
 
         const pointerInputInvertProcessor = new InputVector2InvertProcessor(true, false);
         const keyboardInputVectorNormalizeProcessor = new InputVectorNormalizeProcessor();

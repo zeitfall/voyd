@@ -1,5 +1,3 @@
-import { InputDeviceEventAdapterRegistry } from '../../devices';
-
 import type { InputSingleBinding } from '../../bindings';
 import type { InputControlType } from '~/enums';
 import type { InputDeviceMap, InputActionEvaluator } from '~/types';
@@ -19,16 +17,13 @@ class InputActionContinuousEvaluator implements InputActionEvaluator<InputContro
     }
 
     #handleInputSingleBinding(devices: InputDeviceMap, binding: InputSingleBinding) {
-        const control = binding.control;
-        const controlDeviceType = control.deviceType;
-        const controlKey = control.key;
+        const { control } = binding;
 
-        const device = devices.get(controlDeviceType);
-        const deviceEvent = device && device.getEvent(controlKey);
-        const deviceEventAdapter = InputDeviceEventAdapterRegistry.get(controlDeviceType);
+        const device = devices.get(control.deviceType);
+        const deviceEvent = device && device.getEvent(control.key);
 
-        if (device && deviceEvent && deviceEventAdapter) {
-            return deviceEventAdapter.getContinuous(deviceEvent);
+        if (deviceEvent) {
+            return device.eventAdapter.getContinuous(deviceEvent);
         }
 
         return 0;

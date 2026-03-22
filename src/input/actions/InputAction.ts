@@ -3,17 +3,22 @@ import { createInputActionState } from '~/utils';
 import { InputControlType } from '~/enums';
 
 import type InputActionState from './InputActionState';
-import type { InputDeviceMap, InputBindingMap, InputProcessorMap } from '~/types';
+import type {
+	InputActionID,
+	InputDeviceMap,
+	InputBindingMap,
+	InputProcessorMap
+} from '~/types';
 
 class InputAction<C extends InputControlType = InputControlType> {
-	#name: string;
+	#id: InputActionID;
 	#controlType: C;
 	#state: InputActionState<C>;
 	#bindings: Set<InputBindingMap[C]>;
 	#processors: Set<InputProcessorMap[C]>;
 
-	constructor(name: string, controlType: C) {
-		this.#name = name;
+	constructor(id: InputActionID, controlType: C) {
+		this.#id = id;
 		this.#controlType = controlType;
 		// @ts-expect-error Type 'InputActionStateMap[C]' is not assignable to type 'InputActionState<C>'.
 		this.#state = createInputActionState(controlType);
@@ -21,8 +26,8 @@ class InputAction<C extends InputControlType = InputControlType> {
 		this.#processors = new Set();
 	}
 
-	get name() {
-		return this.#name;
+	get id() {
+		return this.#id;
 	}
 
 	get controlType() {

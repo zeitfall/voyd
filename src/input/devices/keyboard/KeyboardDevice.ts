@@ -1,8 +1,10 @@
+import KeyboardEventAdapter from './KeyboardEventAdapter';
+
 import { InputDeviceType } from '~/enums';
 
 import type { InputDevice } from '~/types';
 
-class KeyboardDevice implements InputDevice {
+class KeyboardDevice implements InputDevice<InputDeviceType.KEYBOARD> {
     #abortController: AbortController | null;
     #events: Map<string, KeyboardEvent>;
 
@@ -12,11 +14,11 @@ class KeyboardDevice implements InputDevice {
     }
 
     get type() {
-        return InputDeviceType.KEYBOARD;
+        return InputDeviceType.KEYBOARD as const;
     }
 
-    get events(): ReadonlyMap<string, KeyboardEvent> {
-        return this.#events;
+    get eventAdapter() {
+        return KeyboardEventAdapter;
     }
 
     connect() {
@@ -42,6 +44,8 @@ class KeyboardDevice implements InputDevice {
 
         this.#events.clear();
     }
+
+    flush() {}
 
     getEvent(key: string) {
         return this.#events.get(key);

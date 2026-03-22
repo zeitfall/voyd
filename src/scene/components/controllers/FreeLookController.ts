@@ -76,7 +76,7 @@ class FreeLookController extends SceneComponent {
         this.#targetPitchAngle = clamp(value, this.minPitchAngle, this.maxPitchAngle);
     }
 
-        get dampingFactor() {
+    get dampingFactor() {
         return this.#dampingFactor;
     }
 
@@ -197,13 +197,14 @@ class FreeLookController extends SceneComponent {
         this.#currentPitchAngle = currentPitchAngle;
 
         node.transform.rotation
-            .copy(this.#yawQuaternion)
-            .multiply(this.#pitchQuaternion)
+            .copy(yawQuaternion)
+            .multiply(pitchQuaternion)
             .normalize();
     }
 
     #setupInputAction() {
-        const inputAction = new InputAction('_FreeLookController', InputControlType.VECTOR_2);
+        const inputActionID = Symbol('FreeLookController');
+        const inputAction = new InputAction(inputActionID, InputControlType.VECTOR_2);
 
         const inputKeyboardBinding = new InputAxis2DBinding({
             left: [
@@ -221,7 +222,7 @@ class FreeLookController extends SceneComponent {
         });
 
         const inputMouseBinding = new InputSingleBinding({ deviceType: InputDeviceType.POINTER, key: MouseButton.LMB });
-        const inputTouchBinding = new InputSingleBinding({ deviceType: InputDeviceType.POINTER, key: 'Touch0' });
+        const inputTouchBinding = new InputSingleBinding({ deviceType: InputDeviceType.POINTER, key: 'TouchPan1' });
 
         const pointerInputScaleProcessor = new InputVectorScaleProcessor(0.005);
 
