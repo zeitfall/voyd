@@ -1,5 +1,2 @@
-import Header from './Header.svelte';
-
-export {
-    Header
-};
+export { default as Header } from './Header.svelte';
+export { default as GPUContextProvider } from './GPUContextProvider.svelte';

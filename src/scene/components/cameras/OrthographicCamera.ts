@@ -1,13 +1,9 @@
 import Camera from './Camera';
 
-import { GPUContext } from '~/core';
 import { Matrix4 } from '~/math';
-
-import { createUniformBuffer } from '~/utils';
 
 class OrthographicCamera extends Camera {
 	#projectionMatrix: Matrix4;
-	#projectionMatrixBuffer: GPUBuffer;
 
 	constructor(
 		public leftPlane = -1,
@@ -19,21 +15,13 @@ class OrthographicCamera extends Camera {
 	) {
 		super(nearPlane, farPlane);
 
-		const projectionMatrix = new Matrix4();
-		const projectionMatrixBuffer = createUniformBuffer(projectionMatrix.array, GPUBufferUsage.COPY_DST);
-
-		this.#projectionMatrix = projectionMatrix;
-		this.#projectionMatrixBuffer = projectionMatrixBuffer;
+		this.#projectionMatrix = new Matrix4();
 
 		this.update();
 	}
 
 	get projectionMatrix() {
 		return this.#projectionMatrix;
-	}
-
-	get projectionMatrixBuffer() {
-		return this.#projectionMatrixBuffer;
 	}
 
 	setLeftPlane(value: number) {
@@ -94,7 +82,6 @@ class OrthographicCamera extends Camera {
 		} = this;
 
 		const projectionMatrix = this.#projectionMatrix;
-		const projectionMatrixBuffer = this.#projectionMatrixBuffer;
 
 		const width = rightPlane - leftPlane;
 		const height = topPlane - bottomPlane;
@@ -114,8 +101,6 @@ class OrthographicCamera extends Camera {
             0, 0, C, 0,
             D, E, F, G,
         );
-
-		GPUContext.device.queue.writeBuffer(projectionMatrixBuffer, 0, projectionMatrix.array.buffer, 0);
 	}
 }
 

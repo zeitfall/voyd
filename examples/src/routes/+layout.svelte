@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { GPUContext } from 'voyd';
-	
-    import { Header } from '$lib/components';
+    import { createGPUContext } from 'voyd';
+
+    import { Header, GPUContextProvider } from '$lib/components';
 
 	const { children } = $props();
 </script>
@@ -41,12 +41,14 @@
 
 <Header />
 
-{#await GPUContext.init()}
+{#await createGPUContext()}
 	<main>
 		<p>Initializing GPU...</p>
 	</main>
-{:then}
-	{@render children()}
+{:then context}
+	<GPUContextProvider {context}>
+		{@render children()}
+	</GPUContextProvider>
 {:catch error}
 	<main>
 		<p>An error occured, while initializing GPU.</p>

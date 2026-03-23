@@ -4,8 +4,8 @@
     import { onDestroy, onMount } from 'svelte';
     import { CanvasResizer } from '$lib/services';
     
+	import { getGPUContext } from '$lib/contexts/gpu';
     import {
-        GPUContext,
         SceneNode,
         PerspectiveCamera,
         FlyController,
@@ -19,6 +19,7 @@
         InterleavedBuffer,
         StandardBufferAttribute,
         createRenderBundle,
+        createUniformBuffer,
         createVertexBuffer,
         createIndexBuffer,
         generatePlaneVertices,
@@ -31,6 +32,8 @@
         InputDeviceType,
         Vector3,
     } from 'voyd';
+
+    const gpuContext = getGPUContext();
 
     let canvasElement: HTMLCanvasElement;
     let canvasContext: GPUCanvasContext;
@@ -47,8 +50,8 @@
         new StandardBufferAttribute('float32x3', planeVertices),
         new StandardBufferAttribute('float32x3', planeNormals)
     ]);
-    const planeVertexBuffer = createVertexBuffer(planeInterleavedVertexBuffer.data);
-    const planeIndexBuffer = createIndexBuffer(planeIndices);
+    const planeVertexBuffer = createVertexBuffer(gpuContext.device, planeInterleavedVertexBuffer.data);
+    const planeIndexBuffer = createIndexBuffer(gpuContext.device, planeIndices);
 
     // SPHERE
     const sphereVertices = generateSphereVertices(4, 32, 32);
@@ -59,14 +62,16 @@
         new StandardBufferAttribute('float32x3', sphereVertices),
         new StandardBufferAttribute('float32x3', sphereNormals)
     ]);
-    const sphereVertexBuffer = createVertexBuffer(sphereInterleavedVertexBuffer.data);
-    const sphereIndexBuffer = createIndexBuffer(sphereIndices);
+    const sphereVertexBuffer = createVertexBuffer(gpuContext.device, sphereInterleavedVertexBuffer.data);
+    const sphereIndexBuffer = createIndexBuffer(gpuContext.device, sphereIndices);
 
     const rootSceneNode = new SceneNode();
 
     const cameraPivotNode = new SceneNode();
     const cameraNode = new SceneNode();
     const camera = new PerspectiveCamera();
+    const cameraViewMatrixBuffer = createUniformBuffer(gpuContext.device, camera.viewMatrix.array, GPUBufferUsage.COPY_DST);
+    const cameraProjectionMatrixBuffer = createUniformBuffer(gpuContext.device, camera.projectionMatrix.array, GPUBufferUsage.COPY_DST);
 
     cameraPivotNode
         .attachTo(rootSceneNode)
@@ -81,7 +86,7 @@
         .addComponent(camera)
         .addComponent(new ZoomController());
     
-    const renderShader = GPUContext.device.createShaderModule({
+    const renderShader = gpuContext.device.createShaderModule({
         code: `
             struct VertexStageInput {
                 @location(0) vertex_position : vec3f,
@@ -129,7 +134,7 @@
         `
     });
 
-    const renderBindGroupLayout = GPUContext.device.createBindGroupLayout({
+    const renderBindGroupLayout = gpuContext.device.createBindGroupLayout({
         entries: [
             {
                 binding: 0,
@@ -144,29 +149,29 @@
         ]
     });
 
-    const renderBindGroup = GPUContext.device.createBindGroup({
+    const renderBindGroup = gpuContext.device.createBindGroup({
         layout: renderBindGroupLayout,
         entries: [
             {
                 binding: 0,
                 resource: {
-                    buffer: camera.viewMatrixBuffer
+                    buffer: cameraViewMatrixBuffer
                 }
             },
             {
                 binding: 1,
                 resource: {
-                    buffer: camera.projectionMatrixBuffer
+                    buffer: cameraProjectionMatrixBuffer
                 }
             }
         ]
     });
 
-    const renderPipelineLayout = GPUContext.device.createPipelineLayout({
+    const renderPipelineLayout = gpuContext.device.createPipelineLayout({
         bindGroupLayouts: [renderBindGroupLayout]
     });
 
-    const renderPipeline = GPUContext.device.createRenderPipeline({
+    const renderPipeline = gpuContext.device.createRenderPipeline({
         layout: renderPipelineLayout,
         vertex: {
             module: renderShader,
@@ -193,7 +198,7 @@
         fragment: {
             module: renderShader,
             entryPoint: 'fragment_stage',
-            targets: [{ format: GPUContext.preferredFormat }]
+            targets: [{ format: gpuContext.preferredFormat }]
         },
         primitive: {
             topology: 'triangle-list',
@@ -207,6 +212,7 @@
     });
 
     const planeRenderBundle = createRenderBundle(
+        gpuContext.device,
         (encoder) => {
             encoder.setPipeline(renderPipeline);
             encoder.setBindGroup(0, renderBindGroup);
@@ -215,12 +221,13 @@
             encoder.drawIndexed(planeIndices.length);
         },
         {
-            colorFormats: [GPUContext.preferredFormat],
+            colorFormats: [gpuContext.preferredFormat],
             depthStencilFormat: 'depth24plus'
         }
     );
 
     const sphereRenderBundle = createRenderBundle(
+        gpuContext.device,
         (encoder) => {
             encoder.setPipeline(renderPipeline);
             encoder.setBindGroup(0, renderBindGroup);
@@ -229,7 +236,7 @@
             encoder.drawIndexed(sphereIndices.length);
         },
         {
-            colorFormats: [GPUContext.preferredFormat],
+            colorFormats: [gpuContext.preferredFormat],
             depthStencilFormat: 'depth24plus'
         }
     );
@@ -267,12 +274,13 @@
         rafTime = currentTimestamp;
 
         InputManager.update();
-        // console.log(testAction.value);
         rootSceneNode.update(deltaTimeMs);
 
         camera.setAspectRatio(canvasElement.width / canvasElement.height);
+        gpuContext.device.queue.writeBuffer(cameraViewMatrixBuffer, 0, camera.viewMatrix.array);
+        gpuContext.device.queue.writeBuffer(cameraProjectionMatrixBuffer, 0, camera.projectionMatrix.array);
 
-        const commandEncoder = GPUContext.device.createCommandEncoder();
+        const commandEncoder = gpuContext.device.createCommandEncoder();
 
         // @ts-expect-error Property '0' does not exist on type 'Iterable<GPURenderPassColorAttachment>'.
         renderPassDescriptor.colorAttachments[0].view = canvasContext.getCurrentTexture().createView();
@@ -285,7 +293,7 @@
 
         const commandBuffer = commandEncoder.finish();
 
-        GPUContext.device.queue.submit([commandBuffer]);
+        gpuContext.device.queue.submit([commandBuffer]);
 
         rafId = requestAnimationFrame(updateLoop);
     }
@@ -297,8 +305,8 @@
         canvasResizer = new CanvasResizer(canvasElement);
 
         canvasContext.configure({
-            device: GPUContext.device,
-            format: GPUContext.preferredFormat
+            device: gpuContext.device,
+            format: gpuContext.preferredFormat
         });
 
         canvasElement.addEventListener('resize', () => {
@@ -306,7 +314,7 @@
                 depthTexture.destroy();
             }
 
-            depthTexture = GPUContext.device.createTexture({
+            depthTexture = gpuContext.device.createTexture({
                 size: [canvasElement.width, canvasElement.height],
                 format: 'depth24plus',
                 usage: GPUTextureUsage.RENDER_ATTACHMENT
