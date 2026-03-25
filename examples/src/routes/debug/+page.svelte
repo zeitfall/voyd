@@ -8,9 +8,13 @@
     import {
         SceneNode,
         PerspectiveCamera,
+        OrthographicCamera,
         FlyController,
         FreeLookController,
         ZoomController,
+        DollyZoomStrategy,
+        FOVZoomStrategy,
+        OrthographicZoomStrategy,
         InputAction,
         InputSingleBinding,
         InputManager,
@@ -29,8 +33,7 @@
         generateLineListIndices,
         generateTriangleListIndices,
         InputControlType,
-        InputDeviceType,
-        Vector3,
+        InputDeviceType
     } from 'voyd';
 
     const gpuContext = getGPUContext();
@@ -73,10 +76,16 @@
     const cameraViewMatrixBuffer = createUniformBuffer(gpuContext.device, camera.viewMatrix.array, GPUBufferUsage.COPY_DST);
     const cameraProjectionMatrixBuffer = createUniformBuffer(gpuContext.device, camera.projectionMatrix.array, GPUBufferUsage.COPY_DST);
 
+    const flyController = new FlyController();
+    const freeLookController = new FreeLookController();
+
+    const zoomStrategy = new FOVZoomStrategy(camera);
+    const zoomController = new ZoomController(zoomStrategy);
+
     cameraPivotNode
         .attachTo(rootSceneNode)
-        .addComponent(new FlyController())
-        .addComponent(new FreeLookController());
+        .addComponent(flyController)
+        .addComponent(freeLookController);
 
     cameraNode.transform.position.set(0, 0, -16);
     cameraNode.transform.update();
@@ -84,7 +93,7 @@
     cameraNode
         .attachTo(cameraPivotNode)
         .addComponent(camera)
-        .addComponent(new ZoomController());
+        .addComponent(zoomController);
     
     const renderShader = gpuContext.device.createShaderModule({
         code: `

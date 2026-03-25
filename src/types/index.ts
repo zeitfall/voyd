@@ -6,6 +6,6 @@ export * from './array';
 
 export * from './buffer';
 
-export * from './geometries';
+export * from './scene';
 
 export * from './utils';

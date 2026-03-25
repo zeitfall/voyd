@@ -9,20 +9,26 @@ class PerspectiveCamera extends Camera {
 	#projectionMatrix: Matrix4;
 
 	constructor(
-		public fovy = 80,
+		public fov = 80,
 		public aspectRatio = 1,
 		nearPlane?: number,
 		farPlane?: number,
 	) {
 		super(nearPlane, farPlane);
 
-		this.#projectionMatrix =  new Matrix4();
+		this.#projectionMatrix = new Matrix4();
 
 		this.update();
 	}
 
 	get projectionMatrix() {
 		return this.#projectionMatrix;
+	}
+
+	setFOV(value: number) {
+		this.fov = value;
+
+		return this;
 	}
 
 	setAspectRatio(ratio: number) {
@@ -38,12 +44,12 @@ class PerspectiveCamera extends Camera {
 	}
 
 	#updateProjectionMatrix() {
-		const { fovy, aspectRatio, nearPlane, farPlane } = this;
+		const { fov, aspectRatio, nearPlane, farPlane } = this;
 
 		const projectionMatrix = this.#projectionMatrix;
 
 		const depth = farPlane - nearPlane;
-		const inverseTan = 1 / Math.tan(toRadians(fovy / 2));
+		const inverseTan = 1 / Math.tan(toRadians(fov / 2));
 
 		const A = inverseTan / aspectRatio;
 		const B = inverseTan;

@@ -1,49 +1,63 @@
-import SceneComponent from '../SceneComponent';
-
-import {
-    InputManager,
-    InputAction,
-    InputSingleBinding
-} from '~/input';
+import { InputManager, InputAction, InputSingleBinding } from '~/input';
+import { SceneComponent } from '~/scene';
 
 import { clamp, damp } from '~/utils';
 
-import { InputDeviceType, InputControlType } from '~/enums';
+import { InputControlType, InputDeviceType } from '~/enums';
 
-import type SceneNode from '../../SceneNode';
+import type { ZoomStrategy } from '~/types';
 
 class ZoomController extends SceneComponent {
+    #strategy: ZoomStrategy;
+
     #inputAction: InputAction<InputControlType.AXIS>;
 
-    #currentDistance: number;
-    #desiredDistance: number;
-    minDistance: number;
-    maxDistance: number;
+    #currentZoomLevel: number;
+    #desiredZoomLevel: number;
+    #maxZoomIn: number;
+    #maxZoomOut: number;
 
     #dampingFactor: number;
     #zoomSpeed: number;
 
-    constructor() {
+    constructor(strategy: ZoomStrategy) {
         super();
+
+        this.#strategy = strategy;
 
         this.#inputAction = this.#setupInputAction();
 
-        this.#currentDistance = 0;
-        this.#desiredDistance = 0;
-        this.minDistance = Number.EPSILON;
-        this.maxDistance = Number.POSITIVE_INFINITY;
+        this.#currentZoomLevel = 1;
+        this.#desiredZoomLevel = 1;
+        this.#maxZoomIn = strategy.maxSafeZoomIn;
+        this.#maxZoomOut = strategy.maxSafeZoomOut;
 
-        this.#dampingFactor = 8;
-        this.#zoomSpeed = 0.25;
-
+        this.#dampingFactor = 12;
+        this.#zoomSpeed = 0.005;
     }
 
-    get dampingFactor() {
-        return this.#dampingFactor;
+    get zoomLevel() {
+        return this.#desiredZoomLevel;
     }
 
-    set dampingFactor(value: number) {
-        this.#dampingFactor = Math.max(0, value);
+    set zoomLevel(value: number) {
+        this.#desiredZoomLevel = clamp(value, this.maxZoomOut, this.maxZoomIn);
+    }
+
+    get maxZoomIn() {
+        return this.#maxZoomIn;
+    }
+
+    set maxZoomIn(value: number) {
+        this.#maxZoomIn = Math.min(value, this.#strategy.maxSafeZoomIn);
+    }
+
+    get maxZoomOut() {
+        return this.#maxZoomOut;
+    }
+
+    set maxZoomOut(value: number) {
+        this.#maxZoomOut = Math.max(value, this.#strategy.maxSafeZoomOut);
     }
 
     get zoomSpeed() {
@@ -54,8 +68,34 @@ class ZoomController extends SceneComponent {
         this.#zoomSpeed = Math.max(0, value);
     }
 
-    setDampingFactor(value: number) {
-        this.dampingFactor = value;
+    get dampingFactor() {
+        return this.#dampingFactor;
+    }
+
+    set dampingFactor(value: number) {
+        this.#dampingFactor = Math.max(0, value);
+    }
+
+    setStrategy(strategy: ZoomStrategy) {
+        this.#strategy = strategy;
+
+        return this;
+    }
+
+    setZoomLevel(value: number) {
+        this.zoomLevel = value;
+
+        return this;
+    }
+
+    setMaxZoomIn(value: number) {
+        this.maxZoomIn = value;
+
+        return this;
+    }
+
+    setMaxZoomOut(value: number) {
+        this.maxZoomOut = value;
 
         return this;
     }
@@ -66,24 +106,8 @@ class ZoomController extends SceneComponent {
         return this;
     }
 
-    setMinDistance(value: number) {
-        this.minDistance = value;
-
-        return this;
-    }
-
-    setMaxDistance(value: number) {
-        this.maxDistance = value;
-
-        return this;
-    }
-
-    override attachTo(node: SceneNode) {
-        super.attachTo(node);
-
-        const distanceFromParentCenter = node.transform.position.length;
-
-        this.#currentDistance = this.#desiredDistance = distanceFromParentCenter;
+    setDampingFactor(value: number) {
+        this.dampingFactor = value;
 
         return this;
     }
@@ -95,19 +119,15 @@ class ZoomController extends SceneComponent {
             return;
         }
 
-        const inputActionValue = this.#inputAction.value;
+        const deltaZoom = this.#inputAction.value;
 
-        if (inputActionValue !== 0) {
-            this.#desiredDistance = clamp(
-                this.#desiredDistance - this.#zoomSpeed * inputActionValue,
-                this.minDistance,
-                this.maxDistance
-            );
+        if (deltaZoom !== 0) {
+            this.zoomLevel += this.#zoomSpeed * deltaZoom;
         }
 
-        this.#currentDistance = damp(this.#currentDistance, this.#desiredDistance, this.#dampingFactor, deltaTime);
+        this.#currentZoomLevel = damp(this.#currentZoomLevel, this.#desiredZoomLevel, this.#dampingFactor, deltaTime);
 
-        node.transform.position.setLength(this.#currentDistance);
+        this.#strategy.apply(node, this.#currentZoomLevel);
     }
 
     #setupInputAction() {
