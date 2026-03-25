@@ -2,9 +2,9 @@ import {
     VERTEX_ATTRIBUTE_COMPONENT_COUNT_MAP,
     VERTEX_ATTRIBUTE_COMPONENT_BYTE_SIZE_MAP,
     VERTEX_ATTRIBUTE_FORMAT_BYTE_SIZE_MAP
-} from '~/constants';
+} from './constants';
 
-import type { VertexBufferViewMap } from '~/types';
+import type { VertexBufferViewMap } from './types';
 
 abstract class BufferAttribute<F extends GPUVertexFormat = GPUVertexFormat> {
     #format: F;

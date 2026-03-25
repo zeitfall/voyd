@@ -1,6 +1,6 @@
 import InputCompositeBinding from './InputCompositeBinding';
 
-import type { InputAxis3DBindingDescriptor } from '~/types';
+import type { InputAxis3DBindingDescriptor } from '../types';
 
 const InputAxis3DBindingBrand = Symbol('InputAxis3DBinding');
 

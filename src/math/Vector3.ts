@@ -1,6 +1,7 @@
 import Vector from './Vector';
 
-import { defineReadOnlyProperties, clamp, lerp, damp } from '~/utils';
+import { defineReadOnlyProperties } from '~/utils';
+import { clamp, lerp, damp } from './utils';
 
 import type Spherical from './Spherical';
 import type Quaternion from './Quaternion';

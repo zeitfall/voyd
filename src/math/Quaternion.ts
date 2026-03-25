@@ -1,8 +1,8 @@
 import Vector3 from './Vector3';
 
-import { clamp } from '~/utils';
+import { clamp } from './utils';
 
-import { EPSILON_4 } from '~/constants';
+import { EPSILON_4 } from './constants';
 
 import type Matrix3 from './Matrix3';
 

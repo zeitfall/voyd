@@ -1,4 +1,4 @@
-import type { PointerGesture, PointerKey } from '~/types';
+import type { PointerGesture, PointerKey } from '../../types';
 
 class TouchPanGesture<N extends number> implements PointerGesture {
     #requiredTouchCount: N;

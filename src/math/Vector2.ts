@@ -1,6 +1,7 @@
 import Vector from './Vector';
 
-import { defineReadOnlyProperties, clamp, lerp, damp } from '~/utils';
+import { defineReadOnlyProperties } from '~/utils';
+import { clamp, lerp, damp } from './utils';
 
 import type Polar from './Polar';
 import type Matrix2 from './Matrix2';

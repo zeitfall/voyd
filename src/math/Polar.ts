@@ -1,6 +1,6 @@
-import { clamp, lerp, modRadians } from '~/utils';
+import { clamp, lerp, modRadians } from './utils';
 
-import { PI, TWO_PI } from '~/constants';
+import { PI, TWO_PI } from './constants';
 
 import type Vector2 from './Vector2';
 

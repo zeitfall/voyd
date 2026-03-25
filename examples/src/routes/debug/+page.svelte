@@ -23,6 +23,7 @@
         InterleavedBuffer,
         StandardBufferAttribute,
         createRenderBundle,
+        createCommandBuffer,
         createUniformBuffer,
         createVertexBuffer,
         createIndexBuffer,
@@ -289,18 +290,16 @@
         gpuContext.device.queue.writeBuffer(cameraViewMatrixBuffer, 0, camera.viewMatrix.array);
         gpuContext.device.queue.writeBuffer(cameraProjectionMatrixBuffer, 0, camera.projectionMatrix.array);
 
-        const commandEncoder = gpuContext.device.createCommandEncoder();
-
         // @ts-expect-error Property '0' does not exist on type 'Iterable<GPURenderPassColorAttachment>'.
         renderPassDescriptor.colorAttachments[0].view = canvasContext.getCurrentTexture().createView();
         renderPassDescriptor.depthStencilAttachment.view = depthTexture.createView();
 
-        const renderPass = commandEncoder.beginRenderPass(renderPassDescriptor);
+        const commandBuffer = createCommandBuffer(gpuContext.device, (encoder) => {
+            const renderPass = encoder.beginRenderPass(renderPassDescriptor);
 
-        renderPass.executeBundles([planeRenderBundle, sphereRenderBundle]);
-        renderPass.end();
-
-        const commandBuffer = commandEncoder.finish();
+            renderPass.executeBundles([planeRenderBundle, sphereRenderBundle]);
+            renderPass.end();
+        });
 
         gpuContext.device.queue.submit([commandBuffer]);
 

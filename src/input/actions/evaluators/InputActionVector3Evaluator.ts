@@ -1,8 +1,8 @@
 import { Vector3 } from '~/math';
 import { InputSingleBinding, InputAxis3DBinding } from '../../bindings';
 
-import type { InputControlType } from '~/enums';
-import type { InputDeviceMap, InputActionEvaluator, InputControlMap } from '~/types';
+import type { InputControlType } from '../../enums';
+import type { InputDeviceMap, InputActionEvaluator, InputControlMap } from '../../types';
 
 class InputActionVector3Evaluator implements InputActionEvaluator<InputControlType.VECTOR_3> {
 

@@ -9,3 +9,7 @@ export { default as Matrix } from './Matrix';
 export { default as Matrix2 } from './Matrix2';
 export { default as Matrix3 } from './Matrix3';
 export { default as Matrix4 } from './Matrix4';
+
+export * from './utils';
+
+export * from './constants';

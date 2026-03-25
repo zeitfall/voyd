@@ -1,6 +1,6 @@
 import InterleavedBufferAttribute from './InterleavedBufferAttribute';
 
-import { createVertexBufferView } from '~/utils';
+import { createVertexBufferView } from './utils';
 
 import type StandardBufferAttribute from './BufferAttribute';
 

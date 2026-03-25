@@ -1,4 +1,4 @@
-import type { PointerKey, PointerGesture } from '~/types';
+import type { PointerKey, PointerGesture } from '../../types';
 
 class TouchPinchGesture implements PointerGesture {
     #previousDistance: number;

@@ -1,6 +1,6 @@
-import type InputAction from './actions/InputAction';
-import type { InputDeviceType } from '~/enums';
-import type { InputDevice, InputActionID } from '~/types';
+import type { InputAction } from './actions';
+import type { InputDeviceType } from './enums';
+import type { InputDevice, InputActionID } from './types';
 
 class InputManager {
     #devices: Map<InputDeviceType, InputDevice>;

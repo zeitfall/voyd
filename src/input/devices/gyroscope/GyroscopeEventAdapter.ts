@@ -1,6 +1,6 @@
 import type { Vector } from '~/math';
-import type { InputDeviceType } from '~/enums';
-import type { InputDeviceEventAdapter } from '~/types';
+import type { InputDeviceType } from '../../enums';
+import type { InputDeviceEventAdapter } from '../../types';
 
 class GyroscopeEventAdapter implements InputDeviceEventAdapter<InputDeviceType.GYROSCOPE> {
 

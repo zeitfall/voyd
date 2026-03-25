@@ -1,6 +1,6 @@
 import type { InputSingleBinding } from '../../bindings';
-import type { InputControlType } from '~/enums';
-import type { InputDeviceMap, InputActionEvaluator } from '~/types';
+import type { InputControlType } from '../../enums';
+import type { InputDeviceMap, InputActionEvaluator } from '../../types';
 
 class InputActionContinuousEvaluator implements InputActionEvaluator<InputControlType.CONTINUOUS> {
 

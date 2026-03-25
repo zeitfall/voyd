@@ -1,6 +1,6 @@
 import BufferAttribute from './BufferAttribute';
 
-import type { VertexBufferViewMap } from '~/types';
+import type { VertexBufferViewMap } from './types';
 
 class StandardBufferAttribute<F extends GPUVertexFormat = GPUVertexFormat> extends BufferAttribute<F> {
     #itemCount: number;

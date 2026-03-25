@@ -1,6 +1,6 @@
 import Vector from './Vector';
 
-import { clamp, damp, lerp } from '~/utils';
+import { clamp, lerp, damp } from './utils';
 
 import type Matrix4 from './Matrix4';
 

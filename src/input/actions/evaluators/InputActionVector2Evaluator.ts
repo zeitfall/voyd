@@ -1,8 +1,8 @@
 import { Vector2 } from '~/math';
 import { InputSingleBinding, InputAxis2DBinding } from '../../bindings';
 
-import type { InputControlType } from '~/enums';
-import type { InputDeviceMap, InputActionEvaluator, InputControlMap } from '~/types';
+import type { InputControlType } from '../../enums';
+import type { InputDeviceMap, InputActionEvaluator, InputControlMap } from '../../types';
 
 class InputActionVector2Evaluator implements InputActionEvaluator<InputControlType.VECTOR_2> {
 

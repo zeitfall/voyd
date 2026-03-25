@@ -1,5 +1,5 @@
 import type { Vector2 } from '~/math';
-import type { InputProcessor } from '~/types';
+import type { InputProcessor } from '../types';
 
 class InputVector2InvertProcessor implements InputProcessor<Vector2> {
     #invertX: boolean;

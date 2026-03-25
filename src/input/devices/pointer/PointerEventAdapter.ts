@@ -1,7 +1,7 @@
 import { Vector2, Vector3, type Vector } from '~/math';
 
-import type { InputDeviceType } from '~/enums';
-import type { InputDeviceEventAdapter } from '~/types';
+import type { InputDeviceType } from '../../enums';
+import type { InputDeviceEventAdapter } from '../../types';
 
 class PointerEventAdapter implements InputDeviceEventAdapter<InputDeviceType.POINTER> {
 

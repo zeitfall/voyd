@@ -1,6 +1,6 @@
 import Transform from './Transform';
 
-import type { SceneComponent } from './components';
+import type SceneComponent from './SceneComponent';
 
 class SceneNode {
     #parent: SceneNode | null;

@@ -1,7 +1,7 @@
 import InputBinding from './InputBinding';
 import InputControl from './InputControl';
 
-import type { InputControlReference } from '~/types';
+import type { InputControlReference } from '../types';
 
 class InputSingleBinding extends InputBinding {
     #control: InputControl;

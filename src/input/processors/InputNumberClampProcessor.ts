@@ -1,6 +1,6 @@
-import { clamp } from '~/utils';
+import { clamp } from '~/math';
 
-import type { InputProcessor } from '~/types';
+import type { InputProcessor } from '../types';
 
 class InputNumberClampProcessor implements InputProcessor<number> {
     #min: number;

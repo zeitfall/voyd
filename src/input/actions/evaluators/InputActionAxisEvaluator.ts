@@ -1,8 +1,8 @@
 import { Vector2 } from '~/math';
 import { InputSingleBinding, InputAxis1DBinding } from '../../bindings';
 
-import type { InputControlType } from '~/enums';
-import type { InputDeviceMap, InputActionEvaluator, InputControlMap } from '~/types';
+import type { InputControlType } from '../../enums';
+import type { InputDeviceMap, InputActionEvaluator, InputControlMap } from '../../types';
 
 // PLEASE, FORGIVE ME
 const _tempVector = new Vector2();

@@ -1,14 +1,14 @@
-import { createInputActionState } from '~/utils';
+import { createInputActionState } from '../utils';
 
-import { InputControlType } from '~/enums';
+import { InputControlType } from '../enums';
 
-import type InputActionState from './InputActionState';
+import type { InputActionState } from './states';
 import type {
 	InputActionID,
 	InputDeviceMap,
 	InputBindingMap,
 	InputProcessorMap
-} from '~/types';
+} from '../types';
 
 class InputAction<C extends InputControlType = InputControlType> {
 	#id: InputActionID;

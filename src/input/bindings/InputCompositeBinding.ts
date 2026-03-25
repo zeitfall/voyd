@@ -4,7 +4,7 @@ import InputControl from './InputControl';
 import type {
     InputCompositeBindingDescriptor,
     InputCompositeBindingControlGroups,
-} from '~/types';
+} from '../types';
 
 class InputCompositeBinding<D extends InputCompositeBindingDescriptor> extends InputBinding {
     #controls: Readonly<InputCompositeBindingControlGroups<D>>;

@@ -1,4 +1,4 @@
-import type { InputDeviceType } from '~/enums';
+import type { InputDeviceType } from '../enums';
 
 class InputControl {
     #deviceType: InputDeviceType;

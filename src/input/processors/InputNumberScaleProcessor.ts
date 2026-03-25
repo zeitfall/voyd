@@ -1,4 +1,4 @@
-import type { InputProcessor } from '~/types';
+import type { InputProcessor } from '../types';
 
 // NOTE: Might be a good idea to create InputScaleProcessor,
 // since it shares the same constructor with InputVectorScaleProcessor.

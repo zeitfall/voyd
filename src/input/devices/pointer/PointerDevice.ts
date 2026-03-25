@@ -2,9 +2,9 @@ import PointerEventAdapter from './PointerEventAdapter';
 import TouchPanGesture from './TouchPanGesture';
 import TouchPinchGesture from './TouchPinchGesture';
 
-import { InputDeviceType, MouseButton } from '~/enums';
+import { InputDeviceType, MouseButton } from '../../enums';
 
-import type { InputDevice, PointerKey, PointerGesture } from '~/types';
+import type { InputDevice, PointerKey, PointerGesture } from '../../types';
 
 class PointerDevice implements InputDevice<InputDeviceType.POINTER> {
     #targetElement: HTMLElement;

@@ -1,8 +1,8 @@
 import GamepadEventAdapter from './GamepadEventAdapter';
 
-import { InputDeviceType } from '~/enums';
+import { InputDeviceType } from '../../enums';
 
-import type { InputDevice } from '~/types';
+import type { InputDevice } from '../../types';
 
 class GamepadDevice implements InputDevice<InputDeviceType.GAMEPAD> {
 

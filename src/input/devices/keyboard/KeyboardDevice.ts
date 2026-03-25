@@ -1,8 +1,8 @@
 import KeyboardEventAdapter from './KeyboardEventAdapter';
 
-import { InputDeviceType } from '~/enums';
+import { InputDeviceType } from '../../enums';
 
-import type { InputDevice } from '~/types';
+import type { InputDevice } from '../../types';
 
 class KeyboardDevice implements InputDevice<InputDeviceType.KEYBOARD> {
     #abortController: AbortController | null;

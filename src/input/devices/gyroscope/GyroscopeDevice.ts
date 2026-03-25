@@ -1,8 +1,8 @@
 import GyroscopeEventAdapter from './GyroscopeEventAdapter';
 
-import { InputDeviceType } from '~/enums';
+import { InputDeviceType } from '../../enums';
 
-import type { InputDevice } from '~/types';
+import type { InputDevice } from '../../types';
 
 class GyroscopeDevice implements InputDevice<InputDeviceType.GYROSCOPE> {
 

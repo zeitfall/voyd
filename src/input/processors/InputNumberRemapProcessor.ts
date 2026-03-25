@@ -1,6 +1,6 @@
-import { remap } from '~/utils';
+import { remap } from '~/math';
 
-import type { InputProcessor } from '~/types';
+import type { InputProcessor } from '../types';
 
 class InputNumberRemapProcessor implements InputProcessor<number> {
     #oldMin: number;

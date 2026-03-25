@@ -1,5 +1,5 @@
 import type { Vector } from '~/math';
-import type { InputProcessor } from '~/types';
+import type { InputProcessor } from '../types';
 
 class InputVectorNormalizeProcessor implements InputProcessor<Vector> {
 
