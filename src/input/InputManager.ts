@@ -2,84 +2,72 @@ import type { InputAction } from './actions';
 import type { InputDeviceType } from './enums';
 import type { InputDevice, InputActionID } from './types';
 
-class InputManager {
-    #devices: Map<InputDeviceType, InputDevice>;
-    #actions: Map<InputActionID, InputAction>;
+const devices = new Map<InputDeviceType, InputDevice>();
+const actions = new Map<InputActionID, InputAction>();
 
-    constructor() {
-        this.#devices = new Map();
-        this.#actions = new Map();
+function registerDevice(device: InputDevice) {
+    const deviceType = device.type;
+    const hasDeviceRegistered = devices.has(deviceType);
+
+    if (hasDeviceRegistered) {
+        throw new Error(`[InputManager]: Device with type "${deviceType}" has already been registered.`);
     }
 
-    registerDevice(device: InputDevice) {
-        const devices = this.#devices;
+    device.connect();
 
-        const deviceType = device.type;
-        const hasDeviceRegistered = devices.has(deviceType);
-
-        if (hasDeviceRegistered) {
-            throw new Error(`[InputManager]: Device with type "${deviceType}" has already been registered.`);
-        }
-
-        device.connect();
-
-        devices.set(deviceType, device);
-
-        return this;
-    }
-
-    unregisterDevice(deviceType: InputDeviceType) {
-        const devices = this.#devices;
-
-        const device = devices.get(deviceType);
-
-        if (!device) {
-            throw new Error(`[InputManager]: Cannot unregister. Device with type "${deviceType}" was not found.`);
-        }
-
-        device.disconnect();
-
-        devices.delete(deviceType);
-    }
-
-    unregisterAllDevices() {
-        const devices = this.#devices;
-
-        devices.forEach(device => device.disconnect());
-        devices.clear();
-    }
-
-    getDevice(type: InputDeviceType) {
-        return this.#devices.get(type);
-    }
-
-    hasDevice(type: InputDeviceType) {
-        return this.#devices.has(type);
-    }
-
-    addAction(action: InputAction) {
-        this.#actions.set(action.id, action);
-
-        return this;
-    }
-
-    removeAction(name: string) {
-        this.#actions.delete(name);
-    }
-
-    hasAction(name: string) {
-        return this.#actions.has(name);
-    }
-
-    update() {
-        const devices = this.#devices;
-        const actions = this.#actions; 
-
-        actions.forEach(action => action.update(devices));
-        devices.forEach(device => device.flush());
-    }
+    devices.set(deviceType, device);
 }
 
-const inputManagerInstance = new InputManager();
+function unregisterDevice(deviceType: InputDeviceType) {
+    const device = devices.get(deviceType);
 
-export default inputManagerInstance;
+    if (!device) {
+        throw new Error(`[InputManager]: Cannot unregister. Device with type "${deviceType}" was not found.`);
+    }
+
+    device.disconnect();
+
+    devices.delete(deviceType);
+}
+
+function unregisterAllDevices() {
+    devices.forEach(device => device.disconnect());
+    devices.clear();
+}
+
+function getDevice(type: InputDeviceType) {
+    return devices.get(type);
+}
+
+function hasDevice(type: InputDeviceType) {
+    return devices.has(type);
+}
+
+function addAction(action: InputAction) {
+    actions.set(action.id, action);
+}
+
+function removeAction(name: string) {
+    actions.delete(name);
+}
+
+function hasAction(name: string) {
+    return actions.has(name);
+}
+
+function update() {
+    actions.forEach(action => action.update(devices));
+    devices.forEach(device => device.flush());
+}
+
+export {
+    registerDevice,
+    unregisterDevice,
+    unregisterAllDevices,
+    getDevice,
+    hasDevice,
+    addAction,
+    removeAction,
+    hasAction,
+    update
+};

@@ -1,5 +1,4 @@
-export { default as InputManager } from './InputManager';
-export { default as InputAction } from './actions/InputAction';
+export * as InputManager from './InputManager';
 
 export * from './devices';
 export * from './actions';

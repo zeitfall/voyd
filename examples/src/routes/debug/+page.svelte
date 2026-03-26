@@ -27,6 +27,10 @@
         createUniformBuffer,
         createVertexBuffer,
         createIndexBuffer,
+        createRenderPipeline,
+        invalidatePipelineCache,
+        createShaderModule,
+        invalidateShaderModuleCache,
         generatePlaneVertices,
         generateSphereVertices,
         computeTriangleListNormals,
@@ -34,7 +38,7 @@
         generateLineListIndices,
         generateTriangleListIndices,
         InputControlType,
-        InputDeviceType
+        InputDeviceType,
     } from 'voyd';
 
     const gpuContext = getGPUContext();
@@ -96,7 +100,7 @@
         .addComponent(camera)
         .addComponent(zoomController);
     
-    const renderShader = gpuContext.device.createShaderModule({
+    const renderShader = createShaderModule(gpuContext.device, {
         code: `
             struct VertexStageInput {
                 @location(0) vertex_position : vec3f,
@@ -181,7 +185,7 @@
         bindGroupLayouts: [renderBindGroupLayout]
     });
 
-    const renderPipeline = gpuContext.device.createRenderPipeline({
+    const renderPipeline = createRenderPipeline(gpuContext.device, {
         layout: renderPipelineLayout,
         vertex: {
             module: renderShader,
@@ -334,6 +338,9 @@
 
     onDestroy(() => {
         InputManager.unregisterAllDevices();
+
+        invalidatePipelineCache();
+        invalidateShaderModuleCache();
 
         cancelAnimationFrame(rafId);
     });
